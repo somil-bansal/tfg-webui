@@ -27,9 +27,6 @@ from apps.litellm.main import (
     shutdown_litellm_background,
 )
 
-
-from apps.audio.main import app as audio_app
-from apps.images.main import app as images_app
 from apps.rag.main import app as rag_app
 from apps.web.main import app as webui_app
 
@@ -250,8 +247,6 @@ app.mount("/litellm/api", litellm_app)
 app.mount("/ollama", ollama_app)
 app.mount("/openai/api", openai_app)
 
-app.mount("/images/api/v1", images_app)
-app.mount("/audio/api/v1", audio_app)
 app.mount("/rag/api/v1", rag_app)
 
 app.mount("/api/v1", webui_app)
@@ -274,7 +269,6 @@ async def get_app_config():
         "version": VERSION,
         "auth": WEBUI_AUTH,
         "default_locale": default_locale,
-        "images": images_app.state.config.ENABLED,
         "default_models": webui_app.state.config.DEFAULT_MODELS,
         "default_prompt_suggestions": webui_app.state.config.DEFAULT_PROMPT_SUGGESTIONS,
         "trusted_header_auth": bool(webui_app.state.AUTH_TRUSTED_EMAIL_HEADER),

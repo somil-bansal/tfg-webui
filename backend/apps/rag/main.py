@@ -29,7 +29,6 @@ from langchain_community.document_loaders import (
     UnstructuredRSTLoader,
     UnstructuredExcelLoader,
     UnstructuredPowerPointLoader,
-    YoutubeLoader,
 )
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
@@ -94,7 +93,6 @@ from config import (
     CHUNK_OVERLAP,
     RAG_TEMPLATE,
     ENABLE_RAG_LOCAL_WEB_FETCH,
-    YOUTUBE_LOADER_LANGUAGE,
     AppConfig,
 )
 
@@ -128,10 +126,6 @@ app.state.config.OPENAI_API_BASE_URL = RAG_OPENAI_API_BASE_URL
 app.state.config.OPENAI_API_KEY = RAG_OPENAI_API_KEY
 
 app.state.config.PDF_EXTRACT_IMAGES = PDF_EXTRACT_IMAGES
-
-
-app.state.config.YOUTUBE_LOADER_LANGUAGE = YOUTUBE_LOADER_LANGUAGE
-app.state.YOUTUBE_LOADER_TRANSLATION = None
 
 
 def update_embedding_model(
@@ -326,11 +320,7 @@ async def get_rag_config(user=Depends(get_admin_user)):
             "chunk_size": app.state.config.CHUNK_SIZE,
             "chunk_overlap": app.state.config.CHUNK_OVERLAP,
         },
-        "web_loader_ssl_verification": app.state.config.ENABLE_RAG_WEB_LOADER_SSL_VERIFICATION,
-        "youtube": {
-            "language": app.state.config.YOUTUBE_LOADER_LANGUAGE,
-            "translation": app.state.YOUTUBE_LOADER_TRANSLATION,
-        },
+        "web_loader_ssl_verification": app.state.config.ENABLE_RAG_WEB_LOADER_SSL_VERIFICATION
     }
 
 
@@ -339,16 +329,10 @@ class ChunkParamUpdateForm(BaseModel):
     chunk_overlap: int
 
 
-class YoutubeLoaderConfig(BaseModel):
-    language: List[str]
-    translation: Optional[str] = None
-
-
 class ConfigUpdateForm(BaseModel):
     pdf_extract_images: Optional[bool] = None
     chunk: Optional[ChunkParamUpdateForm] = None
     web_loader_ssl_verification: Optional[bool] = None
-    youtube: Optional[YoutubeLoaderConfig] = None
 
 
 @app.post("/config/update")
@@ -377,18 +361,6 @@ async def update_rag_config(form_data: ConfigUpdateForm, user=Depends(get_admin_
         else app.state.config.ENABLE_RAG_WEB_LOADER_SSL_VERIFICATION
     )
 
-    app.state.config.YOUTUBE_LOADER_LANGUAGE = (
-        form_data.youtube.language
-        if form_data.youtube is not None
-        else app.state.config.YOUTUBE_LOADER_LANGUAGE
-    )
-
-    app.state.YOUTUBE_LOADER_TRANSLATION = (
-        form_data.youtube.translation
-        if form_data.youtube is not None
-        else app.state.YOUTUBE_LOADER_TRANSLATION
-    )
-
     return {
         "status": True,
         "pdf_extract_images": app.state.config.PDF_EXTRACT_IMAGES,
@@ -397,10 +369,6 @@ async def update_rag_config(form_data: ConfigUpdateForm, user=Depends(get_admin_
             "chunk_overlap": app.state.config.CHUNK_OVERLAP,
         },
         "web_loader_ssl_verification": app.state.config.ENABLE_RAG_WEB_LOADER_SSL_VERIFICATION,
-        "youtube": {
-            "language": app.state.config.YOUTUBE_LOADER_LANGUAGE,
-            "translation": app.state.YOUTUBE_LOADER_TRANSLATION,
-        },
     }
 
 
@@ -524,35 +492,6 @@ def query_collection_handler(
                 k=form_data.k if form_data.k else app.state.config.TOP_K,
             )
 
-    except Exception as e:
-        log.exception(e)
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=ERROR_MESSAGES.DEFAULT(e),
-        )
-
-
-@app.post("/youtube")
-def store_youtube_video(form_data: UrlForm, user=Depends(get_current_user)):
-    try:
-        loader = YoutubeLoader.from_youtube_url(
-            form_data.url,
-            add_video_info=True,
-            language=app.state.config.YOUTUBE_LOADER_LANGUAGE,
-            translation=app.state.YOUTUBE_LOADER_TRANSLATION,
-        )
-        data = loader.load()
-
-        collection_name = form_data.collection_name
-        if collection_name == "":
-            collection_name = calculate_sha256_string(form_data.url)[:63]
-
-        store_data_in_vector_db(data, collection_name, overwrite=True)
-        return {
-            "status": True,
-            "collection_name": collection_name,
-            "filename": form_data.url,
-        }
     except Exception as e:
         log.exception(e)
         raise HTTPException(

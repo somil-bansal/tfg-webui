@@ -76,9 +76,6 @@ type OllamaModelDetails = {
 type Settings = {
 	models?: string[];
 	conversationMode?: boolean;
-	speechAutoSend?: boolean;
-	responseAutoPlayback?: boolean;
-	audio?: AudioSettings;
 	showUsername?: boolean;
 	saveChatHistory?: boolean;
 	notificationEnabled?: boolean;
@@ -100,13 +97,6 @@ type Settings = {
 
 type ModelOptions = {
 	stop?: boolean;
-};
-
-type AudioSettings = {
-	STTEngine?: string;
-	TTSEngine?: string;
-	speaker?: string;
-	model?: string;
 };
 
 type TitleSettings = {

@@ -15,8 +15,6 @@
 	const dispatch = createEventDispatcher();
 
 	import { config, settings } from '$lib/stores';
-	import { synthesizeOpenAISpeech } from '$lib/apis/audio';
-	import { imageGenerations } from '$lib/apis/images';
 	import {
 		approximateToHumanReadable,
 		extractSentences,
@@ -57,7 +55,6 @@
 	let editTextAreaElement: HTMLTextAreaElement;
 	let tooltipInstance = null;
 
-	let sentencesAudio = {};
 	let speaking = null;
 	let speakingIdx = null;
 
@@ -160,118 +157,6 @@
 		}
 	};
 
-	const playAudio = (idx) => {
-		return new Promise((res) => {
-			speakingIdx = idx;
-			const audio = sentencesAudio[idx];
-			audio.play();
-			audio.onended = async (e) => {
-				await new Promise((r) => setTimeout(r, 300));
-
-				if (Object.keys(sentencesAudio).length - 1 === idx) {
-					speaking = null;
-
-					if ($settings.conversationMode) {
-						document.getElementById('voice-input-button')?.click();
-					}
-				}
-
-				res(e);
-			};
-		});
-	};
-
-	const toggleSpeakMessage = async () => {
-		if (speaking) {
-			try {
-				speechSynthesis.cancel();
-
-				sentencesAudio[speakingIdx].pause();
-				sentencesAudio[speakingIdx].currentTime = 0;
-			} catch {}
-
-			speaking = null;
-			speakingIdx = null;
-		} else {
-			speaking = true;
-
-			if ($settings?.audio?.TTSEngine === 'openai') {
-				loadingSpeech = true;
-
-				const sentences = extractSentences(message.content).reduce((mergedTexts, currentText) => {
-					const lastIndex = mergedTexts.length - 1;
-					if (lastIndex >= 0) {
-						const previousText = mergedTexts[lastIndex];
-						const wordCount = previousText.split(/\s+/).length;
-						if (wordCount < 2) {
-							mergedTexts[lastIndex] = previousText + ' ' + currentText;
-						} else {
-							mergedTexts.push(currentText);
-						}
-					} else {
-						mergedTexts.push(currentText);
-					}
-					return mergedTexts;
-				}, []);
-
-				console.log(sentences);
-
-				sentencesAudio = sentences.reduce((a, e, i, arr) => {
-					a[i] = null;
-					return a;
-				}, {});
-
-				let lastPlayedAudioPromise = Promise.resolve(); // Initialize a promise that resolves immediately
-
-				for (const [idx, sentence] of sentences.entries()) {
-					const res = await synthesizeOpenAISpeech(
-						localStorage.token,
-						$settings?.audio?.speaker,
-						sentence,
-						$settings?.audio?.model
-					).catch((error) => {
-						toast.error(error);
-
-						speaking = null;
-						loadingSpeech = false;
-
-						return null;
-					});
-
-					if (res) {
-						const blob = await res.blob();
-						const blobUrl = URL.createObjectURL(blob);
-						const audio = new Audio(blobUrl);
-						sentencesAudio[idx] = audio;
-						loadingSpeech = false;
-						lastPlayedAudioPromise = lastPlayedAudioPromise.then(() => playAudio(idx));
-					}
-				}
-			} else {
-				let voices = [];
-				const getVoicesLoop = setInterval(async () => {
-					voices = await speechSynthesis.getVoices();
-					if (voices.length > 0) {
-						clearInterval(getVoicesLoop);
-
-						const voice =
-							voices?.filter((v) => v.name === $settings?.audio?.speaker)?.at(0) ?? undefined;
-
-						const speak = new SpeechSynthesisUtterance(message.content);
-
-						speak.onend = () => {
-							speaking = null;
-							if ($settings.conversationMode) {
-								document.getElementById('voice-input-button')?.click();
-							}
-						};
-						speak.voice = voice;
-						speechSynthesis.speak(speak);
-					}
-				}, 100);
-			}
-		}
-	};
 
 	const editMessageHandler = async () => {
 		edit = true;
@@ -297,31 +182,6 @@
 		renderStyling();
 	};
 
-	const cancelEditMessage = async () => {
-		edit = false;
-		editedContent = '';
-		await tick();
-		renderStyling();
-	};
-
-	const generateImage = async (message) => {
-		generatingImage = true;
-		const res = await imageGenerations(localStorage.token, message.content).catch((error) => {
-			toast.error(error);
-		});
-		console.log(res);
-
-		if (res) {
-			message.files = res.map((image) => ({
-				type: 'image',
-				url: `${image.url}`
-			}));
-
-			dispatch('save', message);
-		}
-
-		generatingImage = false;
-	};
 
 	onMount(async () => {
 		await tick();
@@ -687,73 +547,6 @@
 												{/if}
 											</button>
 										</Tooltip>
-
-										{#if $config.images && !readOnly}
-											<Tooltip content="Generate Image" placement="bottom">
-												<button
-													class="{isLastMessage
-														? 'visible'
-														: 'invisible group-hover:visible'}  p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition"
-													on:click={() => {
-														if (!generatingImage) {
-															generateImage(message);
-														}
-													}}
-												>
-													{#if generatingImage}
-														<svg
-															class=" w-4 h-4"
-															fill="currentColor"
-															viewBox="0 0 24 24"
-															xmlns="http://www.w3.org/2000/svg"
-															><style>
-																.spinner_S1WN {
-																	animation: spinner_MGfb 0.8s linear infinite;
-																	animation-delay: -0.8s;
-																}
-																.spinner_Km9P {
-																	animation-delay: -0.65s;
-																}
-																.spinner_JApP {
-																	animation-delay: -0.5s;
-																}
-																@keyframes spinner_MGfb {
-																	93.75%,
-																	100% {
-																		opacity: 0.2;
-																	}
-																}
-															</style><circle class="spinner_S1WN" cx="4" cy="12" r="3" /><circle
-																class="spinner_S1WN spinner_Km9P"
-																cx="12"
-																cy="12"
-																r="3"
-															/><circle
-																class="spinner_S1WN spinner_JApP"
-																cx="20"
-																cy="12"
-																r="3"
-															/></svg
-														>
-													{:else}
-														<svg
-															xmlns="http://www.w3.org/2000/svg"
-															fill="none"
-															viewBox="0 0 24 24"
-															stroke-width="2.3"
-															stroke="currentColor"
-															class="w-4 h-4"
-														>
-															<path
-																stroke-linecap="round"
-																stroke-linejoin="round"
-																d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
-															/>
-														</svg>
-													{/if}
-												</button>
-											</Tooltip>
-										{/if}
 
 										{#if message.info}
 											<Tooltip content={$i18n.t('Generation Info')} placement="bottom">

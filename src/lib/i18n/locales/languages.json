@@ -8,56 +8,8 @@
 		"title": "English (GB)"
 	},
 	{
-		"code": "ar-BH",
-		"title": "العربية (AR)"
-	},
-	{
-		"code": "bg-BG",
-		"title": "Bulgarian (BG)"
-	},
-	{
-		"code": "bn-BD",
-		"title": "Bangla (বাংলা)"
-	},
-	{
-		"code": "ca-ES",
-		"title": "Catalan"
-	},
-	{
-		"code": "de-DE",
-		"title": "Deutsch"
-	},
-	{
-		"code": "es-ES",
-		"title": "Spanish"
-	},
-	{
-		"code": "fa-IR",
-		"title": "فارسی (Farsi)"
-	},
-	{
-		"code": "fi-FI",
-		"title": "Finnish"
-	},
-	{
 		"code": "fr-CA",
 		"title": "French (Canada)"
-	},
-	{
-		"code": "fr-FR",
-		"title": "French (France)"
-	},
-	{
-		"code": "he-IL",
-		"title": "עברית (Hebrew)"
-	},
-	{
-		"code": "hi-IN",
-		"title": "Hindi (हिंदी)"
-	},
-	{
-		"code": "hr-HR",
-		"title": "Croatian"
 	},
 	{
 		"code": "it-IT",
@@ -66,69 +18,5 @@
 	{
 		"code": "ja-JP",
 		"title": "Japanese"
-	},
-	{
-		"code": "ka-GE",
-		"title": "Georgian"
-	},
-	{
-		"code": "ko-KR",
-		"title": "Korean"
-	},
-	{
-		"code": "nl-NL",
-		"title": "Dutch (Netherlands)"
-	},
-	{
-		"code": "pa-IN",
-		"title": "Punjabi (India)"
-	},
-	{
-		"code": "pl-PL",
-		"title": "Polish"
-	},
-	{
-		"code": "pt-BR",
-		"title": "Portuguese (Brazil)"
-	},
-	{
-		"code": "pt-PT",
-		"title": "Portuguese (Portugal)"
-	},
-	{
-		"code": "ru-RU",
-		"title": "Russian (Russia)"
-	},
-	{
-		"code": "sv-SE",
-		"title": "Swedish"
-	},
-	{
-		"code": "sr-RS",
-		"title": "Serbian (Српски)"
-	},
-	{
-		"code": "tr-TR",
-		"title": "Turkish"
-	},
-	{
-		"code": "uk-UA",
-		"title": "Ukrainian"
-	},
-	{
-		"code": "vi-VN",
-		"title": "Tiếng Việt"
-	},
-	{
-		"code": "zh-CN",
-		"title": "Chinese (Simplified)"
-	},
-	{
-		"code": "zh-TW",
-		"title": "Chinese (Traditional)"
-	},
-	{
-		"code": "dg-DG",
-		"title": "Doge 🐶"
 	}
 ]

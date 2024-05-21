@@ -48,20 +48,8 @@ describe('Settings', () => {
 		});
 	});
 
-	context('Audio', () => {
-		it('user can open the Audio modal and hit save', () => {
-			cy.get('button').contains('Audio').click();
-			cy.get('button').contains('Save').click();
-		});
-	});
 
-	context('Images', () => {
-		it('user can open the Images modal and hit save', () => {
-			cy.get('button').contains('Images').click();
-			// Currently fails because the backend requires a valid URL
-			// cy.get('button').contains('Save').click();
-		});
-	});
+
 
 	context('Chats', () => {
 		it('user can open the Chats modal', () => {

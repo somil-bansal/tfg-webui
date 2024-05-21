@@ -11,16 +11,10 @@
 
 	let webLoaderSSLVerification = true;
 
-	let youtubeLanguage = 'en';
-	let youtubeTranslation = null;
 
 	const submitHandler = async () => {
 		const res = await updateRAGConfig(localStorage.token, {
 			web_loader_ssl_verification: webLoaderSSLVerification,
-			youtube: {
-				language: youtubeLanguage.split(',').map((lang) => lang.trim()),
-				translation: youtubeTranslation
-			}
 		});
 	};
 
@@ -29,8 +23,6 @@
 
 		if (res) {
 			webLoaderSSLVerification = res.web_loader_ssl_verification;
-			youtubeLanguage = res.youtube.language.join(',');
-			youtubeTranslation = res.youtube.translation;
 		}
 	});
 </script>
@@ -68,25 +60,6 @@
 							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
 						{/if}
 					</button>
-				</div>
-			</div>
-
-			<div class=" mt-2 mb-1 text-sm font-medium">
-				{$i18n.t('Youtube Loader Settings')}
-			</div>
-
-			<div>
-				<div class=" py-0.5 flex w-full justify-between">
-					<div class=" w-20 text-xs font-medium self-center">{$i18n.t('Language')}</div>
-					<div class=" flex-1 self-center">
-						<input
-							class="w-full rounded-lg py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-850 outline-none"
-							type="text"
-							placeholder={$i18n.t('Enter language codes')}
-							bind:value={youtubeLanguage}
-							autocomplete="off"
-						/>
-					</div>
 				</div>
 			</div>
 		</div>

@@ -88,16 +88,6 @@
 		await tick();
 	};
 
-	const confirmSelectYoutube = async (url) => {
-		dispatch('youtube', url);
-
-		prompt = removeFirstHashWord(prompt);
-		const chatInputElement = document.getElementById('chat-textarea');
-
-		await tick();
-		chatInputElement?.focus();
-		await tick();
-	};
 </script>
 
 {#if filteredItems.length > 0 || prompt.split(' ')?.at(0)?.substring(1).startsWith('http')}
@@ -143,34 +133,7 @@
 						</button>
 					{/each}
 
-					{#if prompt
-						.split(' ')
-						.some((s) => s.substring(1).startsWith('https://www.youtube.com') || s
-									.substring(1)
-									.startsWith('https://youtu.be'))}
-						<button
-							class="px-3 py-1.5 rounded-xl w-full text-left bg-gray-100 selected-command-option-button"
-							type="button"
-							on:click={() => {
-								const url = prompt.split(' ')?.at(0)?.substring(1);
-								if (isValidHttpUrl(url)) {
-									confirmSelectYoutube(url);
-								} else {
-									toast.error(
-										$i18n.t(
-											'Oops! Looks like the URL is invalid. Please double-check and try again.'
-										)
-									);
-								}
-							}}
-						>
-							<div class=" font-medium text-black line-clamp-1">
-								{prompt.split(' ')?.at(0)?.substring(1)}
-							</div>
-
-							<div class=" text-xs text-gray-600 line-clamp-1">{$i18n.t('Youtube')}</div>
-						</button>
-					{:else if prompt.split(' ')?.at(0)?.substring(1).startsWith('http')}
+					{#if prompt.split(' ')?.at(0)?.substring(1).startsWith('http')}
 						<button
 							class="px-3 py-1.5 rounded-xl w-full text-left bg-gray-100 selected-command-option-button"
 							type="button"
