@@ -26,7 +26,7 @@ export const getBackendConfig = async () => {
 	return res;
 };
 
-export const getChangelog = async () => {
+/*export const getChangelog = async () => {
 	let error = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/changelog`, {
@@ -50,9 +50,9 @@ export const getChangelog = async () => {
 	}
 
 	return res;
-};
+};*/
 
-export const getVersionUpdates = async () => {
+/*export const getVersionUpdates = async () => {
 	let error = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/version/updates`, {
@@ -76,7 +76,7 @@ export const getVersionUpdates = async () => {
 	}
 
 	return res;
-};
+};*/
 
 export const getModelFilterConfig = async (token: string) => {
 	let error = null;
