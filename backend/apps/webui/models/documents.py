@@ -5,8 +5,6 @@ from typing import List, Union, Optional
 import time
 import logging
 
-from utils.utils import decode_token
-from utils.misc import get_gravatar_url
 
 from apps.webui.internal.db import DB
 

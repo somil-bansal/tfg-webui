@@ -1,10 +1,21 @@
 from peewee import *
+import json
+
 from peewee_migrate import Router
 from config import SRC_LOG_LEVELS, BACKEND_DIR
 import logging
 
 log = logging.getLogger(__name__)
 log.setLevel(SRC_LOG_LEVELS["DB"])
+
+
+class JSONField(TextField):
+    def db_value(self, value):
+        return json.dumps(value)
+
+    def python_value(self, value):
+        if value is not None:
+            return json.loads(value)
 
 
 DB = PostgresqlDatabase(
