@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
 	import { onMount, tick, getContext } from 'svelte';
-	import { mobile, modelfiles, settings, showSidebar } from '$lib/stores';
+	import { type Model, mobile, settings, showSidebar, models, config } from '$lib/stores';
 	import { blobToFile, calculateSHA256, findWordIndices } from '$lib/utils';
 
 	import {
@@ -17,6 +17,8 @@
 	import Models from './MessageInput/Models.svelte';
 	import Tooltip from '../common/Tooltip.svelte';
 	import XMark from '$lib/components/icons/XMark.svelte';
+	import InputMenu from './MessageInput/InputMenu.svelte';
+	import { t } from 'i18next';
 
 	const i18n = getContext('i18n');
 
@@ -24,7 +26,9 @@
 	export let stopResponse: Function;
 
 	export let autoScroll = true;
-	export let selectedModel = '';
+
+	export let atSelectedModel: Model | undefined;
+	export let selectedModels: [''];
 
 	let chatTextAreaElement: HTMLTextAreaElement;
 	let filesInputElement;
@@ -41,13 +45,18 @@
 
 	export let files = [];
 
-	export let fileUploadEnabled = true;
 	export let speechRecognitionEnabled = true;
+	export let webSearchEnabled = false;
 
 	export let prompt = '';
 	export let messages = [];
 
 	let speechRecognition;
+
+	let visionCapableModels = [];
+	$: visionCapableModels = [...(atSelectedModel ? [atSelectedModel] : selectedModels)].filter(
+		(model) => $models.find((m) => m.id === model)?.info?.meta?.capabilities?.vision ?? true
+	);
 
 	$: if (prompt) {
 		if (chatTextAreaElement) {
@@ -327,6 +336,10 @@
 					inputFiles.forEach((file) => {
 						console.log(file, file.name.split('.').at(-1));
 						if (['image/gif', 'image/webp', 'image/jpeg', 'image/png'].includes(file['type'])) {
+							if (visionCapableModels.length === 0) {
+								toast.error($i18n.t('Selected model(s) do not support image inputs'));
+								return;
+							}
 							let reader = new FileReader();
 							reader.onload = (event) => {
 								files = [
@@ -398,8 +411,8 @@
 
 <div class="fixed bottom-0 {$showSidebar ? 'left-0 md:left-[260px]' : 'left-0'} right-0">
 	<div class="w-full">
-		<div class="px-2.5 md:px-16 -mb-0.5 mx-auto inset-x-0 bg-transparent flex justify-center">
-			<div class="flex flex-col max-w-5xl w-full">
+		<div class=" -mb-0.5 mx-auto inset-x-0 bg-transparent flex justify-center">
+			<div class="flex flex-col max-w-6xl px-2.5 md:px-6 w-full">
 				<div class="relative">
 					{#if autoScroll === false && messages.length > 0}
 						<div class=" absolute -top-12 left-0 right-0 flex justify-center z-30">
@@ -459,12 +472,12 @@
 						bind:chatInputPlaceholder
 						{messages}
 						on:select={(e) => {
-							selectedModel = e.detail;
+							atSelectedModel = e.detail;
 							chatTextAreaElement?.focus();
 						}}
 					/>
 
-					{#if selectedModel !== ''}
+					{#if atSelectedModel !== undefined}
 						<div
 							class="px-3 py-2.5 text-left w-full flex justify-between items-center absolute bottom-0 left-0 right-0 bg-gradient-to-t from-50% from-white dark:from-gray-900"
 						>
@@ -473,21 +486,21 @@
 									crossorigin="anonymous"
 									alt="model profile"
 									class="size-5 max-w-[28px] object-cover rounded-full"
-									src={$modelfiles.find((modelfile) => modelfile.tagName === selectedModel.id)
-										?.imageUrl ??
+									src={$models.find((model) => model.id === atSelectedModel.id)?.info?.meta
+										?.profile_image_url ??
 										($i18n.language === 'dg-DG'
 											? `/doge.png`
 											: `${WEBUI_BASE_URL}/static/favicon.png`)}
 								/>
 								<div>
-									Talking to <span class=" font-medium">{selectedModel.name} </span>
+									Talking to <span class=" font-medium">{atSelectedModel.name}</span>
 								</div>
 							</div>
 							<div>
 								<button
 									class="flex items-center"
 									on:click={() => {
-										selectedModel = '';
+										atSelectedModel = undefined;
 									}}
 								>
 									<XMark />
@@ -500,7 +513,7 @@
 		</div>
 
 		<div class="bg-white dark:bg-gray-900">
-			<div class="max-w-6xl px-2.5 md:px-16 mx-auto inset-x-0">
+			<div class="max-w-6xl px-2.5 md:px-6 mx-auto inset-x-0">
 				<div class=" pb-2">
 					<input
 						bind:this={filesInputElement}
@@ -515,6 +528,12 @@
 									if (
 										['image/gif', 'image/webp', 'image/jpeg', 'image/png'].includes(file['type'])
 									) {
+										if (visionCapableModels.length === 0) {
+											toast.error($i18n.t('Selected model(s) do not support image inputs'));
+											inputFiles = null;
+											filesInputElement.value = '';
+											return;
+										}
 										let reader = new FileReader();
 										reader.onload = (event) => {
 											files = [
@@ -554,6 +573,7 @@
 						dir={$settings?.chatDirection ?? 'LTR'}
 						class=" flex flex-col relative w-full rounded-3xl px-1.5 bg-gray-50 dark:bg-gray-850 dark:text-gray-100"
 						on:submit|preventDefault={() => {
+							// check if selectedModels support image input
 							submitPrompt(prompt, user);
 						}}
 					>
@@ -562,7 +582,36 @@
 								{#each files as file, fileIdx}
 									<div class=" relative group">
 										{#if file.type === 'image'}
-											<img src={file.url} alt="input" class=" h-16 w-16 rounded-xl object-cover" />
+											<div class="relative">
+												<img
+													src={file.url}
+													alt="input"
+													class=" h-16 w-16 rounded-xl object-cover"
+												/>
+												{#if atSelectedModel ? visionCapableModels.length === 0 : selectedModels.length !== visionCapableModels.length}
+													<Tooltip
+														className=" absolute top-1 left-1"
+														content={$i18n.t('{{ models }}', {
+															models: [...(atSelectedModel ? [atSelectedModel] : selectedModels)]
+																.filter((id) => !visionCapableModels.includes(id))
+																.join(', ')
+														})}
+													>
+														<svg
+															xmlns="http://www.w3.org/2000/svg"
+															viewBox="0 0 24 24"
+															fill="currentColor"
+															class="size-4 fill-yellow-300"
+														>
+															<path
+																fill-rule="evenodd"
+																d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"
+																clip-rule="evenodd"
+															/>
+														</svg>
+													</Tooltip>
+												{/if}
+											</div>
 										{:else if file.type === 'doc'}
 											<div
 												class="h-16 w-[15rem] flex items-center space-x-3 px-2.5 dark:bg-gray-600 rounded-xl border border-gray-200 dark:border-none"
@@ -694,37 +743,39 @@
 						{/if}
 
 						<div class=" flex">
-							{#if fileUploadEnabled}
-								<div class=" self-end mb-2 ml-1">
-									<Tooltip content={$i18n.t('Upload files')}>
-										<button
-											class="bg-gray-50 hover:bg-gray-100 text-gray-800 dark:bg-gray-850 dark:text-white dark:hover:bg-gray-800 transition rounded-full p-1.5"
-											type="button"
-											on:click={() => {
-												filesInputElement.click();
-											}}
+							<div class=" ml-1 flex items-center">
+								<InputMenu
+									bind:webSearchEnabled
+									uploadFilesHandler={() => {
+										filesInputElement.click();
+									}}
+									onClose={async () => {
+										await tick();
+										chatTextAreaElement?.focus();
+									}}
+								>
+									<button
+										class="bg-gray-50 hover:bg-gray-100 text-gray-800 dark:bg-gray-850 dark:text-white dark:hover:bg-gray-800 transition rounded-full p-1.5 outline-none focus:outline-none"
+										type="button"
+									>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											viewBox="0 0 16 16"
+											fill="currentColor"
+											class="size-5"
 										>
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												viewBox="0 0 16 16"
-												fill="currentColor"
-												class="w-[1.2rem] h-[1.2rem]"
-											>
-												<path
-													d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z"
-												/>
-											</svg>
-										</button>
-									</Tooltip>
-								</div>
-							{/if}
+											<path
+												d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z"
+											/>
+										</svg>
+									</button>
+								</InputMenu>
+							</div>
 
 							<textarea
 								id="chat-textarea"
 								bind:this={chatTextAreaElement}
-								class="scrollbar-hidden bg-gray-50 dark:bg-gray-850 dark:text-gray-100 outline-none w-full py-3 px-3 {fileUploadEnabled
-									? ''
-									: ' pl-4'} rounded-xl resize-none h-[48px]"
+								class="scrollbar-hidden bg-gray-50 dark:bg-gray-850 dark:text-gray-100 outline-none w-full py-3 px-3 rounded-xl resize-none h-[48px]"
 								placeholder={chatInputPlaceholder !== ''
 									? chatInputPlaceholder
 									: isRecording
@@ -848,7 +899,7 @@
 
 									if (e.key === 'Escape') {
 										console.log('Escape');
-										selectedModel = '';
+										atSelectedModel = undefined;
 									}
 								}}
 								rows="1"
