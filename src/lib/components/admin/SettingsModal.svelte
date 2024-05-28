@@ -1,12 +1,10 @@
 <script>
 	import { getContext } from 'svelte';
 	import Modal from '../common/Modal.svelte';
-	import Database from './Settings/Database.svelte';
 
 	import General from './Settings/General.svelte';
 	import Users from './Settings/Users.svelte';
 
-	import Banners from '$lib/components/admin/Settings/Banners.svelte';
 	import { toast } from 'svelte-sonner';
 
 	const i18n = getContext('i18n');
@@ -92,63 +90,6 @@
 					</div>
 					<div class=" self-center">{$i18n.t('Users')}</div>
 				</button>
-
-				<button
-					class="px-2.5 py-2.5 min-w-fit rounded-lg flex-1 md:flex-none flex text-right transition {selectedTab ===
-					'db'
-						? 'bg-gray-200 dark:bg-gray-700'
-						: ' hover:bg-gray-300 dark:hover:bg-gray-800'}"
-					on:click={() => {
-						selectedTab = 'db';
-					}}
-				>
-					<div class=" self-center mr-2">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 16 16"
-							fill="currentColor"
-							class="w-4 h-4"
-						>
-							<path d="M8 7c3.314 0 6-1.343 6-3s-2.686-3-6-3-6 1.343-6 3 2.686 3 6 3Z" />
-							<path
-								d="M8 8.5c1.84 0 3.579-.37 4.914-1.037A6.33 6.33 0 0 0 14 6.78V8c0 1.657-2.686 3-6 3S2 9.657 2 8V6.78c.346.273.72.5 1.087.683C4.42 8.131 6.16 8.5 8 8.5Z"
-							/>
-							<path
-								d="M8 12.5c1.84 0 3.579-.37 4.914-1.037.366-.183.74-.41 1.086-.684V12c0 1.657-2.686 3-6 3s-6-1.343-6-3v-1.22c.346.273.72.5 1.087.683C4.42 12.131 6.16 12.5 8 12.5Z"
-							/>
-						</svg>
-					</div>
-					<div class=" self-center">{$i18n.t('Database')}</div>
-				</button>
-
-				<button
-					class="px-2.5 py-2.5 min-w-fit rounded-lg flex-1 md:flex-none flex text-right transition {selectedTab ===
-					'banners'
-						? 'bg-gray-200 dark:bg-gray-700'
-						: ' hover:bg-gray-300 dark:hover:bg-gray-800'}"
-					on:click={() => {
-						selectedTab = 'banners';
-					}}
-				>
-					<div class=" self-center mr-2">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 24 24"
-							fill="currentColor"
-							class="size-4"
-						>
-							<path
-								d="M5.85 3.5a.75.75 0 0 0-1.117-1 9.719 9.719 0 0 0-2.348 4.876.75.75 0 0 0 1.479.248A8.219 8.219 0 0 1 5.85 3.5ZM19.267 2.5a.75.75 0 1 0-1.118 1 8.22 8.22 0 0 1 1.987 4.124.75.75 0 0 0 1.48-.248A9.72 9.72 0 0 0 19.266 2.5Z"
-							/>
-							<path
-								fill-rule="evenodd"
-								d="M12 2.25A6.75 6.75 0 0 0 5.25 9v.75a8.217 8.217 0 0 1-2.119 5.52.75.75 0 0 0 .298 1.206c1.544.57 3.16.99 4.831 1.243a3.75 3.75 0 1 0 7.48 0 24.583 24.583 0 0 0 4.83-1.244.75.75 0 0 0 .298-1.205 8.217 8.217 0 0 1-2.118-5.52V9A6.75 6.75 0 0 0 12 2.25ZM9.75 18c0-.034 0-.067.002-.1a25.05 25.05 0 0 0 4.496 0l.002.1a2.25 2.25 0 1 1-4.5 0Z"
-								clip-rule="evenodd"
-							/>
-						</svg>
-					</div>
-					<div class=" self-center">{$i18n.t('Banners')}</div>
-				</button>
 			</div>
 			<div class="flex-1 md:min-h-[380px]">
 				{#if selectedTab === 'general'}
@@ -160,20 +101,6 @@
 					/>
 				{:else if selectedTab === 'users'}
 					<Users
-						saveHandler={() => {
-							show = false;
-							toast.success($i18n.t('Settings saved successfully!'));
-						}}
-					/>
-				{:else if selectedTab === 'db'}
-					<Database
-						saveHandler={() => {
-							show = false;
-							toast.success($i18n.t('Settings saved successfully!'));
-						}}
-					/>
-				{:else if selectedTab === 'banners'}
-					<Banners
 						saveHandler={() => {
 							show = false;
 							toast.success($i18n.t('Settings saved successfully!'));

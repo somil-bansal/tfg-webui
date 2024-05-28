@@ -1,29 +1,12 @@
-from fastapi import APIRouter, UploadFile, File, Response
-from fastapi import Depends, HTTPException, status
-from peewee import SqliteDatabase
-from starlette.responses import StreamingResponse, FileResponse
-from pydantic import BaseModel
-
-
-from fpdf import FPDF
-import markdown
-
-from apps.webui.internal.db import DB
-from utils.utils import get_admin_user
-from utils.misc import calculate_sha256, get_gravatar_url
-
-from config import OLLAMA_BASE_URLS, DATA_DIR, UPLOAD_DIR, ENABLE_ADMIN_EXPORT
-from constants import ERROR_MESSAGES
 from typing import List
+
+import markdown
+from fastapi import APIRouter, Response
+from fpdf import FPDF
+from pydantic import BaseModel
 
 router = APIRouter()
 
-
-@router.get("/gravatar")
-async def get_gravatar(
-    email: str,
-):
-    return get_gravatar_url(email)
 
 
 class MarkdownForm(BaseModel):
@@ -89,21 +72,3 @@ async def download_chat_as_pdf(
         headers={"Content-Disposition": f"attachment;filename=chat.pdf"},
     )
 
-
-@router.get("/db/download")
-async def download_db(user=Depends(get_admin_user)):
-    if not ENABLE_ADMIN_EXPORT:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=ERROR_MESSAGES.ACCESS_PROHIBITED,
-        )
-    if not isinstance(DB, SqliteDatabase):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=ERROR_MESSAGES.DB_NOT_SQLITE,
-        )
-    return FileResponse(
-        DB.database,
-        media_type="application/octet-stream",
-        filename="webui.db",
-    )

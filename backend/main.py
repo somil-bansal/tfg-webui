@@ -79,21 +79,21 @@ class SPAStaticFiles(StaticFiles):
                 raise ex
 
 
-print(
-    rf"""
-  ___                    __        __   _     _   _ ___ 
- / _ \ _ __   ___ _ __   \ \      / /__| |__ | | | |_ _|
-| | | | '_ \ / _ \ '_ \   \ \ /\ / / _ \ '_ \| | | || | 
-| |_| | |_) |  __/ | | |   \ V  V /  __/ |_) | |_| || | 
- \___/| .__/ \___|_| |_|    \_/\_/ \___|_.__/ \___/|___|
-      |_|                                               
-
-      
-v{VERSION} - building the best open-source AI user interface.
-{f"Commit: {WEBUI_BUILD_HASH}" if WEBUI_BUILD_HASH != "dev-build" else ""}
-https://github.com/open-webui/open-webui
-"""
-)
+# print(
+#     rf"""
+#   ___                    __        __   _     _   _ ___
+#  / _ \ _ __   ___ _ __   \ \      / /__| |__ | | | |_ _|
+# | | | | '_ \ / _ \ '_ \   \ \ /\ / / _ \ '_ \| | | || |
+# | |_| | |_) |  __/ | | |   \ V  V /  __/ |_) | |_| || |
+#  \___/| .__/ \___|_| |_|    \_/\_/ \___|_.__/ \___/|___|
+#       |_|
+#
+#
+# v{VERSION} - building the best open-source AI user interface.
+# {f"Commit: {WEBUI_BUILD_HASH}" if WEBUI_BUILD_HASH != "dev-build" else ""}
+# https://github.com/open-webui/open-webui
+# """
+# )
 
 
 @asynccontextmanager
