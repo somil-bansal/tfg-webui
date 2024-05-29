@@ -16,8 +16,8 @@
 	let changelog = null;
 
 	onMount(async () => {
-		const res = await getChangelog();
-		changelog = res;
+		// const res = await getChangelog();
+		// changelog = res;
 	});
 </script>
 

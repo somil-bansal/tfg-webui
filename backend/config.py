@@ -69,13 +69,13 @@ for source in log_sources:
 
 log.setLevel(SRC_LOG_LEVELS["CONFIG"])
 
-WEBUI_NAME = os.environ.get("WEBUI_NAME", "Open WebUI")
-if WEBUI_NAME != "Open WebUI":
-    WEBUI_NAME += " (Open WebUI)"
+WEBUI_NAME = os.environ.get("WEBUI_NAME", "The Finance Genie")
+# if WEBUI_NAME != "The Finance Genie":
+#     WEBUI_NAME += " (The Finance Genie)"
 
 WEBUI_URL = os.environ.get("WEBUI_URL", "http://localhost:3000")
 
-WEBUI_FAVICON_URL = "https://openwebui.com/favicon.png"
+# WEBUI_FAVICON_URL = "https://openwebui.com/favicon.png"
 
 
 ####################################
@@ -291,28 +291,28 @@ else:
 
 CUSTOM_NAME = os.environ.get("CUSTOM_NAME", "")
 
-if CUSTOM_NAME:
-    try:
-        r = requests.get(f"https://api.openwebui.com/api/v1/custom/{CUSTOM_NAME}")
-        data = r.json()
-        if r.ok:
-            if "logo" in data:
-                WEBUI_FAVICON_URL = url = (
-                    f"https://api.openwebui.com{data['logo']}"
-                    if data["logo"][0] == "/"
-                    else data["logo"]
-                )
-
-                r = requests.get(url, stream=True)
-                if r.status_code == 200:
-                    with open(f"{STATIC_DIR}/favicon.png", "wb") as f:
-                        r.raw.decode_content = True
-                        shutil.copyfileobj(r.raw, f)
-
-            WEBUI_NAME = data["name"]
-    except Exception as e:
-        log.exception(e)
-        pass
+# if CUSTOM_NAME:
+#     try:
+#         r = requests.get(f"https://api.openwebui.com/api/v1/custom/{CUSTOM_NAME}")
+#         data = r.json()
+#         if r.ok:
+#             if "logo" in data:
+#                 WEBUI_FAVICON_URL = url = (
+#                     f"https://api.openwebui.com{data['logo']}"
+#                     if data["logo"][0] == "/"
+#                     else data["logo"]
+#                 )
+#
+#                 r = requests.get(url, stream=True)
+#                 if r.status_code == 200:
+#                     with open(f"{STATIC_DIR}/favicon.png", "wb") as f:
+#                         r.raw.decode_content = True
+#                         shutil.copyfileobj(r.raw, f)
+#
+#             WEBUI_NAME = data["name"]
+#     except Exception as e:
+#         log.exception(e)
+#         pass
 
 
 ####################################
@@ -394,7 +394,7 @@ if OLLAMA_BASE_URL == "" and OLLAMA_API_BASE_URL != "":
 if ENV == "prod":
     if OLLAMA_BASE_URL == "/ollama" and not K8S_FLAG:
         if USE_OLLAMA_DOCKER.lower() == "true":
-            # if you use all-in-one docker container (Open WebUI + Ollama)
+            # if you use all-in-one docker container (The Finance Genie + Ollama)
             # with the docker build arg USE_OLLAMA=true (--build-arg="USE_OLLAMA=true") this only works with http://localhost:11434
             OLLAMA_BASE_URL = "http://localhost:11434"
         else:
