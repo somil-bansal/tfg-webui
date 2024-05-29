@@ -41,7 +41,7 @@
 	let dragged = false;
 
 	let user = null;
-	let chatInputPlaceholder = '';
+	let chatInputPlaceholder = 'Send a message';
 
 	export let files = [];
 
@@ -51,7 +51,6 @@
 	export let prompt = '';
 	export let messages = [];
 
-	let speechRecognition;
 
 	let visionCapableModels = [];
 	$: visionCapableModels = [...(atSelectedModel ? [atSelectedModel] : selectedModels)].filter(
@@ -65,175 +64,12 @@
 		}
 	}
 
-	let mediaRecorder;
-	let audioChunks = [];
-	let isRecording = false;
-	const MIN_DECIBELS = -45;
 
 	const scrollToBottom = () => {
 		const element = document.getElementById('messages-container');
 		element.scrollTop = element.scrollHeight;
 	};
 
-	const startRecording = async () => {
-		const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-		mediaRecorder = new MediaRecorder(stream);
-		mediaRecorder.onstart = () => {
-			isRecording = true;
-			console.log('Recording started');
-		};
-		mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
-		mediaRecorder.onstop = async () => {
-			isRecording = false;
-			console.log('Recording stopped');
-
-			// Create a blob from the audio chunks
-			const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-
-			const file = blobToFile(audioBlob, 'recording.wav');
-
-			const res = await transcribeAudio(localStorage.token, file).catch((error) => {
-				toast.error(error);
-				return null;
-			});
-
-			if (res) {
-				prompt = res.text;
-				await tick();
-				chatTextAreaElement?.focus();
-
-				if (prompt !== '' && $settings?.speechAutoSend === true) {
-					submitPrompt(prompt, user);
-				}
-			}
-
-			// saveRecording(audioBlob);
-			audioChunks = [];
-		};
-
-		// Start recording
-		mediaRecorder.start();
-
-		// Monitor silence
-		monitorSilence(stream);
-	};
-
-	const monitorSilence = (stream) => {
-		const audioContext = new AudioContext();
-		const audioStreamSource = audioContext.createMediaStreamSource(stream);
-		const analyser = audioContext.createAnalyser();
-		analyser.minDecibels = MIN_DECIBELS;
-		audioStreamSource.connect(analyser);
-
-		const bufferLength = analyser.frequencyBinCount;
-		const domainData = new Uint8Array(bufferLength);
-
-		let lastSoundTime = Date.now();
-
-		const detectSound = () => {
-			analyser.getByteFrequencyData(domainData);
-
-			if (domainData.some((value) => value > 0)) {
-				lastSoundTime = Date.now();
-			}
-
-			if (isRecording && Date.now() - lastSoundTime > 3000) {
-				mediaRecorder.stop();
-				audioContext.close();
-				return;
-			}
-
-			window.requestAnimationFrame(detectSound);
-		};
-
-		window.requestAnimationFrame(detectSound);
-	};
-
-	const saveRecording = (blob) => {
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		document.body.appendChild(a);
-		a.style = 'display: none';
-		a.href = url;
-		a.download = 'recording.wav';
-		a.click();
-		window.URL.revokeObjectURL(url);
-	};
-
-	const speechRecognitionHandler = () => {
-		// Check if SpeechRecognition is supported
-
-		if (isRecording) {
-			if (speechRecognition) {
-				speechRecognition.stop();
-			}
-
-			if (mediaRecorder) {
-				mediaRecorder.stop();
-			}
-		} else {
-			isRecording = true;
-
-			if ($settings?.audio?.STTEngine ?? '' !== '') {
-				startRecording();
-			} else {
-				if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-					// Create a SpeechRecognition object
-					speechRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-
-					// Set continuous to true for continuous recognition
-					speechRecognition.continuous = true;
-
-					// Set the timeout for turning off the recognition after inactivity (in milliseconds)
-					const inactivityTimeout = 3000; // 3 seconds
-
-					let timeoutId;
-					// Start recognition
-					speechRecognition.start();
-
-					// Event triggered when speech is recognized
-					speechRecognition.onresult = async (event) => {
-						// Clear the inactivity timeout
-						clearTimeout(timeoutId);
-
-						// Handle recognized speech
-						console.log(event);
-						const transcript = event.results[Object.keys(event.results).length - 1][0].transcript;
-
-						prompt = `${prompt}${transcript}`;
-
-						await tick();
-						chatTextAreaElement?.focus();
-
-						// Restart the inactivity timeout
-						timeoutId = setTimeout(() => {
-							console.log('Speech recognition turned off due to inactivity.');
-							speechRecognition.stop();
-						}, inactivityTimeout);
-					};
-
-					// Event triggered when recognition is ended
-					speechRecognition.onend = function () {
-						// Restart recognition after it ends
-						console.log('recognition ended');
-						isRecording = false;
-						if (prompt !== '' && $settings?.speechAutoSend === true) {
-							submitPrompt(prompt, user);
-						}
-					};
-
-					// Event triggered when an error occurs
-					speechRecognition.onerror = function (event) {
-						console.log(event);
-						toast.error($i18n.t(`Speech recognition error: {{error}}`, { error: event.error }));
-						isRecording = false;
-					};
-				} else {
-					toast.error($i18n.t('SpeechRecognition API is not supported in this browser.'));
-				}
-			}
-		}
-	};
 
 	const uploadDoc = async (file) => {
 		console.log(file);
@@ -248,19 +84,6 @@
 
 		try {
 			files = [...files, doc];
-
-			if (['audio/mpeg', 'audio/wav'].includes(file['type'])) {
-				const res = await transcribeAudio(localStorage.token, file).catch((error) => {
-					toast.error(error);
-					return null;
-				});
-
-				if (res) {
-					console.log(res);
-					const blob = new Blob([res.text], { type: 'text/plain' });
-					file = blobToFile(blob, `${file.name}.txt`);
-				}
-			}
 
 			const res = await uploadDocToVectorDB(localStorage.token, '', file);
 
@@ -776,11 +599,7 @@
 								id="chat-textarea"
 								bind:this={chatTextAreaElement}
 								class="scrollbar-hidden bg-gray-50 dark:bg-gray-850 dark:text-gray-100 outline-none w-full py-3 px-3 rounded-xl resize-none h-[48px]"
-								placeholder={chatInputPlaceholder !== ''
-									? chatInputPlaceholder
-									: isRecording
-									? $i18n.t('Listening...')
-									: $i18n.t('Send a Message')}
+								placeholder={chatInputPlaceholder}
 								bind:value={prompt}
 								on:keypress={(e) => {
 									if (
@@ -937,121 +756,6 @@
 									}
 								}}
 							/>
-
-							<div class="self-end mb-2 flex space-x-1 mr-1">
-								{#if messages.length == 0 || messages.at(-1).done == true}
-									<Tooltip content={$i18n.t('Record voice')}>
-										{#if speechRecognitionEnabled}
-											<button
-												id="voice-input-button"
-												class=" text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-850 transition rounded-full p-1.5 mr-0.5 self-center"
-												type="button"
-												on:click={() => {
-													speechRecognitionHandler();
-												}}
-											>
-												{#if isRecording}
-													<svg
-														class=" w-5 h-5 translate-y-[0.5px]"
-														fill="currentColor"
-														viewBox="0 0 24 24"
-														xmlns="http://www.w3.org/2000/svg"
-														><style>
-															.spinner_qM83 {
-																animation: spinner_8HQG 1.05s infinite;
-															}
-															.spinner_oXPr {
-																animation-delay: 0.1s;
-															}
-															.spinner_ZTLf {
-																animation-delay: 0.2s;
-															}
-															@keyframes spinner_8HQG {
-																0%,
-																57.14% {
-																	animation-timing-function: cubic-bezier(0.33, 0.66, 0.66, 1);
-																	transform: translate(0);
-																}
-																28.57% {
-																	animation-timing-function: cubic-bezier(0.33, 0, 0.66, 0.33);
-																	transform: translateY(-6px);
-																}
-																100% {
-																	transform: translate(0);
-																}
-															}
-														</style><circle class="spinner_qM83" cx="4" cy="12" r="2.5" /><circle
-															class="spinner_qM83 spinner_oXPr"
-															cx="12"
-															cy="12"
-															r="2.5"
-														/><circle
-															class="spinner_qM83 spinner_ZTLf"
-															cx="20"
-															cy="12"
-															r="2.5"
-														/></svg
-													>
-												{:else}
-													<svg
-														xmlns="http://www.w3.org/2000/svg"
-														viewBox="0 0 20 20"
-														fill="currentColor"
-														class="w-5 h-5 translate-y-[0.5px]"
-													>
-														<path d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4z" />
-														<path
-															d="M5.5 9.643a.75.75 0 00-1.5 0V10c0 3.06 2.29 5.585 5.25 5.954V17.5h-1.5a.75.75 0 000 1.5h4.5a.75.75 0 000-1.5h-1.5v-1.546A6.001 6.001 0 0016 10v-.357a.75.75 0 00-1.5 0V10a4.5 4.5 0 01-9 0v-.357z"
-														/>
-													</svg>
-												{/if}
-											</button>
-										{/if}
-									</Tooltip>
-
-									<Tooltip content={$i18n.t('Send message')}>
-										<button
-											id="send-message-button"
-											class="{prompt !== ''
-												? 'bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 '
-												: 'text-white bg-gray-200 dark:text-gray-900 dark:bg-gray-700 disabled'} transition rounded-full p-1.5 self-center"
-											type="submit"
-											disabled={prompt === ''}
-										>
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												viewBox="0 0 16 16"
-												fill="currentColor"
-												class="w-5 h-5"
-											>
-												<path
-													fill-rule="evenodd"
-													d="M8 14a.75.75 0 0 1-.75-.75V4.56L4.03 7.78a.75.75 0 0 1-1.06-1.06l4.5-4.5a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1-1.06 1.06L8.75 4.56v8.69A.75.75 0 0 1 8 14Z"
-													clip-rule="evenodd"
-												/>
-											</svg>
-										</button>
-									</Tooltip>
-								{:else}
-									<button
-										class="bg-white hover:bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-800 transition rounded-full p-1.5"
-										on:click={stopResponse}
-									>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											viewBox="0 0 24 24"
-											fill="currentColor"
-											class="w-5 h-5"
-										>
-											<path
-												fill-rule="evenodd"
-												d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm6-2.438c0-.724.588-1.312 1.313-1.312h4.874c.725 0 1.313.588 1.313 1.313v4.874c0 .725-.588 1.313-1.313 1.313H9.564a1.312 1.312 0 01-1.313-1.313V9.564z"
-												clip-rule="evenodd"
-											/>
-										</svg>
-									</button>
-								{/if}
-							</div>
 						</div>
 					</form>
 

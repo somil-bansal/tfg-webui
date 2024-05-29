@@ -1,8 +1,6 @@
 <script lang="ts">
 	import {
-		getCommunitySharingEnabledStatus,
 		getWebhookUrl,
-		toggleCommunitySharingEnabledStatus,
 		updateWebhookUrl
 	} from '$lib/apis';
 	import {
@@ -23,7 +21,6 @@
 	let JWTExpiresIn = '';
 
 	let webhookUrl = '';
-	let communitySharingEnabled = true;
 
 	const toggleSignUpEnabled = async () => {
 		signUpEnabled = await toggleSignUpEnabledStatus(localStorage.token);
@@ -56,9 +53,6 @@
 			(async () => {
 				webhookUrl = await getWebhookUrl(localStorage.token);
 			})(),
-			(async () => {
-				communitySharingEnabled = await getCommunitySharingEnabledStatus(localStorage.token);
-			})()
 		]);
 	});
 </script>

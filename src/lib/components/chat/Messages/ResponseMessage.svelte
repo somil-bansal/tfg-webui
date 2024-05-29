@@ -27,7 +27,7 @@
 	import ProfileImage from './ProfileImage.svelte';
 	import Skeleton from './Skeleton.svelte';
 	import CodeBlock from './CodeBlock.svelte';
-	import Image from '$lib/components/common/Image.svelte';
+	// import Image from '$lib/components/common/Image.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import RateComment from './RateComment.svelte';
 	import CitationsModal from '$lib/components/chat/Messages/CitationsModal.svelte';
@@ -61,10 +61,8 @@
 	let tooltipInstance = null;
 
 	let speaking = null;
-	let speakingIdx = null;
 
 	let loadingSpeech = false;
-	let generatingImage = false;
 
 	let showRateComment = false;
 	let showCitationModal = false;
@@ -240,7 +238,7 @@
 				{/if}
 			</Name>
 
-			{#if (message?.files ?? []).filter((f) => f.type === 'image').length > 0}
+<!--			{#if (message?.files ?? []).filter((f) => f.type === 'image').length > 0}
 				<div class="my-2.5 w-full flex overflow-x-auto gap-2 flex-wrap">
 					{#each message.files as file}
 						<div>
@@ -250,7 +248,7 @@
 						</div>
 					{/each}
 				</div>
-			{/if}
+			{/if}-->
 
 			<div
 				class="prose chat-{message.role} w-full max-w-full dark:prose-invert prose-headings:my-0 prose-p:m-0 prose-p:-mb-6 prose-pre:my-0 prose-table:my-0 prose-blockquote:my-0 prose-img:my-0 prose-ul:-my-4 prose-ol:-my-4 prose-li:-my-3 prose-ul:-mb-6 prose-ol:-mb-8 prose-ol:p-0 prose-li:-mb-4 whitespace-pre-line"

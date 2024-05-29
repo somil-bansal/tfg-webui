@@ -21,8 +21,10 @@ class JSONField(TextField):
 DB = PostgresqlDatabase(
     'postgres',  # the name of the database
     user='postgres',  # the username of your Postgres
-    password='2Y7E0SLJx4F6qRg',  # the password for the Postgres user
-    host='tfg-ai.cluster-cbc8jlxr7ybr.us-east-1.rds.amazonaws.com',  # the host for your PostgreSQL server
+    # password='2Y7E0SLJx4F6qRg',  # the password for the Postgres user web
+    password='''E!DA4S42QswiXyaRzXOcEb_$|wi+''',  # the password for the Postgres user tfg
+    # host='tfg-ai.cluster-cbc8jlxr7ybr.us-east-1.rds.amazonaws.com',  # the host for your PostgreSQL server web
+    host='the-finance-genie-psql.cluster-cuoiovlnzgsd.us-east-1.rds.amazonaws.com',  # the host for your PostgreSQL server tfg
     port=5432,  # port for your PostgreSQL server
     autorollback=True,
     autocommit=False

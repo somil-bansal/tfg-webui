@@ -418,8 +418,8 @@ if ENV == "prod":
             OLLAMA_BASE_URL = "http://localhost:11434"
         else:
             OLLAMA_BASE_URL = "http://host.docker.internal:11434"
-    elif K8S_FLAG:
-        OLLAMA_BASE_URL = "http://ollama-service.open-webui.svc.cluster.local:11434"
+    # elif K8S_FLAG:
+    #     OLLAMA_BASE_URL = "http://ollama-service.open-webui.svc.cluster.local:11434"
 
 
 OLLAMA_BASE_URLS = os.environ.get("OLLAMA_BASE_URLS", "")
@@ -565,22 +565,6 @@ WEBHOOK_URL = PersistentConfig(
 )
 
 ENABLE_ADMIN_EXPORT = os.environ.get("ENABLE_ADMIN_EXPORT", "True").lower() == "true"
-
-
-class BannerModel(BaseModel):
-    id: str
-    type: str
-    title: Optional[str] = None
-    content: str
-    dismissible: bool
-    timestamp: int
-
-
-WEBUI_BANNERS = PersistentConfig(
-    "WEBUI_BANNERS",
-    "ui.banners",
-    [BannerModel(**banner) for banner in json.loads("[]")],
-)
 
 ####################################
 # WEBUI_SECRET_KEY
@@ -784,14 +768,14 @@ RAG_WEB_SEARCH_CONCURRENT_REQUESTS = int(
 # Transcribe
 ####################################
 
-WHISPER_MODEL = os.getenv("WHISPER_MODEL", "base")
-WHISPER_MODEL_DIR = os.getenv("WHISPER_MODEL_DIR", f"{CACHE_DIR}/whisper/models")
-WHISPER_MODEL_AUTO_UPDATE = (
-    os.environ.get("WHISPER_MODEL_AUTO_UPDATE", "").lower() == "true"
-)
+# WHISPER_MODEL = os.getenv("WHISPER_MODEL", "base")
+# WHISPER_MODEL_DIR = os.getenv("WHISPER_MODEL_DIR", f"{CACHE_DIR}/whisper/models")
+# WHISPER_MODEL_AUTO_UPDATE = (
+#     os.environ.get("WHISPER_MODEL_AUTO_UPDATE", "").lower() == "true"
+# )
 
 ####################################
 # Database
 ####################################
 
-DATABASE_URL = os.environ.get("DATABASE_URL", f"sqlite:///{DATA_DIR}/webui.db")
+# DATABASE_URL = os.environ.get("DATABASE_URL", f"sqlite:///{DATA_DIR}/webui.db")

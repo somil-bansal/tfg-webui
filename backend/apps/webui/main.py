@@ -23,7 +23,6 @@ from config import (
     WEBHOOK_URL,
     WEBUI_AUTH_TRUSTED_EMAIL_HEADER,
     JWT_EXPIRES_IN,
-    WEBUI_BANNERS,
     AppConfig,
 )
 
@@ -41,7 +40,6 @@ app.state.config.DEFAULT_PROMPT_SUGGESTIONS = DEFAULT_PROMPT_SUGGESTIONS
 app.state.config.DEFAULT_USER_ROLE = DEFAULT_USER_ROLE
 app.state.config.USER_PERMISSIONS = USER_PERMISSIONS
 app.state.config.WEBHOOK_URL = WEBHOOK_URL
-app.state.config.BANNERS = WEBUI_BANNERS
 
 
 app.state.MODELS = {}

@@ -528,30 +528,6 @@ async def get_app_config():
     }
 
 
-@app.get("/api/changelog")
-async def get_app_changelog():
-    return {key: CHANGELOG[key] for idx, key in enumerate(CHANGELOG) if idx < 5}
-
-
-@app.get("/api/version/updates")
-async def get_app_latest_release_version():
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                "https://api.github.com/repos/open-webui/open-webui/releases/latest"
-            ) as response:
-                response.raise_for_status()
-                data = await response.json()
-                latest_version = data["tag_name"]
-
-                return {"current": VERSION, "latest": latest_version[1:]}
-    except aiohttp.ClientError as e:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=ERROR_MESSAGES.RATE_LIMIT_EXCEEDED,
-        )
-
-
 @app.get("/manifest.json")
 async def get_manifest_json():
     return {

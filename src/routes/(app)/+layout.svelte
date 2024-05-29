@@ -22,7 +22,6 @@
 		prompts,
 		documents,
 		tags,
-		banners,
 		showChangelog,
 		config
 	} from '$lib/stores';
@@ -34,7 +33,6 @@
 	import ShortcutsModal from '$lib/components/chat/ShortcutsModal.svelte';
 	import ChangelogModal from '$lib/components/ChangelogModal.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
-	import { getBanners } from '$lib/apis/configs';
 	import { getUserSettings } from '$lib/apis/users';
 
 	const i18n = getContext('i18n');
@@ -90,9 +88,6 @@
 				})(),
 				(async () => {
 					documents.set(await getDocs(localStorage.token));
-				})(),
-				(async () => {
-					banners.set(await getBanners(localStorage.token));
 				})(),
 				(async () => {
 					tags.set(await getAllChatTags(localStorage.token));
