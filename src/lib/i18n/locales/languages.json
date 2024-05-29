@@ -2,21 +2,5 @@
 	{
 		"code": "en-US",
 		"title": "English (US)"
-	},
-	{
-		"code": "en-GB",
-		"title": "English (GB)"
-	},
-	{
-		"code": "fr-CA",
-		"title": "French (Canada)"
-	},
-	{
-		"code": "it-IT",
-		"title": "Italian"
-	},
-	{
-		"code": "ja-JP",
-		"title": "Japanese"
 	}
 ]

@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { getWebhookUrl, updateWebhookUrl } from '$lib/apis';
+	import {
+		getCommunitySharingEnabledStatus,
+		getWebhookUrl,
+		toggleCommunitySharingEnabledStatus,
+		updateWebhookUrl
+	} from '$lib/apis';
 	import {
 		getDefaultUserRole,
 		getJWTExpiresDuration,
@@ -18,6 +23,7 @@
 	let JWTExpiresIn = '';
 
 	let webhookUrl = '';
+	let communitySharingEnabled = true;
 
 	const toggleSignUpEnabled = async () => {
 		signUpEnabled = await toggleSignUpEnabledStatus(localStorage.token);
@@ -35,11 +41,25 @@
 		webhookUrl = await updateWebhookUrl(localStorage.token, webhookUrl);
 	};
 
+
 	onMount(async () => {
-		signUpEnabled = await getSignUpEnabledStatus(localStorage.token);
-		defaultUserRole = await getDefaultUserRole(localStorage.token);
-		JWTExpiresIn = await getJWTExpiresDuration(localStorage.token);
-		webhookUrl = await getWebhookUrl(localStorage.token);
+		await Promise.all([
+			(async () => {
+				signUpEnabled = await getSignUpEnabledStatus(localStorage.token);
+			})(),
+			(async () => {
+				defaultUserRole = await getDefaultUserRole(localStorage.token);
+			})(),
+			(async () => {
+				JWTExpiresIn = await getJWTExpiresDuration(localStorage.token);
+			})(),
+			(async () => {
+				webhookUrl = await getWebhookUrl(localStorage.token);
+			})(),
+			(async () => {
+				communitySharingEnabled = await getCommunitySharingEnabledStatus(localStorage.token);
+			})()
+		]);
 	});
 </script>
 
@@ -113,6 +133,7 @@
 					</select>
 				</div>
 			</div>
+
 
 			<hr class=" dark:border-gray-700 my-3" />
 

@@ -14,7 +14,7 @@
 
 	const dispatch = createEventDispatcher();
 
-	import { config, settings } from '$lib/stores';
+	import { config, models, settings } from '$lib/stores';
 	import {
 		approximateToHumanReadable,
 		extractSentences,
@@ -31,6 +31,8 @@
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import RateComment from './RateComment.svelte';
 	import CitationsModal from '$lib/components/chat/Messages/CitationsModal.svelte';
+	import Spinner from '$lib/components/common/Spinner.svelte';
+	import WebSearchResults from './ResponseMessage/WebSearchResults.svelte';
 
 	export let modelfiles = [];
 	export let message;
@@ -49,6 +51,9 @@
 	export let copyToClipboard: Function;
 	export let continueGeneration: Function;
 	export let regenerateResponse: Function;
+
+	let model = null;
+	$: model = $models.find((m) => m.id === message.model);
 
 	let edit = false;
 	let editedContent = '';
@@ -75,6 +80,13 @@
 		return `<code>${code.replaceAll('&amp;', '&')}</code>`;
 	};
 
+	// Open all links in a new tab/window (from https://github.com/markedjs/marked/issues/655#issuecomment-383226346)
+	const origLinkRenderer = renderer.link;
+	renderer.link = (href, title, text) => {
+		const html = origLinkRenderer.call(renderer, href, title, text);
+		return html.replace(/^<a /, '<a target="_blank" rel="nofollow" ');
+	};
+
 	const { extensions, ...defaults } = marked.getDefaults() as marked.MarkedOptions & {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		extensions: any;
@@ -94,8 +106,13 @@
 		renderLatex();
 
 		if (message.info) {
-			tooltipInstance = tippy(`#info-${message.id}`, {
-				content: `<span class="text-xs" id="tooltip-${message.id}">response_token/s: ${
+			let tooltipContent = '';
+			if (message.info.openai) {
+				tooltipContent = `prompt_tokens: ${message.info.prompt_tokens ?? 'N/A'}<br/>
+													completion_tokens: ${message.info.completion_tokens ?? 'N/A'}<br/>
+													total_tokens: ${message.info.total_tokens ?? 'N/A'}`;
+			} else {
+				tooltipContent = `response_token/s: ${
 					`${
 						Math.round(
 							((message.info.eval_count ?? 0) / (message.info.eval_duration / 1000000000)) * 100
@@ -125,9 +142,10 @@
                     eval_duration: ${
 											Math.round(((message.info.eval_duration ?? 0) / 1000000) * 100) / 100 ?? 'N/A'
 										}ms<br/>
-                    approximate_total: ${approximateToHumanReadable(
-											message.info.total_duration
-										)}</span>`,
+                    approximate_total: ${approximateToHumanReadable(message.info.total_duration)}`;
+			}
+			tooltipInstance = tippy(`#info-${message.id}`, {
+				content: `<span class="text-xs" id="tooltip-${message.id}">${tooltipContent}</span>`,
 				allowHTML: true
 			});
 		}
@@ -182,6 +200,13 @@
 		renderStyling();
 	};
 
+	const cancelEditMessage = async () => {
+		edit = false;
+		editedContent = '';
+		await tick();
+		renderStyling();
+	};
+
 
 	onMount(async () => {
 		await tick();
@@ -198,17 +223,13 @@
 		dir={$settings.chatDirection}
 	>
 		<ProfileImage
-			src={modelfiles[message.model]?.imageUrl ??
+			src={model?.info?.meta?.profile_image_url ??
 				($i18n.language === 'dg-DG' ? `/doge.png` : `${WEBUI_BASE_URL}/static/favicon.png`)}
 		/>
 
 		<div class="w-full overflow-hidden pl-1">
 			<Name>
-				{#if message.model in modelfiles}
-					{modelfiles[message.model]?.title}
-				{:else}
-					{message.model ? ` ${message.model}` : ''}
-				{/if}
+				{model?.name ?? message.model}
 
 				{#if message.timestamp}
 					<span
@@ -219,7 +240,7 @@
 				{/if}
 			</Name>
 
-			{#if message.files}
+			{#if (message?.files ?? []).filter((f) => f.type === 'image').length > 0}
 				<div class="my-2.5 w-full flex overflow-x-auto gap-2 flex-wrap">
 					{#each message.files as file}
 						<div>
@@ -235,6 +256,32 @@
 				class="prose chat-{message.role} w-full max-w-full dark:prose-invert prose-headings:my-0 prose-p:m-0 prose-p:-mb-6 prose-pre:my-0 prose-table:my-0 prose-blockquote:my-0 prose-img:my-0 prose-ul:-my-4 prose-ol:-my-4 prose-li:-my-3 prose-ul:-mb-6 prose-ol:-mb-8 prose-ol:p-0 prose-li:-mb-4 whitespace-pre-line"
 			>
 				<div>
+					{#if message?.status}
+						<div class="flex items-center gap-2 pt-1 pb-1">
+							{#if message?.status?.done === false}
+								<div class="">
+									<Spinner className="size-4" />
+								</div>
+							{/if}
+
+							{#if message?.status?.action === 'web_search' && message?.status?.urls}
+								<WebSearchResults urls={message?.status?.urls}>
+									<div class="flex flex-col justify-center -space-y-0.5">
+										<div class="text-base line-clamp-1 text-wrap">
+											{message.status.description}
+										</div>
+									</div>
+								</WebSearchResults>
+							{:else}
+								<div class="flex flex-col justify-center -space-y-0.5">
+									<div class=" text-gray-500 dark:text-gray-500 text-base line-clamp-1 text-wrap">
+										{message.status.description}
+									</div>
+								</div>
+							{/if}
+						</div>
+					{/if}
+
 					{#if edit === true}
 						<div class="w-full bg-gray-50 dark:bg-gray-800 rounded-3xl px-5 py-3 my-2">
 							<textarea
@@ -251,7 +298,7 @@
 							<div class=" mt-2 mb-1 flex justify-end space-x-1.5 text-sm font-medium">
 								<button
 									id="close-edit-message-button"
-									class=" px-4 py-2 bg-gray-900 hover:bg-gray-850 text-gray-100 transition rounded-3xl"
+									class="px-4 py-2 bg-white hover:bg-gray-100 text-gray-800 transition rounded-3xl"
 									on:click={() => {
 										cancelEditMessage();
 									}}
@@ -261,7 +308,7 @@
 
 								<button
 									id="save-edit-message-button"
-									class="px-4 py-2 bg-white hover:bg-gray-100 text-gray-800 transition rounded-3xl"
+									class=" px-4 py-2 bg-gray-900 hover:bg-gray-850 text-gray-100 transition rounded-3xl"
 									on:click={() => {
 										editMessageConfirmHandler();
 									}}
@@ -302,8 +349,8 @@
 									{#if token.type === 'code'}
 										<CodeBlock
 											id={`${message.id}-${tokenIdx}`}
-											lang={token.lang}
-											code={revertSanitizedResponseContent(token.text)}
+											lang={token?.lang ?? ''}
+											code={revertSanitizedResponseContent(token?.text ?? '')}
 										/>
 									{:else}
 										{@html marked.parse(token.raw, {
@@ -317,11 +364,16 @@
 							{/if}
 
 							{#if message.citations}
-								<div class="mt-1 mb-2 w-full flex gap-1 items-center">
+								<div class="mt-1 mb-2 w-full flex gap-1 items-center flex-wrap">
 									{#each message.citations.reduce((acc, citation) => {
 										citation.document.forEach((document, index) => {
 											const metadata = citation.metadata?.[index];
 											const id = metadata?.source ?? 'N/A';
+											let source = citation?.source;
+											// Check if ID looks like a URL
+											if (id.startsWith('http://') || id.startsWith('https://')) {
+												source = { name: id };
+											}
 
 											const existingSource = acc.find((item) => item.id === id);
 
@@ -329,7 +381,7 @@
 												existingSource.document.push(document);
 												existingSource.metadata.push(metadata);
 											} else {
-												acc.push( { id: id, source: citation?.source, document: [document], metadata: metadata ? [metadata] : [] } );
+												acc.push( { id: id, source: source, document: [document], metadata: metadata ? [metadata] : [] } );
 											}
 										});
 										return acc;
