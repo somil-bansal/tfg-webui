@@ -241,14 +241,6 @@
 
 				{:else if selectedTab === 'chats'}
 					<Chats {saveSettings} />
-				{:else if selectedTab === 'account'}
-					<Account
-						saveHandler={() => {
-							toast.success($i18n.t('Settings saved successfully!'));
-						}}
-					/>
-				{:else if selectedTab === 'about'}
-					<About />
 				{/if}
 			</div>
 		</div>

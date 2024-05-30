@@ -30,7 +30,6 @@ from config import (
 )
 from typing import List, Optional
 
-
 import hashlib
 from pathlib import Path
 
@@ -45,7 +44,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 app.state.config = AppConfig()
 
@@ -146,8 +144,8 @@ def merge_models_lists(model_lists):
                     }
                     for model in models
                     if "api.openai.com"
-                    not in app.state.config.OPENAI_API_BASE_URLS[idx]
-                    or "gpt" in model["id"]
+                       not in app.state.config.OPENAI_API_BASE_URLS[idx]
+                       or "gpt" in model["id"]
                 ]
             )
 
@@ -158,8 +156,8 @@ async def get_all_models(raw: bool = False):
     log.info("get_all_models()")
 
     if (
-        len(app.state.config.OPENAI_API_KEYS) == 1
-        and app.state.config.OPENAI_API_KEYS[0] == ""
+            len(app.state.config.OPENAI_API_KEYS) == 1
+            and app.state.config.OPENAI_API_KEYS[0] == ""
     ) or not app.state.config.ENABLE_OPENAI_API:
         models = {"data": []}
     else:
@@ -314,8 +312,8 @@ async def proxy(path: str, request: Request, user=Depends(get_verified_user)):
                         for message in payload["messages"]:
                             if message.get("role") == "system":
                                 message["content"] = (
-                                    model_info.params.get("system", None)
-                                    + message["content"]
+                                        model_info.params.get("system", None)
+                                        + message["content"]
                                 )
                                 break
                         else:
