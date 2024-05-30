@@ -24,7 +24,6 @@ from config import (
     ENABLE_OPENAI_API,
     OPENAI_API_BASE_URLS,
     OPENAI_API_KEYS,
-    CACHE_DIR,
     ENABLE_MODEL_FILTER,
     MODEL_FILTER_LIST,
     AppConfig,

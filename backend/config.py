@@ -376,14 +376,6 @@ def create_config_file(file_path):
         yaml.dump(config_data, file)
 
 
-LITELLM_CONFIG_PATH = f"{DATA_DIR}/litellm/config.yaml"
-
-# if not os.path.exists(LITELLM_CONFIG_PATH):
-#     log.info("Config file doesn't exist. Creating...")
-#     create_config_file(LITELLM_CONFIG_PATH)
-#     log.info("Config file created successfully.")
-
-
 ####################################
 # OLLAMA_BASE_URL
 ####################################
@@ -763,19 +755,3 @@ RAG_WEB_SEARCH_RESULT_COUNT = int(os.getenv("RAG_WEB_SEARCH_RESULT_COUNT", "3"))
 RAG_WEB_SEARCH_CONCURRENT_REQUESTS = int(
     os.getenv("RAG_WEB_SEARCH_CONCURRENT_REQUESTS", "10")
 )
-
-####################################
-# Transcribe
-####################################
-
-# WHISPER_MODEL = os.getenv("WHISPER_MODEL", "base")
-# WHISPER_MODEL_DIR = os.getenv("WHISPER_MODEL_DIR", f"{CACHE_DIR}/whisper/models")
-# WHISPER_MODEL_AUTO_UPDATE = (
-#     os.environ.get("WHISPER_MODEL_AUTO_UPDATE", "").lower() == "true"
-# )
-
-####################################
-# Database
-####################################
-
-# DATABASE_URL = os.environ.get("DATABASE_URL", f"sqlite:///{DATA_DIR}/webui.db")

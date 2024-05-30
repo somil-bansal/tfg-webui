@@ -45,7 +45,6 @@
 
 	export let files = [];
 
-	export let speechRecognitionEnabled = true;
 	export let webSearchEnabled = false;
 
 	export let prompt = '';
