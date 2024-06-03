@@ -1,4 +1,3 @@
-import mimetypes
 from contextlib import asynccontextmanager
 from bs4 import BeautifulSoup
 import json
@@ -9,6 +8,7 @@ import sys
 import logging
 import aiohttp
 import requests
+import mimetypes
 
 from fastapi import FastAPI, Request, Depends, status
 from fastapi.staticfiles import StaticFiles
@@ -58,7 +58,6 @@ from config import (
     SRC_LOG_LEVELS,
     WEBHOOK_URL,
     ENABLE_ADMIN_EXPORT,
-    RAG_WEB_SEARCH_ENABLED,
     AppConfig,
     WEBUI_BUILD_HASH,
 )
@@ -269,6 +268,11 @@ class PipelineMiddleware(BaseHTTPMiddleware):
                 except:
                     pass
 
+            model = app.state.MODELS[model_id]
+
+            if "pipeline" in model:
+                sorted_filters.append(model)
+
             for filter in sorted_filters:
                 r = None
                 try:
@@ -308,8 +312,12 @@ class PipelineMiddleware(BaseHTTPMiddleware):
                     else:
                         pass
 
-            if "chat_id" in data:
-                del data["chat_id"]
+            if "pipeline" not in app.state.MODELS[model_id]:
+                if "chat_id" in data:
+                    del data["chat_id"]
+
+                if "title" in data:
+                    del data["title"]
 
             modified_body_bytes = json.dumps(data).encode("utf-8")
             # Replace the request body with the modified one
@@ -486,6 +494,13 @@ async def chat_completed(form_data: dict, user=Depends(get_verified_user)):
     ]
     sorted_filters = sorted(filters, key=lambda x: x["pipeline"]["priority"])
 
+    print(model_id)
+
+    if model_id in app.state.MODELS:
+        model = app.state.MODELS[model_id]
+        if "pipeline" in model:
+            sorted_filters = [model] + sorted_filters
+
     for filter in sorted_filters:
         r = None
         try:
@@ -533,7 +548,11 @@ async def get_pipelines_list(user=Depends(get_admin_user)):
     responses = await get_openai_models(raw=True)
 
     print(responses)
-    urlIdxs = [idx for idx, response in enumerate(responses) if "pipelines" in response]
+    urlIdxs = [
+        idx
+        for idx, response in enumerate(responses)
+        if response != None and "pipelines" in response
+    ]
 
     return {
         "data": [
@@ -807,7 +826,7 @@ async def get_app_config():
             "auth": WEBUI_AUTH,
             "auth_trusted_header": bool(webui_app.state.AUTH_TRUSTED_EMAIL_HEADER),
             "enable_signup": webui_app.state.config.ENABLE_SIGNUP,
-            "enable_web_search": RAG_WEB_SEARCH_ENABLED,
+            "enable_web_search": rag_app.state.config.ENABLE_RAG_WEB_SEARCH,
             "enable_admin_export": ENABLE_ADMIN_EXPORT,
         },
     }
@@ -860,11 +879,48 @@ async def update_webhook_url(form_data: UrlForm, user=Depends(get_admin_user)):
     }
 
 
+@app.get("/api/community_sharing", response_model=bool)
+async def get_community_sharing_status(request: Request, user=Depends(get_admin_user)):
+    return webui_app.state.config.ENABLE_COMMUNITY_SHARING
+
+
+@app.get("/api/community_sharing/toggle", response_model=bool)
+async def toggle_community_sharing(request: Request, user=Depends(get_admin_user)):
+    webui_app.state.config.ENABLE_COMMUNITY_SHARING = (
+        not webui_app.state.config.ENABLE_COMMUNITY_SHARING
+    )
+    return webui_app.state.config.ENABLE_COMMUNITY_SHARING
+
+
 @app.get("/api/version")
 async def get_app_config():
     return {
         "version": VERSION,
     }
+
+
+@app.get("/api/changelog")
+async def get_app_changelog():
+    return {key: CHANGELOG[key] for idx, key in enumerate(CHANGELOG) if idx < 5}
+
+
+@app.get("/api/version/updates")
+async def get_app_latest_release_version():
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                "https://api.github.com/repos/open-webui/open-webui/releases/latest"
+            ) as response:
+                response.raise_for_status()
+                data = await response.json()
+                latest_version = data["tag_name"]
+
+                return {"current": VERSION, "latest": latest_version[1:]}
+    except aiohttp.ClientError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=ERROR_MESSAGES.RATE_LIMIT_EXCEEDED,
+        )
 
 
 @app.get("/manifest.json")
