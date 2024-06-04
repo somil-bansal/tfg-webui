@@ -243,6 +243,7 @@
 						</button>
 					</div>
 				</div>
+			</div>
 		{/if}
 	</div>
 	<div class="flex justify-end pt-3 text-sm font-medium">
