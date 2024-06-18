@@ -727,26 +727,70 @@ ENABLE_RAG_LOCAL_WEB_FETCH = (
     os.getenv("ENABLE_RAG_LOCAL_WEB_FETCH", "False").lower() == "true"
 )
 
-SEARXNG_QUERY_URL = os.getenv("SEARXNG_QUERY_URL", "")
-GOOGLE_PSE_API_KEY = os.getenv("GOOGLE_PSE_API_KEY", "")
-GOOGLE_PSE_ENGINE_ID = os.getenv("GOOGLE_PSE_ENGINE_ID", "")
-BRAVE_SEARCH_API_KEY = os.getenv("BRAVE_SEARCH_API_KEY", "")
-SERPSTACK_API_KEY = os.getenv("SERPSTACK_API_KEY", "")
-SERPSTACK_HTTPS = os.getenv("SERPSTACK_HTTPS", "True").lower() == "true"
-SERPER_API_KEY = os.getenv("SERPER_API_KEY", "")
-TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "")
-
-
-RAG_WEB_SEARCH_ENABLED = (
-    SEARXNG_QUERY_URL != ""
-    or (GOOGLE_PSE_API_KEY != "" and GOOGLE_PSE_ENGINE_ID != "")
-    or BRAVE_SEARCH_API_KEY != ""
-    or SERPSTACK_API_KEY != ""
-    or SERPER_API_KEY != ""
-    or TAVILY_API_KEY != "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"
+ENABLE_RAG_WEB_SEARCH = PersistentConfig(
+    "ENABLE_RAG_WEB_SEARCH",
+    "rag.web.search.enable",
+    os.getenv("ENABLE_RAG_WEB_SEARCH", "False").lower() == "true",
 )
 
-RAG_WEB_SEARCH_RESULT_COUNT = int(os.getenv("RAG_WEB_SEARCH_RESULT_COUNT", "3"))
-RAG_WEB_SEARCH_CONCURRENT_REQUESTS = int(
-    os.getenv("RAG_WEB_SEARCH_CONCURRENT_REQUESTS", "10")
+RAG_WEB_SEARCH_ENGINE = PersistentConfig(
+    "RAG_WEB_SEARCH_ENGINE",
+    "rag.web.search.engine",
+    os.getenv("RAG_WEB_SEARCH_ENGINE", ""),
 )
+
+SEARXNG_QUERY_URL = PersistentConfig(
+    "SEARXNG_QUERY_URL",
+    "rag.web.search.searxng_query_url",
+    os.getenv("SEARXNG_QUERY_URL", ""),
+)
+
+GOOGLE_PSE_API_KEY = PersistentConfig(
+    "GOOGLE_PSE_API_KEY",
+    "rag.web.search.google_pse_api_key",
+    os.getenv("GOOGLE_PSE_API_KEY", ""),
+)
+
+GOOGLE_PSE_ENGINE_ID = PersistentConfig(
+    "GOOGLE_PSE_ENGINE_ID",
+    "rag.web.search.google_pse_engine_id",
+    os.getenv("GOOGLE_PSE_ENGINE_ID", ""),
+)
+
+BRAVE_SEARCH_API_KEY = PersistentConfig(
+    "BRAVE_SEARCH_API_KEY",
+    "rag.web.search.brave_search_api_key",
+    os.getenv("BRAVE_SEARCH_API_KEY", ""),
+)
+
+SERPSTACK_API_KEY = PersistentConfig(
+    "SERPSTACK_API_KEY",
+    "rag.web.search.serpstack_api_key",
+    os.getenv("SERPSTACK_API_KEY", ""),
+)
+
+SERPSTACK_HTTPS = PersistentConfig(
+    "SERPSTACK_HTTPS",
+    "rag.web.search.serpstack_https",
+    os.getenv("SERPSTACK_HTTPS", "True").lower() == "true",
+)
+
+SERPER_API_KEY = PersistentConfig(
+    "SERPER_API_KEY",
+    "rag.web.search.serper_api_key",
+    os.getenv("SERPER_API_KEY", ""),
+)
+
+
+RAG_WEB_SEARCH_RESULT_COUNT = PersistentConfig(
+    "RAG_WEB_SEARCH_RESULT_COUNT",
+    "rag.web.search.result_count",
+    int(os.getenv("RAG_WEB_SEARCH_RESULT_COUNT", "3")),
+)
+
+RAG_WEB_SEARCH_CONCURRENT_REQUESTS = PersistentConfig(
+    "RAG_WEB_SEARCH_CONCURRENT_REQUESTS",
+    "rag.web.search.concurrent_requests",
+    int(os.getenv("RAG_WEB_SEARCH_CONCURRENT_REQUESTS", "10")),
+)
+

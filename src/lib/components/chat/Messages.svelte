@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { v4 as uuidv4 } from 'uuid';
-
 	import { chats, config, settings, user as _user, mobile } from '$lib/stores';
-	import { tick, getContext } from 'svelte';
+	import { tick, getContext, onMount } from 'svelte';
 
 	import { toast } from 'svelte-sonner';
 	import { getChatList, updateChatById } from '$lib/apis/chats';
@@ -241,7 +240,7 @@
 	};
 </script>
 
-<div class="h-full flex mb-16">
+<div class="h-full flex">
 	{#if messages.length == 0}
 		<Placeholder
 			modelIds={selectedModels}
@@ -284,7 +283,7 @@
 		<div class="w-full pt-2">
 			{#key chatId}
 				{#each messages as message, messageIdx}
-					<div class=" w-full {messageIdx === messages.length - 1 ? 'pb-28' : ''}">
+					<div class=" w-full {messageIdx === messages.length - 1 ? ' pb-12' : ''}">
 						<div
 							class="flex flex-col justify-between px-5 mb-3 {$settings?.fullScreenMode ?? null
 								? 'max-w-full'
@@ -339,6 +338,7 @@
 									<CompareMessages
 										bind:history
 										{messages}
+										{readOnly}
 										{chatId}
 										parentMessage={history.messages[message.parentId]}
 										{messageIdx}

@@ -1,5 +1,5 @@
 import { OPENAI_API_BASE_URL } from '$lib/constants';
-import { promptTemplate } from '$lib/utils';
+import { titleGenerationTemplate } from '$lib/utils';
 import { type Model, models, settings } from '$lib/stores';
 
 export const getOpenAIConfig = async (token: string = '') => {
@@ -305,11 +305,12 @@ export const generateTitle = async (
 	template: string,
 	model: string,
 	prompt: string,
+	chat_id?: string,
 	url: string = OPENAI_API_BASE_URL
 ) => {
 	let error = null;
 
-	template = promptTemplate(template, prompt);
+	template = titleGenerationTemplate(template, prompt);
 
 	console.log(template);
 
@@ -330,7 +331,9 @@ export const generateTitle = async (
 			],
 			stream: false,
 			// Restricting the max tokens to 50 to avoid long titles
-			max_tokens: 50
+			max_tokens: 50,
+			...(chat_id && { chat_id: chat_id }),
+			title: true
 		})
 	})
 		.then(async (res) => {
