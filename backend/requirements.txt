@@ -56,3 +56,7 @@ PyJWT[crypto]==2.8.0
 black==24.4.2
 langfuse==2.33.0
 pytube==15.0.0
+
+extract_msg
+pydub
+duckduckgo-search~=6.1.5

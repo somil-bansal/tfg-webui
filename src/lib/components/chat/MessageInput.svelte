@@ -1,7 +1,17 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
 	import { onMount, tick, getContext } from 'svelte';
-	import { type Model, mobile, settings, showSidebar, models, config } from '$lib/stores';
+	import {
+		type Model,
+		mobile,
+		settings,
+		showSidebar,
+		models,
+		config,
+		showCallOverlay,
+		tools,
+		user as _user
+	} from '$lib/stores';
 	import { blobToFile, calculateSHA256, findWordIndices } from '$lib/utils';
 
 	import {
@@ -18,7 +28,6 @@
 	import Tooltip from '../common/Tooltip.svelte';
 	import XMark from '$lib/components/icons/XMark.svelte';
 	import InputMenu from './MessageInput/InputMenu.svelte';
-	import { t } from 'i18next';
 
 	const i18n = getContext('i18n');
 
@@ -45,6 +54,8 @@
 
 	export let files = [];
 
+	export let availableToolIds = [];
+	export let selectedToolIds = [];
 	export let webSearchEnabled = false;
 
 	export let prompt = '';
@@ -493,99 +504,110 @@
 												{/if}
 											</div>
 
-											<div class="flex flex-col justify-center -space-y-0.5">
-												<div class=" dark:text-gray-100 text-sm font-medium line-clamp-1">
-													{file.name}
-												</div>
+													<div class="flex flex-col justify-center -space-y-0.5">
+														<div class=" dark:text-gray-100 text-sm font-medium line-clamp-1">
+															{file.name}
+														</div>
 
-												<div class=" text-gray-500 text-sm">{$i18n.t('Document')}</div>
-											</div>
-										</div>
-									{:else if file.type === 'collection'}
-										<div
-											class="h-16 w-[15rem] flex items-center space-x-3 px-2.5 dark:bg-gray-600 rounded-xl border border-gray-200 dark:border-none"
-										>
-											<div class="p-2.5 bg-red-400 text-white rounded-lg">
-												<svg
-													xmlns="http://www.w3.org/2000/svg"
-													viewBox="0 0 24 24"
-													fill="currentColor"
-													class="w-6 h-6"
+														<div class=" text-gray-500 text-sm">{$i18n.t('Document')}</div>
+													</div>
+												</div>
+											{:else if file.type === 'collection'}
+												<div
+													class="h-16 w-[15rem] flex items-center space-x-3 px-2.5 dark:bg-gray-600 rounded-xl border border-gray-200 dark:border-none"
 												>
-													<path
-														d="M7.5 3.375c0-1.036.84-1.875 1.875-1.875h.375a3.75 3.75 0 0 1 3.75 3.75v1.875C13.5 8.161 14.34 9 15.375 9h1.875A3.75 3.75 0 0 1 21 12.75v3.375C21 17.16 20.16 18 19.125 18h-9.75A1.875 1.875 0 0 1 7.5 16.125V3.375Z"
-													/>
-													<path
-														d="M15 5.25a5.23 5.23 0 0 0-1.279-3.434 9.768 9.768 0 0 1 6.963 6.963A5.23 5.23 0 0 0 17.25 7.5h-1.875A.375.375 0 0 1 15 7.125V5.25ZM4.875 6H6v10.125A3.375 3.375 0 0 0 9.375 19.5H16.5v1.125c0 1.035-.84 1.875-1.875 1.875h-9.75A1.875 1.875 0 0 1 3 20.625V7.875C3 6.839 3.84 6 4.875 6Z"
-													/>
-												</svg>
-											</div>
+													<div class="p-2.5 bg-red-400 text-white rounded-lg">
+														<svg
+															xmlns="http://www.w3.org/2000/svg"
+															viewBox="0 0 24 24"
+															fill="currentColor"
+															class="w-6 h-6"
+														>
+															<path
+																d="M7.5 3.375c0-1.036.84-1.875 1.875-1.875h.375a3.75 3.75 0 0 1 3.75 3.75v1.875C13.5 8.161 14.34 9 15.375 9h1.875A3.75 3.75 0 0 1 21 12.75v3.375C21 17.16 20.16 18 19.125 18h-9.75A1.875 1.875 0 0 1 7.5 16.125V3.375Z"
+															/>
+															<path
+																d="M15 5.25a5.23 5.23 0 0 0-1.279-3.434 9.768 9.768 0 0 1 6.963 6.963A5.23 5.23 0 0 0 17.25 7.5h-1.875A.375.375 0 0 1 15 7.125V5.25ZM4.875 6H6v10.125A3.375 3.375 0 0 0 9.375 19.5H16.5v1.125c0 1.035-.84 1.875-1.875 1.875h-9.75A1.875 1.875 0 0 1 3 20.625V7.875C3 6.839 3.84 6 4.875 6Z"
+															/>
+														</svg>
+													</div>
 
-											<div class="flex flex-col justify-center -space-y-0.5">
-												<div class=" dark:text-gray-100 text-sm font-medium line-clamp-1">
-													{file?.title ?? `#${file.name}`}
+													<div class="flex flex-col justify-center -space-y-0.5">
+														<div class=" dark:text-gray-100 text-sm font-medium line-clamp-1">
+															{file?.title ?? `#${file.name}`}
+														</div>
+
+														<div class=" text-gray-500 text-sm">{$i18n.t('Collection')}</div>
+													</div>
 												</div>
+											{/if}
 
-												<div class=" text-gray-500 text-sm">{$i18n.t('Collection')}</div>
+											<div class=" absolute -top-1 -right-1">
+												<button
+													class=" bg-gray-400 text-white border border-white rounded-full group-hover:visible invisible transition"
+													type="button"
+													on:click={() => {
+														files.splice(fileIdx, 1);
+														files = files;
+													}}
+												>
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														viewBox="0 0 20 20"
+														fill="currentColor"
+														class="w-4 h-4"
+													>
+														<path
+															d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
+														/>
+													</svg>
+												</button>
 											</div>
 										</div>
-									{/if}
+									{/each}
+								</div>
+							{/if}
 
-									<div class=" absolute -top-1 -right-1">
+							<div class=" flex">
+								<div class=" ml-0.5 self-end mb-1.5 flex space-x-1">
+									<InputMenu
+										bind:webSearchEnabled
+										bind:selectedToolIds
+										tools={$tools.reduce((a, e, i, arr) => {
+											if (availableToolIds.includes(e.id) || ($_user?.role ?? 'user') === 'admin') {
+												a[e.id] = {
+													name: e.name,
+													description: e.meta.description,
+													enabled: false
+												};
+											}
+											return a;
+										}, {})}
+										uploadFilesHandler={() => {
+											filesInputElement.click();
+										}}
+										onClose={async () => {
+											await tick();
+											chatTextAreaElement?.focus();
+										}}
+									>
 										<button
-											class=" bg-gray-400 text-white border border-white rounded-full group-hover:visible invisible transition"
+											class="bg-gray-50 hover:bg-gray-100 text-gray-800 dark:bg-gray-850 dark:text-white dark:hover:bg-gray-800 transition rounded-full p-2 outline-none focus:outline-none"
 											type="button"
-											on:click={() => {
-												files.splice(fileIdx, 1);
-												files = files;
-											}}
 										>
 											<svg
 												xmlns="http://www.w3.org/2000/svg"
-												viewBox="0 0 20 20"
+												viewBox="0 0 16 16"
 												fill="currentColor"
-												class="w-4 h-4"
+												class="size-5"
 											>
 												<path
-													d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
+													d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z"
 												/>
 											</svg>
 										</button>
-									</div>
+									</InputMenu>
 								</div>
-							{/each}
-						</div>
-					{/if}
-
-					<div class=" flex">
-						<div class=" ml-1 self-end mb-2 flex space-x-1">
-							<InputMenu
-								bind:webSearchEnabled
-								uploadFilesHandler={() => {
-									filesInputElement.click();
-								}}
-								onClose={async () => {
-									await tick();
-									chatTextAreaElement?.focus();
-								}}
-							>
-								<button
-									class="bg-gray-50 hover:bg-gray-100 text-gray-800 dark:bg-gray-850 dark:text-white dark:hover:bg-gray-800 transition rounded-full p-1.5 outline-none focus:outline-none"
-									type="button"
-								>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										viewBox="0 0 16 16"
-										fill="currentColor"
-										class="size-5"
-									>
-										<path
-											d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z"
-										/>
-									</svg>
-								</button>
-							</InputMenu>
-						</div>
 
 						<textarea
 							id="chat-textarea"
@@ -607,156 +629,155 @@
 										e.preventDefault();
 									}
 
-									// Submit the prompt when Enter key is pressed
-									if (prompt !== '' && e.key === 'Enter' && !e.shiftKey) {
-										submitPrompt(prompt, user);
-									}
-								}
-							}}
-							on:keydown={async (e) => {
-								const isCtrlPressed = e.ctrlKey || e.metaKey; // metaKey is for Cmd key on Mac
-
-								// Check if Ctrl + R is pressed
-								if (prompt === '' && isCtrlPressed && e.key.toLowerCase() === 'r') {
-									e.preventDefault();
-									console.log('regenerate');
-
-									const regenerateButton = [
-										...document.getElementsByClassName('regenerate-response-button')
-									]?.at(-1);
-
-									regenerateButton?.click();
-								}
-
-								if (prompt === '' && e.key == 'ArrowUp') {
-									e.preventDefault();
-
-									const userMessageElement = [
-										...document.getElementsByClassName('user-message')
-									]?.at(-1);
-
-									const editButton = [
-										...document.getElementsByClassName('edit-user-message-button')
-									]?.at(-1);
-
-									console.log(userMessageElement);
-
-									userMessageElement.scrollIntoView({ block: 'center' });
-									editButton?.click();
-								}
-
-								if (['/', '#', '@'].includes(prompt.charAt(0)) && e.key === 'ArrowUp') {
-									e.preventDefault();
-
-									(promptsElement || documentsElement || modelsElement).selectUp();
-
-									const commandOptionButton = [
-										...document.getElementsByClassName('selected-command-option-button')
-									]?.at(-1);
-									commandOptionButton.scrollIntoView({ block: 'center' });
-								}
-
-								if (['/', '#', '@'].includes(prompt.charAt(0)) && e.key === 'ArrowDown') {
-									e.preventDefault();
-
-									(promptsElement || documentsElement || modelsElement).selectDown();
-
-									const commandOptionButton = [
-										...document.getElementsByClassName('selected-command-option-button')
-									]?.at(-1);
-									commandOptionButton.scrollIntoView({ block: 'center' });
-								}
-
-								if (['/', '#', '@'].includes(prompt.charAt(0)) && e.key === 'Enter') {
-									e.preventDefault();
-
-									const commandOptionButton = [
-										...document.getElementsByClassName('selected-command-option-button')
-									]?.at(-1);
-
-									if (e.shiftKey) {
-										prompt = `${prompt}\n`;
-									} else if (commandOptionButton) {
-										commandOptionButton?.click();
-									} else {
-										document.getElementById('send-message-button')?.click();
-									}
-								}
-
-								if (['/', '#', '@'].includes(prompt.charAt(0)) && e.key === 'Tab') {
-									e.preventDefault();
-
-									const commandOptionButton = [
-										...document.getElementsByClassName('selected-command-option-button')
-									]?.at(-1);
-
-									commandOptionButton?.click();
-								} else if (e.key === 'Tab') {
-									const words = findWordIndices(prompt);
-
-									if (words.length > 0) {
-										const word = words.at(0);
-										const fullPrompt = prompt;
-
-										prompt = prompt.substring(0, word?.endIndex + 1);
-										await tick();
-
-										e.target.scrollTop = e.target.scrollHeight;
-										prompt = fullPrompt;
-										await tick();
-
-										e.preventDefault();
-										e.target.setSelectionRange(word?.startIndex, word.endIndex + 1);
-									}
-
-									e.target.style.height = '';
-									e.target.style.height = Math.min(e.target.scrollHeight, 200) + 'px';
-								}
-
-								if (e.key === 'Escape') {
-									console.log('Escape');
-									atSelectedModel = undefined;
-								}
-							}}
-							rows="1"
-							on:input={(e) => {
-								e.target.style.height = '';
-								e.target.style.height = Math.min(e.target.scrollHeight, 200) + 'px';
-								user = null;
-							}}
-							on:focus={(e) => {
-								e.target.style.height = '';
-								e.target.style.height = Math.min(e.target.scrollHeight, 200) + 'px';
-							}}
-							on:paste={(e) => {
-								const clipboardData = e.clipboardData || window.clipboardData;
-
-								if (clipboardData && clipboardData.items) {
-									for (const item of clipboardData.items) {
-										if (item.type.indexOf('image') !== -1) {
-											const blob = item.getAsFile();
-											const reader = new FileReader();
-
-											reader.onload = function (e) {
-												files = [
-													...files,
-													{
-														type: 'image',
-														url: `${e.target.result}`
-													}
-												];
-											};
-
-											reader.readAsDataURL(blob);
+											// Submit the prompt when Enter key is pressed
+											if (prompt !== '' && e.key === 'Enter' && !e.shiftKey) {
+												submitPrompt(prompt, user);
+											}
 										}
-									}
-								}
-							}}
-						/>
+									}}
+									on:keydown={async (e) => {
+										const isCtrlPressed = e.ctrlKey || e.metaKey; // metaKey is for Cmd key on Mac
+
+										// Check if Ctrl + R is pressed
+										if (prompt === '' && isCtrlPressed && e.key.toLowerCase() === 'r') {
+											e.preventDefault();
+											console.log('regenerate');
+
+											const regenerateButton = [
+												...document.getElementsByClassName('regenerate-response-button')
+											]?.at(-1);
+
+											regenerateButton?.click();
+										}
+
+										if (prompt === '' && e.key == 'ArrowUp') {
+											e.preventDefault();
+
+											const userMessageElement = [
+												...document.getElementsByClassName('user-message')
+											]?.at(-1);
+
+											const editButton = [
+												...document.getElementsByClassName('edit-user-message-button')
+											]?.at(-1);
+
+											console.log(userMessageElement);
+
+											userMessageElement.scrollIntoView({ block: 'center' });
+											editButton?.click();
+										}
+
+										if (['/', '#', '@'].includes(prompt.charAt(0)) && e.key === 'ArrowUp') {
+											e.preventDefault();
+
+											(promptsElement || documentsElement || modelsElement).selectUp();
+
+											const commandOptionButton = [
+												...document.getElementsByClassName('selected-command-option-button')
+											]?.at(-1);
+											commandOptionButton.scrollIntoView({ block: 'center' });
+										}
+
+										if (['/', '#', '@'].includes(prompt.charAt(0)) && e.key === 'ArrowDown') {
+											e.preventDefault();
+
+											(promptsElement || documentsElement || modelsElement).selectDown();
+
+											const commandOptionButton = [
+												...document.getElementsByClassName('selected-command-option-button')
+											]?.at(-1);
+											commandOptionButton.scrollIntoView({ block: 'center' });
+										}
+
+										if (['/', '#', '@'].includes(prompt.charAt(0)) && e.key === 'Enter') {
+											e.preventDefault();
+
+											const commandOptionButton = [
+												...document.getElementsByClassName('selected-command-option-button')
+											]?.at(-1);
+
+											if (e.shiftKey) {
+												prompt = `${prompt}\n`;
+											} else if (commandOptionButton) {
+												commandOptionButton?.click();
+											} else {
+												document.getElementById('send-message-button')?.click();
+											}
+										}
+
+										if (['/', '#', '@'].includes(prompt.charAt(0)) && e.key === 'Tab') {
+											e.preventDefault();
+
+											const commandOptionButton = [
+												...document.getElementsByClassName('selected-command-option-button')
+											]?.at(-1);
+
+											commandOptionButton?.click();
+										} else if (e.key === 'Tab') {
+											const words = findWordIndices(prompt);
+
+											if (words.length > 0) {
+												const word = words.at(0);
+												const fullPrompt = prompt;
+
+												prompt = prompt.substring(0, word?.endIndex + 1);
+												await tick();
+
+												e.target.scrollTop = e.target.scrollHeight;
+												prompt = fullPrompt;
+												await tick();
+
+												e.preventDefault();
+												e.target.setSelectionRange(word?.startIndex, word.endIndex + 1);
+											}
+
+											e.target.style.height = '';
+											e.target.style.height = Math.min(e.target.scrollHeight, 200) + 'px';
+										}
+
+										if (e.key === 'Escape') {
+											console.log('Escape');
+											atSelectedModel = undefined;
+										}
+									}}
+									rows="1"
+									on:input={(e) => {
+										e.target.style.height = '';
+										e.target.style.height = Math.min(e.target.scrollHeight, 200) + 'px';
+										user = null;
+									}}
+									on:focus={(e) => {
+										e.target.style.height = '';
+										e.target.style.height = Math.min(e.target.scrollHeight, 200) + 'px';
+									}}
+									on:paste={(e) => {
+										const clipboardData = e.clipboardData || window.clipboardData;
+
+										if (clipboardData && clipboardData.items) {
+											for (const item of clipboardData.items) {
+												if (item.type.indexOf('image') !== -1) {
+													const blob = item.getAsFile();
+													const reader = new FileReader();
+
+													reader.onload = function (e) {
+														files = [
+															...files,
+															{
+																type: 'image',
+																url: `${e.target.result}`
+															}
+														];
+													};
+
+													reader.readAsDataURL(blob);
+												}
+											}
+										}
+									}}
+								/>
 
 						<div class="self-end mb-2 flex space-x-1 mr-1">
 							{#if messages.length == 0 || messages.at(-1).done == true}
-
 								<Tooltip content={$i18n.t('Send message')}>
 									<button
 										id="send-message-button"

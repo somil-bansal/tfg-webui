@@ -28,19 +28,6 @@ describe('Settings', () => {
 		});
 	});
 
-	context('Connections', () => {
-		it('user can open the Connections modal and hit save', () => {
-			cy.get('button').contains('Connections').click();
-			cy.get('button').contains('Save').click();
-		});
-	});
-
-	context('Models', () => {
-		it('user can open the Models modal', () => {
-			cy.get('button').contains('Models').click();
-		});
-	});
-
 	context('Interface', () => {
 		it('user can open the Interface modal and hit save', () => {
 			cy.get('button').contains('Interface').click();

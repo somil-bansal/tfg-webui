@@ -1,12 +1,40 @@
-from typing import List
-
-import markdown
-from fastapi import APIRouter, Response
-from fpdf import FPDF
+from fastapi import APIRouter, UploadFile, File, Response
+from fastapi import Depends, HTTPException, status
+from peewee import SqliteDatabase
+from starlette.responses import StreamingResponse, FileResponse
 from pydantic import BaseModel
+
+
+from fpdf import FPDF
+import markdown
+import black
+
+
+from apps.webui.internal.db import DB
+from utils.utils import get_admin_user
+from utils.misc import calculate_sha256, get_gravatar_url
+
+from config import OLLAMA_BASE_URLS, DATA_DIR, UPLOAD_DIR, ENABLE_ADMIN_EXPORT
+from constants import ERROR_MESSAGES
+from typing import List
 
 router = APIRouter()
 
+
+
+class CodeFormatRequest(BaseModel):
+    code: str
+
+
+@router.post("/code/format")
+async def format_code(request: CodeFormatRequest):
+    try:
+        formatted_code = black.format_str(request.code, mode=black.Mode())
+        return {"code": formatted_code}
+    except black.NothingChanged:
+        return {"code": request.code}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 class MarkdownForm(BaseModel):

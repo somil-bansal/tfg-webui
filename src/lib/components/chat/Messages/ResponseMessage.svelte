@@ -28,7 +28,6 @@
 	import ProfileImage from './ProfileImage.svelte';
 	import Skeleton from './Skeleton.svelte';
 	import CodeBlock from './CodeBlock.svelte';
-	// import Image from '$lib/components/common/Image.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import RateComment from './RateComment.svelte';
 	import CitationsModal from '$lib/components/chat/Messages/CitationsModal.svelte';
@@ -248,42 +247,34 @@
 				{/if}
 			</Name>
 
-<!--			{#if (message?.files ?? []).filter((f) => f.type === 'image').length > 0}
-				<div class="my-2.5 w-full flex overflow-x-auto gap-2 flex-wrap">
-					{#each message.files as file}
-						<div>
-							{#if file.type === 'image'}
-								<Image src={file.url} />
-							{/if}
-						</div>
-					{/each}
-				</div>
-			{/if}-->
 
 			<div
 				class="prose chat-{message.role} w-full max-w-full dark:prose-invert prose-headings:my-0 prose-headings:-mb-4 prose-p:m-0 prose-p:-mb-6 prose-pre:my-0 prose-table:my-0 prose-blockquote:my-0 prose-img:my-0 prose-ul:-my-4 prose-ol:-my-4 prose-li:-my-3 prose-ul:-mb-6 prose-ol:-mb-8 prose-ol:p-0 prose-li:-mb-4 whitespace-pre-line"
 			>
 				<div>
-					{#if message?.status}
+					{#if (message?.statusHistory ?? [...(message?.status ? [message?.status] : [])]).length > 0}
+						{@const status = (
+							message?.statusHistory ?? [...(message?.status ? [message?.status] : [])]
+						).at(-1)}
 						<div class="flex items-center gap-2 pt-1 pb-1">
-							{#if message?.status?.done === false}
+							{#if status.done === false}
 								<div class="">
 									<Spinner className="size-4" />
 								</div>
 							{/if}
 
-							{#if message?.status?.action === 'web_search' && message?.status?.urls}
-								<WebSearchResults urls={message?.status?.urls}>
+							{#if status?.action === 'web_search' && status?.urls}
+								<WebSearchResults {status}>
 									<div class="flex flex-col justify-center -space-y-0.5">
 										<div class="text-base line-clamp-1 text-wrap">
-											{message.status.description}
+											{status?.description}
 										</div>
 									</div>
 								</WebSearchResults>
 							{:else}
 								<div class="flex flex-col justify-center -space-y-0.5">
 									<div class=" text-gray-500 dark:text-gray-500 text-base line-clamp-1 text-wrap">
-										{message.status.description}
+										{status?.description}
 									</div>
 								</div>
 							{/if}
@@ -569,8 +560,8 @@
 												<button
 													class="{isLastMessage
 														? 'visible'
-														: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg {message
-														?.annotation?.rating === 1
+														: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg {(message
+														?.annotation?.rating ?? null) === 1
 														? 'bg-gray-100 dark:bg-gray-800'
 														: ''} dark:hover:text-white hover:text-black transition"
 													on:click={() => {
@@ -604,8 +595,8 @@
 												<button
 													class="{isLastMessage
 														? 'visible'
-														: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg {message
-														?.annotation?.rating === -1
+														: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg {(message
+														?.annotation?.rating ?? null) === -1
 														? 'bg-gray-100 dark:bg-gray-800'
 														: ''} dark:hover:text-white hover:text-black transition"
 													on:click={() => {
@@ -675,6 +666,7 @@
 														? 'visible'
 														: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition regenerate-response-button"
 													on:click={() => {
+														showRateComment = false;
 														regenerateResponse(message);
 													}}
 												>

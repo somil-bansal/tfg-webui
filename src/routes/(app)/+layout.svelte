@@ -8,11 +8,11 @@
 	import { goto } from '$app/navigation';
 
 	import { getModels as _getModels } from '$lib/apis';
-	import { getOllamaVersion } from '$lib/apis/ollama';
-	import { getPrompts } from '$lib/apis/prompts';
-
-	import { getDocs } from '$lib/apis/documents';
 	import { getAllChatTags } from '$lib/apis/chats';
+
+	import { getPrompts } from '$lib/apis/prompts';
+	import { getDocs } from '$lib/apis/documents';
+	import { getTools } from '$lib/apis/tools';
 
 	import {
 		user,
@@ -23,27 +23,21 @@
 		documents,
 		tags,
 		showChangelog,
-		config
+		config,
+		showCallOverlay,
+		tools
 	} from '$lib/stores';
-	import { REQUIRED_OLLAMA_VERSION, WEBUI_API_BASE_URL } from '$lib/constants';
-	import { compareVersion } from '$lib/utils';
 
 	import SettingsModal from '$lib/components/chat/SettingsModal.svelte';
 	import Sidebar from '$lib/components/layout/Sidebar.svelte';
-	import ShortcutsModal from '$lib/components/chat/ShortcutsModal.svelte';
 	import ChangelogModal from '$lib/components/ChangelogModal.svelte';
-	import Tooltip from '$lib/components/common/Tooltip.svelte';
-	import { getUserSettings } from '$lib/apis/users';
+	import AccountPending from '$lib/components/layout/Overlay/AccountPending.svelte';
 
 	const i18n = getContext('i18n');
 
-	let ollamaVersion = '';
 	let loaded = false;
-	let showShortcutsButtonElement: HTMLButtonElement;
 	let DB = null;
 	let localDBChats = [];
-
-	let showShortcuts = false;
 
 	const getModels = async () => {
 		return _getModels(localStorage.token);
@@ -88,6 +82,12 @@
 				})(),
 				(async () => {
 					documents.set(await getDocs(localStorage.token));
+				})(),
+				(async () => {
+					tools.set(await getTools(localStorage.token));
+				})(),
+				(async () => {
+					banners.set(await getBanners(localStorage.token));
 				})(),
 				(async () => {
 					tags.set(await getAllChatTags(localStorage.token));
@@ -155,7 +155,7 @@
 				if (isCtrlPressed && event.key === '/') {
 					event.preventDefault();
 					console.log('showShortcuts');
-					showShortcutsButtonElement.click();
+					document.getElementById('show-shortcuts-button')?.click();
 				}
 			});
 
@@ -170,63 +170,62 @@
 	});
 </script>
 
-<div class=" hidden lg:flex fixed bottom-0 right-0 px-2 py-2 z-10">
-	<Tooltip content={$i18n.t('Help')} placement="left">
-		<button
-			id="show-shortcuts-button"
-			bind:this={showShortcutsButtonElement}
-			class="text-gray-600 dark:text-gray-300 bg-gray-300/20 size-5 flex items-center justify-center text-[0.7rem] rounded-full"
-			on:click={() => {
-				showShortcuts = !showShortcuts;
-			}}
-		>
-			?
-		</button>
-	</Tooltip>
-</div>
-
-<ShortcutsModal bind:show={showShortcuts} />
 <SettingsModal bind:show={$showSettings} />
 <ChangelogModal bind:show={$showChangelog} />
 
 <div class="app relative">
 	<div
-		class=" text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-900 min-h-screen overflow-auto flex flex-row"
+		class=" text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-900 h-screen max-h-[100dvh] overflow-auto flex flex-row"
 	>
 		{#if loaded}
 			{#if !['user', 'admin'].includes($user.role)}
-				<div class="fixed w-full h-full flex z-[999]">
+				<AccountPending />
+			{:else if localDBChats.length > 0}
+				<div class="fixed w-full h-full flex z-50">
 					<div
-						class="absolute w-full h-full backdrop-blur-lg bg-white/10 dark:bg-gray-900/50 flex justify-center"
+						class="absolute w-full h-full backdrop-blur-md bg-white/20 dark:bg-gray-900/50 flex justify-center"
 					>
-						<div class="m-auto pb-10 flex flex-col justify-center">
+						<div class="m-auto pb-44 flex flex-col justify-center">
 							<div class="max-w-md">
 								<div class="text-center dark:text-white text-2xl font-medium z-50">
-									Account Activation Pending<br /> Contact Admin for WebUI Access
+									Important Update<br /> Action Required for Chat Log Storage
 								</div>
 
 								<div class=" mt-4 text-center text-sm dark:text-gray-200 w-full">
-									Your account status is currently pending activation. To access the WebUI, please
-									reach out to the administrator. Admins can manage user statuses from the Admin
-									Panel.
+									{$i18n.t(
+										"Saving chat logs directly to your browser's storage is no longer supported. Please take a moment to download and delete your chat logs by clicking the button below. Don't worry, you can easily re-import your chat logs to the backend through"
+									)}
+									<span class="font-semibold dark:text-white"
+										>{$i18n.t('Settings')} > {$i18n.t('Chats')} > {$i18n.t('Import Chats')}</span
+									>. {$i18n.t(
+										'This ensures that your valuable conversations are securely saved to your backend database. Thank you!'
+									)}
 								</div>
 
 								<div class=" mt-6 mx-auto relative group w-fit">
 									<button
-										class="relative z-20 flex px-5 py-2 rounded-full bg-white border border-gray-100 dark:border-none hover:bg-gray-100 text-gray-700 transition font-medium text-sm"
+										class="relative z-20 flex px-5 py-2 rounded-full bg-white border border-gray-100 dark:border-none hover:bg-gray-100 transition font-medium text-sm"
 										on:click={async () => {
-											location.href = '/';
+											let blob = new Blob([JSON.stringify(localDBChats)], {
+												type: 'application/json'
+											});
+											saveAs(blob, `chat-export-${Date.now()}.json`);
+
+											const tx = DB.transaction('chats', 'readwrite');
+											await Promise.all([tx.store.clear(), tx.done]);
+											await deleteDB('Chats');
+
+											localDBChats = [];
 										}}
 									>
-										{$i18n.t('Check Again')}
+										Download & Delete
 									</button>
 
 									<button
 										class="text-xs text-center w-full mt-2 text-gray-400 underline"
 										on:click={async () => {
-											localStorage.removeItem('token');
-											location.href = '/auth';
-										}}>{$i18n.t('Sign Out')}</button
+											localDBChats = [];
+										}}>{$i18n.t('Close')}</button
 									>
 								</div>
 							</div>

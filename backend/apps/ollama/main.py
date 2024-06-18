@@ -41,8 +41,6 @@ from utils.utils import (
     get_admin_user,
 )
 
-from utils.models import get_model_id_from_custom_model_id
-
 
 from config import (
     SRC_LOG_LEVELS,
@@ -134,7 +132,7 @@ async def update_ollama_api_url(form_data: UrlUpdateForm, user=Depends(get_admin
 async def fetch_url(url):
     timeout = aiohttp.ClientTimeout(total=5)
     try:
-        async with aiohttp.ClientSession(timeout=timeout) as session:
+        async with aiohttp.ClientSession(timeout=timeout, trust_env=True) as session:
             async with session.get(url) as response:
                 return await response.json()
     except Exception as e:
@@ -156,7 +154,7 @@ async def cleanup_response(
 async def post_streaming_url(url: str, payload: str):
     r = None
     try:
-        session = aiohttp.ClientSession()
+        session = aiohttp.ClientSession(trust_env=True)
         r = await session.post(url, data=payload)
         r.raise_for_status()
 
@@ -256,7 +254,7 @@ async def get_ollama_tags(
             return r.json()
         except Exception as e:
             log.exception(e)
-            error_detail = "The Finance Genie: Server Connection Error"
+            error_detail = "Open WebUI: Server Connection Error"
             if r is not None:
                 try:
                     res = r.json()
@@ -274,32 +272,33 @@ async def get_ollama_tags(
 @app.get("/api/version")
 @app.get("/api/version/{url_idx}")
 async def get_ollama_versions(url_idx: Optional[int] = None):
+    if app.state.config.ENABLE_OLLAMA_API:
+        if url_idx == None:
 
-    if url_idx == None:
+            # returns lowest version
+            tasks = [
+                fetch_url(f"{url}/api/version")
+                for url in app.state.config.OLLAMA_BASE_URLS
+            ]
+            responses = await asyncio.gather(*tasks)
+            responses = list(filter(lambda x: x is not None, responses))
 
-        # returns lowest version
-        tasks = [
-            fetch_url(f"{url}/api/version") for url in app.state.config.OLLAMA_BASE_URLS
-        ]
-        responses = await asyncio.gather(*tasks)
-        responses = list(filter(lambda x: x is not None, responses))
+            if len(responses) > 0:
+                lowest_version = min(
+                    responses,
+                    key=lambda x: tuple(
+                        map(int, re.sub(r"^v|-.*", "", x["version"]).split("."))
+                    ),
+                )
 
-        if len(responses) > 0:
-            lowest_version = min(
-                responses,
-                key=lambda x: tuple(
-                    map(int, re.sub(r"^v|-.*", "", x["version"]).split("."))
-                ),
-            )
-
-            return {"version": lowest_version["version"]}
+                return {"version": lowest_version["version"]}
+            else:
+                raise HTTPException(
+                    status_code=500,
+                    detail=ERROR_MESSAGES.OLLAMA_NOT_FOUND,
+                )
         else:
-            raise HTTPException(
-                status_code=500,
-                detail=ERROR_MESSAGES.OLLAMA_NOT_FOUND,
-            )
-    else:
-        url = app.state.config.OLLAMA_BASE_URLS[url_idx]
+            url = app.state.config.OLLAMA_BASE_URLS[url_idx]
 
         r = None
         try:
@@ -318,10 +317,12 @@ async def get_ollama_versions(url_idx: Optional[int] = None):
                 except:
                     error_detail = f"Ollama: {e}"
 
-            raise HTTPException(
-                status_code=r.status_code if r else 500,
-                detail=error_detail,
-            )
+                raise HTTPException(
+                    status_code=r.status_code if r else 500,
+                    detail=error_detail,
+                )
+    else:
+        return {"version": False}
 
 
 class ModelNameForm(BaseModel):
@@ -432,7 +433,7 @@ async def copy_model(
         return True
     except Exception as e:
         log.exception(e)
-        error_detail = "The Finance Genie: Server Connection Error"
+        error_detail = "Open WebUI: Server Connection Error"
         if r is not None:
             try:
                 res = r.json()
@@ -479,7 +480,7 @@ async def delete_model(
         return True
     except Exception as e:
         log.exception(e)
-        error_detail = "The Finance Genie: Server Connection Error"
+        error_detail = "Open WebUI: Server Connection Error"
         if r is not None:
             try:
                 res = r.json()
@@ -517,7 +518,7 @@ async def show_model_info(form_data: ModelNameForm, user=Depends(get_verified_us
         return r.json()
     except Exception as e:
         log.exception(e)
-        error_detail = "The Finance Genie: Server Connection Error"
+        error_detail = "Open WebUI: Server Connection Error"
         if r is not None:
             try:
                 res = r.json()
@@ -574,7 +575,7 @@ async def generate_embeddings(
         return r.json()
     except Exception as e:
         log.exception(e)
-        error_detail = "The Finance Genie: Server Connection Error"
+        error_detail = "Open WebUI: Server Connection Error"
         if r is not None:
             try:
                 res = r.json()
@@ -631,7 +632,7 @@ def generate_ollama_embeddings(
             raise "Something went wrong :/"
     except Exception as e:
         log.exception(e)
-        error_detail = "The Finance Genie: Server Connection Error"
+        error_detail = "Open WebUI: Server Connection Error"
         if r is not None:
             try:
                 res = r.json()
@@ -725,7 +726,6 @@ async def generate_chat_completion(
     model_info = Models.get_model_by_id(model_id)
 
     if model_info:
-        print(model_info)
         if model_info.base_model_id:
             payload["model"] = model_info.base_model_id
 
@@ -761,7 +761,7 @@ async def generate_chat_completion(
                     "frequency_penalty", None
                 )
 
-            if model_info.params.get("temperature", None):
+            if model_info.params.get("temperature", None) is not None:
                 payload["options"]["temperature"] = model_info.params.get(
                     "temperature", None
                 )
@@ -846,9 +846,14 @@ async def generate_chat_completion(
 
 
 # TODO: we should update this part once Ollama supports other types
+class OpenAIChatMessageContent(BaseModel):
+    type: str
+    model_config = ConfigDict(extra="allow")
+
+
 class OpenAIChatMessage(BaseModel):
     role: str
-    content: str
+    content: Union[str, OpenAIChatMessageContent]
 
     model_config = ConfigDict(extra="allow")
 
@@ -876,7 +881,6 @@ async def generate_openai_chat_completion(
     model_info = Models.get_model_by_id(model_id)
 
     if model_info:
-        print(model_info)
         if model_info.base_model_id:
             payload["model"] = model_info.base_model_id
 
@@ -991,7 +995,7 @@ async def get_openai_models(
 
         except Exception as e:
             log.exception(e)
-            error_detail = "The Finance Genie: Server Connection Error"
+            error_detail = "Open WebUI: Server Connection Error"
             if r is not None:
                 try:
                     res = r.json()
@@ -1045,7 +1049,7 @@ async def download_file_stream(
 
     timeout = aiohttp.ClientTimeout(total=600)  # Set the timeout
 
-    async with aiohttp.ClientSession(timeout=timeout) as session:
+    async with aiohttp.ClientSession(timeout=timeout, trust_env=True) as session:
         async with session.get(file_url, headers=headers) as response:
             total_size = int(response.headers.get("content-length", 0)) + current_size
 
@@ -1303,7 +1307,7 @@ async def deprecated_proxy(
     try:
         return await run_in_threadpool(get_request)
     except Exception as e:
-        error_detail = "The Finance Genie: Server Connection Error"
+        error_detail = "Open WebUI: Server Connection Error"
         if r is not None:
             try:
                 res = r.json()

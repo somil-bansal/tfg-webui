@@ -76,13 +76,13 @@ for source in log_sources:
 
 log.setLevel(SRC_LOG_LEVELS["CONFIG"])
 
-WEBUI_NAME = os.environ.get("WEBUI_NAME", "The Finance Genie")
-# if WEBUI_NAME != "The Finance Genie":
-#     WEBUI_NAME += " (The Finance Genie)"
+WEBUI_NAME = os.environ.get("WEBUI_NAME", "Open WebUI")
+if WEBUI_NAME != "Open WebUI":
+    WEBUI_NAME += " (Open WebUI)"
 
 WEBUI_URL = os.environ.get("WEBUI_URL", "http://localhost:3000")
 
-# WEBUI_FAVICON_URL = "https://openwebui.com/favicon.png"
+WEBUI_FAVICON_URL = "https://openwebui.com/favicon.png"
 
 
 ####################################
@@ -103,65 +103,65 @@ VERSION = PACKAGE_DATA["version"]
 
 
 # Function to parse each section
-# def parse_section(section):
-#     items = []
-#     for li in section.find_all("li"):
-#         # Extract raw HTML string
-#         raw_html = str(li)
-#
-#         # Extract text without HTML tags
-#         text = li.get_text(separator=" ", strip=True)
-#
-#         # Split into title and content
-#         parts = text.split(": ", 1)
-#         title = parts[0].strip() if len(parts) > 1 else ""
-#         content = parts[1].strip() if len(parts) > 1 else text
-#
-#         items.append({"title": title, "content": content, "raw": raw_html})
-#     return items
+def parse_section(section):
+    items = []
+    for li in section.find_all("li"):
+        # Extract raw HTML string
+        raw_html = str(li)
+
+        # Extract text without HTML tags
+        text = li.get_text(separator=" ", strip=True)
+
+        # Split into title and content
+        parts = text.split(": ", 1)
+        title = parts[0].strip() if len(parts) > 1 else ""
+        content = parts[1].strip() if len(parts) > 1 else text
+
+        items.append({"title": title, "content": content, "raw": raw_html})
+    return items
 
 
-# try:
-#     changelog_path = BASE_DIR / "CHANGELOG.md"
-#     with open(str(changelog_path.absolute()), "r", encoding="utf8") as file:
-#         changelog_content = file.read()
-#
-# except:
-#     changelog_content = (pkgutil.get_data("open_webui", "CHANGELOG.md") or b"").decode()
-#
-#
-# # Convert markdown content to HTML
-# html_content = markdown.markdown(changelog_content)
+try:
+    changelog_path = BASE_DIR / "CHANGELOG.md"
+    with open(str(changelog_path.absolute()), "r", encoding="utf8") as file:
+        changelog_content = file.read()
+
+except:
+    changelog_content = (pkgutil.get_data("open_webui", "CHANGELOG.md") or b"").decode()
+
+
+# Convert markdown content to HTML
+html_content = markdown.markdown(changelog_content)
 
 # Parse the HTML content
-# soup = BeautifulSoup(html_content, "html.parser")
+soup = BeautifulSoup(html_content, "html.parser")
 
 # Initialize JSON structure
 changelog_json = {}
 
 # Iterate over each version
-# for version in soup.find_all("h2"):
-#     version_number = version.get_text().strip().split(" - ")[0][1:-1]  # Remove brackets
-#     date = version.get_text().strip().split(" - ")[1]
-#
-#     version_data = {"date": date}
-#
-#     # Find the next sibling that is a h3 tag (section title)
-#     current = version.find_next_sibling()
-#
-#     while current and current.name != "h2":
-#         if current.name == "h3":
-#             section_title = current.get_text().lower()  # e.g., "added", "fixed"
-#             section_items = parse_section(current.find_next_sibling("ul"))
-#             version_data[section_title] = section_items
-#
-#         # Move to the next element
-#         current = current.find_next_sibling()
-#
-#     changelog_json[version_number] = version_data
-#
-#
-# CHANGELOG = changelog_json
+for version in soup.find_all("h2"):
+    version_number = version.get_text().strip().split(" - ")[0][1:-1]  # Remove brackets
+    date = version.get_text().strip().split(" - ")[1]
+
+    version_data = {"date": date}
+
+    # Find the next sibling that is a h3 tag (section title)
+    current = version.find_next_sibling()
+
+    while current and current.name != "h2":
+        if current.name == "h3":
+            section_title = current.get_text().lower()  # e.g., "added", "fixed"
+            section_items = parse_section(current.find_next_sibling("ul"))
+            version_data[section_title] = section_items
+
+        # Move to the next element
+        current = current.find_next_sibling()
+
+    changelog_json[version_number] = version_data
+
+
+CHANGELOG = changelog_json
 
 
 ####################################
@@ -176,6 +176,17 @@ WEBUI_BUILD_HASH = os.environ.get("WEBUI_BUILD_HASH", "dev-build")
 
 DATA_DIR = Path(os.getenv("DATA_DIR", BACKEND_DIR / "data")).resolve()
 FRONTEND_BUILD_DIR = Path(os.getenv("FRONTEND_BUILD_DIR", BASE_DIR / "build")).resolve()
+
+RESET_CONFIG_ON_START = (
+    os.environ.get("RESET_CONFIG_ON_START", "False").lower() == "true"
+)
+if RESET_CONFIG_ON_START:
+    try:
+        os.remove(f"{DATA_DIR}/config.json")
+        with open(f"{DATA_DIR}/config.json", "w") as f:
+            f.write("{}")
+    except:
+        pass
 
 try:
     CONFIG_DATA = json.loads((DATA_DIR / "config.json").read_text())
@@ -348,6 +359,14 @@ Path(UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
 
 DOCS_DIR = os.getenv("DOCS_DIR", f"{DATA_DIR}/docs")
 Path(DOCS_DIR).mkdir(parents=True, exist_ok=True)
+
+
+####################################
+# Tools DIR
+####################################
+
+TOOLS_DIR = os.getenv("TOOLS_DIR", f"{DATA_DIR}/tools")
+Path(TOOLS_DIR).mkdir(parents=True, exist_ok=True)
 
 
 ####################################
@@ -557,6 +576,91 @@ WEBHOOK_URL = PersistentConfig(
 
 ENABLE_ADMIN_EXPORT = os.environ.get("ENABLE_ADMIN_EXPORT", "True").lower() == "true"
 
+SHOW_ADMIN_DETAILS = PersistentConfig(
+    "SHOW_ADMIN_DETAILS",
+    "auth.admin.show",
+    os.environ.get("SHOW_ADMIN_DETAILS", "true").lower() == "true",
+)
+
+ADMIN_EMAIL = PersistentConfig(
+    "ADMIN_EMAIL",
+    "auth.admin.email",
+    os.environ.get("ADMIN_EMAIL", None),
+)
+
+
+####################################
+# TASKS
+####################################
+
+
+TASK_MODEL = PersistentConfig(
+    "TASK_MODEL",
+    "task.model.default",
+    os.environ.get("TASK_MODEL", ""),
+)
+
+TASK_MODEL_EXTERNAL = PersistentConfig(
+    "TASK_MODEL_EXTERNAL",
+    "task.model.external",
+    os.environ.get("TASK_MODEL_EXTERNAL", ""),
+)
+
+TITLE_GENERATION_PROMPT_TEMPLATE = PersistentConfig(
+    "TITLE_GENERATION_PROMPT_TEMPLATE",
+    "task.title.prompt_template",
+    os.environ.get(
+        "TITLE_GENERATION_PROMPT_TEMPLATE",
+        """Here is the query:
+{{prompt:middletruncate:8000}}
+
+Create a concise, 3-5 word phrase with an emoji as a title for the previous query. Suitable Emojis for the summary can be used to enhance understanding but avoid quotation marks or special formatting. RESPOND ONLY WITH THE TITLE TEXT.
+
+Examples of titles:
+📉 Stock Market Trends
+🍪 Perfect Chocolate Chip Recipe
+Evolution of Music Streaming
+Remote Work Productivity Tips
+Artificial Intelligence in Healthcare
+🎮 Video Game Development Insights""",
+    ),
+)
+
+
+SEARCH_QUERY_GENERATION_PROMPT_TEMPLATE = PersistentConfig(
+    "SEARCH_QUERY_GENERATION_PROMPT_TEMPLATE",
+    "task.search.prompt_template",
+    os.environ.get(
+        "SEARCH_QUERY_GENERATION_PROMPT_TEMPLATE",
+        """You are tasked with generating web search queries. Give me an appropriate query to answer my question for google search. Answer with only the query. Today is {{CURRENT_DATE}}.
+        
+Question:
+{{prompt:end:4000}}""",
+    ),
+)
+
+SEARCH_QUERY_PROMPT_LENGTH_THRESHOLD = PersistentConfig(
+    "SEARCH_QUERY_PROMPT_LENGTH_THRESHOLD",
+    "task.search.prompt_length_threshold",
+    int(
+        os.environ.get(
+            "SEARCH_QUERY_PROMPT_LENGTH_THRESHOLD",
+            100,
+        )
+    ),
+)
+
+TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE = PersistentConfig(
+    "TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE",
+    "task.tools.prompt_template",
+    os.environ.get(
+        "TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE",
+        """Tools: {{TOOLS}}
+If a function tool doesn't match the query, return an empty string. Else, pick a function tool, fill in the parameters from the function tool's schema, and return it in the format { "name": \"functionName\", "parameters": { "key": "value" } }. Only pick a function if the user asks.  Only return the object. Do not return any other text.""",
+    ),
+)
+
+
 ####################################
 # WEBUI_SECRET_KEY
 ####################################
@@ -637,6 +741,12 @@ RAG_EMBEDDING_MODEL_AUTO_UPDATE = (
 
 RAG_EMBEDDING_MODEL_TRUST_REMOTE_CODE = (
     os.environ.get("RAG_EMBEDDING_MODEL_TRUST_REMOTE_CODE", "").lower() == "true"
+)
+
+RAG_EMBEDDING_OPENAI_BATCH_SIZE = PersistentConfig(
+    "RAG_EMBEDDING_OPENAI_BATCH_SIZE",
+    "rag.embedding_openai_batch_size",
+    os.environ.get("RAG_EMBEDDING_OPENAI_BATCH_SIZE", 1),
 )
 
 RAG_RERANKING_MODEL = PersistentConfig(
@@ -727,6 +837,13 @@ ENABLE_RAG_LOCAL_WEB_FETCH = (
     os.getenv("ENABLE_RAG_LOCAL_WEB_FETCH", "False").lower() == "true"
 )
 
+YOUTUBE_LOADER_LANGUAGE = PersistentConfig(
+    "YOUTUBE_LOADER_LANGUAGE",
+    "rag.youtube_loader_language",
+    os.getenv("YOUTUBE_LOADER_LANGUAGE", "en").split(","),
+)
+
+
 ENABLE_RAG_WEB_SEARCH = PersistentConfig(
     "ENABLE_RAG_WEB_SEARCH",
     "rag.web.search.enable",
@@ -779,6 +896,12 @@ SERPER_API_KEY = PersistentConfig(
     "SERPER_API_KEY",
     "rag.web.search.serper_api_key",
     os.getenv("SERPER_API_KEY", ""),
+)
+
+SERPLY_API_KEY = PersistentConfig(
+    "SERPLY_API_KEY",
+    "rag.web.search.serply_api_key",
+    os.getenv("SERPLY_API_KEY", ""),
 )
 
 
