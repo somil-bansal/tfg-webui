@@ -55,7 +55,6 @@ log = logging.getLogger(__name__)
 log.info(f"GLOBAL_LOG_LEVEL: {GLOBAL_LOG_LEVEL}")
 
 log_sources = [
-    "COMFYUI",
     "CONFIG",
     "DB",
     "MAIN",
@@ -104,65 +103,65 @@ VERSION = PACKAGE_DATA["version"]
 
 
 # Function to parse each section
-def parse_section(section):
-    items = []
-    for li in section.find_all("li"):
-        # Extract raw HTML string
-        raw_html = str(li)
-
-        # Extract text without HTML tags
-        text = li.get_text(separator=" ", strip=True)
-
-        # Split into title and content
-        parts = text.split(": ", 1)
-        title = parts[0].strip() if len(parts) > 1 else ""
-        content = parts[1].strip() if len(parts) > 1 else text
-
-        items.append({"title": title, "content": content, "raw": raw_html})
-    return items
-
-
-try:
-    changelog_path = BASE_DIR / "CHANGELOG.md"
-    with open(str(changelog_path.absolute()), "r", encoding="utf8") as file:
-        changelog_content = file.read()
-
-except:
-    changelog_content = (pkgutil.get_data("open_webui", "CHANGELOG.md") or b"").decode()
+# def parse_section(section):
+#     items = []
+#     for li in section.find_all("li"):
+#         # Extract raw HTML string
+#         raw_html = str(li)
+#
+#         # Extract text without HTML tags
+#         text = li.get_text(separator=" ", strip=True)
+#
+#         # Split into title and content
+#         parts = text.split(": ", 1)
+#         title = parts[0].strip() if len(parts) > 1 else ""
+#         content = parts[1].strip() if len(parts) > 1 else text
+#
+#         items.append({"title": title, "content": content, "raw": raw_html})
+#     return items
 
 
-# Convert markdown content to HTML
-html_content = markdown.markdown(changelog_content)
+# try:
+#     changelog_path = BASE_DIR / "CHANGELOG.md"
+#     with open(str(changelog_path.absolute()), "r", encoding="utf8") as file:
+#         changelog_content = file.read()
+#
+# except:
+#     changelog_content = (pkgutil.get_data("open_webui", "CHANGELOG.md") or b"").decode()
+#
+#
+# # Convert markdown content to HTML
+# html_content = markdown.markdown(changelog_content)
 
 # Parse the HTML content
-soup = BeautifulSoup(html_content, "html.parser")
+# soup = BeautifulSoup(html_content, "html.parser")
 
 # Initialize JSON structure
 changelog_json = {}
 
 # Iterate over each version
-for version in soup.find_all("h2"):
-    version_number = version.get_text().strip().split(" - ")[0][1:-1]  # Remove brackets
-    date = version.get_text().strip().split(" - ")[1]
-
-    version_data = {"date": date}
-
-    # Find the next sibling that is a h3 tag (section title)
-    current = version.find_next_sibling()
-
-    while current and current.name != "h2":
-        if current.name == "h3":
-            section_title = current.get_text().lower()  # e.g., "added", "fixed"
-            section_items = parse_section(current.find_next_sibling("ul"))
-            version_data[section_title] = section_items
-
-        # Move to the next element
-        current = current.find_next_sibling()
-
-    changelog_json[version_number] = version_data
-
-
-CHANGELOG = changelog_json
+# for version in soup.find_all("h2"):
+#     version_number = version.get_text().strip().split(" - ")[0][1:-1]  # Remove brackets
+#     date = version.get_text().strip().split(" - ")[1]
+#
+#     version_data = {"date": date}
+#
+#     # Find the next sibling that is a h3 tag (section title)
+#     current = version.find_next_sibling()
+#
+#     while current and current.name != "h2":
+#         if current.name == "h3":
+#             section_title = current.get_text().lower()  # e.g., "added", "fixed"
+#             section_items = parse_section(current.find_next_sibling("ul"))
+#             version_data[section_title] = section_items
+#
+#         # Move to the next element
+#         current = current.find_next_sibling()
+#
+#     changelog_json[version_number] = version_data
+#
+#
+# CHANGELOG = changelog_json
 
 
 ####################################
@@ -339,8 +338,8 @@ Path(UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
 # Cache DIR
 ####################################
 
-CACHE_DIR = f"{DATA_DIR}/cache"
-Path(CACHE_DIR).mkdir(parents=True, exist_ok=True)
+# CACHE_DIR = f"{DATA_DIR}/cache"
+# Path(CACHE_DIR).mkdir(parents=True, exist_ok=True)
 
 
 ####################################
@@ -356,24 +355,24 @@ Path(DOCS_DIR).mkdir(parents=True, exist_ok=True)
 ####################################
 
 
-def create_config_file(file_path):
-    directory = os.path.dirname(file_path)
-
-    # Check if directory exists, if not, create it
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
-    # Data to write into the YAML file
-    config_data = {
-        "general_settings": {},
-        "litellm_settings": {},
-        "model_list": [],
-        "router_settings": {},
-    }
-
-    # Write data to YAML file
-    with open(file_path, "w") as file:
-        yaml.dump(config_data, file)
+# def create_config_file(file_path):
+#     directory = os.path.dirname(file_path)
+#
+#     # Check if directory exists, if not, create it
+#     if not os.path.exists(directory):
+#         os.makedirs(directory)
+#
+#     # Data to write into the YAML file
+#     config_data = {
+#         "general_settings": {},
+#         "litellm_settings": {},
+#         "model_list": [],
+#         "router_settings": {},
+#     }
+#
+#     # Write data to YAML file
+#     with open(file_path, "w") as file:
+#         yaml.dump(config_data, file)
 
 
 ####################################
@@ -728,12 +727,6 @@ ENABLE_RAG_LOCAL_WEB_FETCH = (
     os.getenv("ENABLE_RAG_LOCAL_WEB_FETCH", "False").lower() == "true"
 )
 
-YOUTUBE_LOADER_LANGUAGE = PersistentConfig(
-    "YOUTUBE_LOADER_LANGUAGE",
-    "rag.youtube_loader_language",
-    os.getenv("YOUTUBE_LOADER_LANGUAGE", "en").split(","),
-)
-
 SEARXNG_QUERY_URL = os.getenv("SEARXNG_QUERY_URL", "")
 GOOGLE_PSE_API_KEY = os.getenv("GOOGLE_PSE_API_KEY", "")
 GOOGLE_PSE_ENGINE_ID = os.getenv("GOOGLE_PSE_ENGINE_ID", "")
@@ -741,6 +734,7 @@ BRAVE_SEARCH_API_KEY = os.getenv("BRAVE_SEARCH_API_KEY", "")
 SERPSTACK_API_KEY = os.getenv("SERPSTACK_API_KEY", "")
 SERPSTACK_HTTPS = os.getenv("SERPSTACK_HTTPS", "True").lower() == "true"
 SERPER_API_KEY = os.getenv("SERPER_API_KEY", "")
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "")
 
 
 RAG_WEB_SEARCH_ENABLED = (
@@ -749,6 +743,7 @@ RAG_WEB_SEARCH_ENABLED = (
     or BRAVE_SEARCH_API_KEY != ""
     or SERPSTACK_API_KEY != ""
     or SERPER_API_KEY != ""
+    or TAVILY_API_KEY != "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"
 )
 
 RAG_WEB_SEARCH_RESULT_COUNT = int(os.getenv("RAG_WEB_SEARCH_RESULT_COUNT", "3"))

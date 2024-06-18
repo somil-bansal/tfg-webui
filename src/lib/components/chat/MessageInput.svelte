@@ -308,12 +308,7 @@
 									crossorigin="anonymous"
 									alt="model profile"
 									class="size-5 max-w-[28px] object-cover rounded-full"
-									src={$models.find((model) => model.id === atSelectedModel.id)?.info?.meta
-										?.profile_image_url ??
-										($i18n.language === 'dg-DG'
-											? `/doge.png`
-											: `${WEBUI_BASE_URL}/static/favicon.png`)}
-								/>
+									src="{WEBUI_BASE_URL}/static/favicon.png"  />
 								<div>
 									Talking to <span class=" font-medium">{atSelectedModel.name}</span>
 								</div>
