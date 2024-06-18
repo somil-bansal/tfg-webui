@@ -5,6 +5,38 @@
 		"relevance_threshold": 0.0,
 		"enable_hybrid_search": true,
 		"embedding_engine": "",
-		"embedding_model": "sentence-transformers/all-MiniLM-L6-v2"
+		"embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+		"pdf_extract_images": false,
+		"enable_web_loader_ssl_verification": null,
+		"web": {
+			"search": {
+				"enable": true,
+				"engine": "duckduckgo",
+				"searxng_query_url": "",
+				"google_pse_api_key": "",
+				"google_pse_engine_id": "",
+				"brave_search_api_key": "",
+				"serpstack_api_key": "",
+				"serpstack_https": true,
+				"serper_api_key": "",
+				"serply_api_key": "",
+				"result_count": 3,
+				"concurrent_requests": 10
+			}
+		}
+	},
+	"ui": {
+		"default_models": "llama3:8b",
+		"user_permissions": {
+			"chat": {
+				"deletion": true
+			}
+		}
+	},
+	"model_filter": {
+		"enable": false,
+		"list": [
+			""
+		]
 	}
 }

@@ -74,7 +74,6 @@ from config import (
     VERSION,
     CHANGELOG,
     FRONTEND_BUILD_DIR,
-    CACHE_DIR,
     STATIC_DIR,
     ENABLE_OPENAI_API,
     ENABLE_OLLAMA_API,
@@ -1306,15 +1305,6 @@ async def get_app_config():
             "enable_web_search": rag_app.state.config.ENABLE_RAG_WEB_SEARCH,
             "enable_admin_export": ENABLE_ADMIN_EXPORT,
         },
-        "audio": {
-            "tts": {
-                "engine": audio_app.state.config.TTS_ENGINE,
-                "voice": audio_app.state.config.TTS_VOICE,
-            },
-            "stt": {
-                "engine": audio_app.state.config.STT_ENGINE,
-            },
-        },
     }
 
 
@@ -1428,7 +1418,6 @@ async def healthcheck():
 
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-app.mount("/cache", StaticFiles(directory=CACHE_DIR), name="cache")
 
 if os.path.exists(FRONTEND_BUILD_DIR):
     mimetypes.add_type("text/javascript", ".js")

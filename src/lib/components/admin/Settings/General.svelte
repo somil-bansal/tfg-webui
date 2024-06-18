@@ -1,8 +1,6 @@
 <script lang="ts">
 	import {
-		getCommunitySharingEnabledStatus,
 		getWebhookUrl,
-		toggleCommunitySharingEnabledStatus,
 		updateWebhookUrl
 	} from '$lib/apis';
 	import {
@@ -92,11 +90,6 @@
 					<Switch bind:state={adminConfig.SHOW_ADMIN_DETAILS} />
 				</div>
 
-				<div class="my-3 flex w-full items-center justify-between pr-2">
-					<div class=" self-center text-xs font-medium">{$i18n.t('Enable Community Sharing')}</div>
-
-					<Switch bind:state={adminConfig.ENABLE_COMMUNITY_SHARING} />
-				</div>
 
 				<hr class=" dark:border-gray-850 my-2" />
 

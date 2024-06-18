@@ -54,7 +54,6 @@
 	import MessageInput from '$lib/components/chat/MessageInput.svelte';
 	import Messages from '$lib/components/chat/Messages.svelte';
 	import Navbar from '$lib/components/layout/Navbar.svelte';
-	import CallOverlay from './MessageInput/CallOverlay.svelte';
 	import { error } from '@sveltejs/kit';
 
 	const i18n: Writable<i18nType> = getContext('i18n');
@@ -1204,7 +1203,6 @@
 	</title>
 </svelte:head>
 
-<CallOverlay {submitPrompt} bind:files />
 
 {#if !chatIdProp || (loaded && chatIdProp)}
 	<div
