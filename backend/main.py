@@ -275,7 +275,7 @@ class ChatCompletionMiddleware(BaseHTTPMiddleware):
             )
 
             # Remove the citations from the body
-            return_citations = data.get("citations", False)
+            return_citations = data.get("citations", True)
             if "citations" in data:
                 del data["citations"]
 

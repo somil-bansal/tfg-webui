@@ -807,11 +807,9 @@ DEFAULT_RAG_TEMPLATE = """Use the following context as your learned knowledge, i
     [context]
 </context>
 
-When answer to user:
-- If you don't know, just say that you don't know.
-- If you don't know when you are not sure, ask for clarification.
-Avoid mentioning that you obtained the information from the context.
-And answer according to the language of the user's question.
+When answer to user: - If you don't know, just say that you don't know. - If you don't know when you are not sure, 
+ask for clarification. Always mention if you got the information from document context. If you are using we search 
+for response, clearly mention that the context is both web and from documents
 
 Given the context information, answer the query.
 Query: [query]"""
@@ -836,13 +834,6 @@ RAG_OPENAI_API_KEY = PersistentConfig(
 ENABLE_RAG_LOCAL_WEB_FETCH = (
     os.getenv("ENABLE_RAG_LOCAL_WEB_FETCH", "False").lower() == "true"
 )
-
-YOUTUBE_LOADER_LANGUAGE = PersistentConfig(
-    "YOUTUBE_LOADER_LANGUAGE",
-    "rag.youtube_loader_language",
-    os.getenv("YOUTUBE_LOADER_LANGUAGE", "en").split(","),
-)
-
 
 ENABLE_RAG_WEB_SEARCH = PersistentConfig(
     "ENABLE_RAG_WEB_SEARCH",

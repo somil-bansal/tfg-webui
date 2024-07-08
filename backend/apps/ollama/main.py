@@ -1047,7 +1047,7 @@ async def download_file_stream(
 
     headers = {"Range": f"bytes={current_size}-"} if current_size > 0 else {}
 
-    timeout = aiohttp.ClientTimeout(total=600)  # Set the timeout
+    timeout = aiohttp.ClientTimeout(total=2400)  # Set the timeout
 
     async with aiohttp.ClientSession(timeout=timeout, trust_env=True) as session:
         async with session.get(file_url, headers=headers) as response:

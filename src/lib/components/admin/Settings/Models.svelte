@@ -738,7 +738,7 @@
 							{/if}
 						</div>
 
-						<div>
+						<!--<div>
 							<div class=" mb-2 text-sm font-medium">{$i18n.t('Delete a model')}</div>
 							<div class="flex w-full">
 								<div class="flex-1 mr-2">
@@ -780,9 +780,9 @@
 									</svg>
 								</button>
 							</div>
-						</div>
+						</div>-->
 
-						<div>
+						<!--<div>
 							<div class=" mb-2 text-sm font-medium">{$i18n.t('Create a model')}</div>
 							<div class="flex w-full">
 								<div class="flex-1 mr-2 flex flex-col gap-2">
@@ -852,8 +852,8 @@
 								</div>
 							{/if}
 						</div>
-
-						<div class="pt-1">
+-->
+						<!--<div class="pt-1">
 							<div class="flex justify-between items-center text-xs">
 								<div class=" text-sm font-medium">{$i18n.t('Experimental')}</div>
 								<button
@@ -865,7 +865,7 @@
 								>
 							</div>
 						</div>
-
+-->
 						{#if showExperimentalOllama}
 							<form
 								on:submit|preventDefault={() => {

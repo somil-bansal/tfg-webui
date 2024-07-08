@@ -6,7 +6,7 @@
 		"enable_hybrid_search": true,
 		"embedding_engine": "",
 		"embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
-		"pdf_extract_images": false,
+		"pdf_extract_images": true,
 		"enable_web_loader_ssl_verification": null,
 		"web": {
 			"search": {
@@ -23,7 +23,10 @@
 				"result_count": 3,
 				"concurrent_requests": 10
 			}
-		}
+		},
+		"reranking_model": "BAAI/bge-reranker-v2-m3",
+		"chunk_size": 1500,
+		"chunk_overlap": 100
 	},
 	"ui": {
 		"default_models": "llama3:8b",

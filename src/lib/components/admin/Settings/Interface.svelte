@@ -125,7 +125,7 @@
 				/>
 			</div>
 
-			<div class="mt-3">
+			<!--<div class="mt-3">
 				<div class=" mb-2.5 text-sm font-medium">
 					{$i18n.t('Search Query Generation Prompt Length Threshold')}
 				</div>
@@ -134,13 +134,13 @@
 					class="w-full rounded-lg py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-850 outline-none resize-none"
 					type="number"
 				/>
-			</div>
+			</div>-->
 		</div>
 
 		<hr class=" dark:border-gray-850 my-3" />
 
 
-		{#if $user.role === 'admin'}
+		<!--{#if $user.role === 'admin'}
 			<div class=" space-y-3">
 				<div class="flex w-full justify-between mb-2">
 					<div class=" self-center text-sm font-semibold">
@@ -222,7 +222,7 @@
 					</div>
 				{/if}
 			</div>
-		{/if}
+		{/if}-->
 	</div>
 
 	<div class="flex justify-end text-sm font-medium">

@@ -21,16 +21,10 @@
 		'duckduckgo'
 	];
 
-	let youtubeLanguage = 'en';
-	let youtubeTranslation = null;
 
 	const submitHandler = async () => {
 		const res = await updateRAGConfig(localStorage.token, {
-			web: webConfig,
-			youtube: {
-				language: youtubeLanguage.split(',').map((lang) => lang.trim()),
-				translation: youtubeTranslation
-			}
+			web: webConfig
 		});
 	};
 
@@ -39,9 +33,6 @@
 
 		if (res) {
 			webConfig = res.web;
-
-			youtubeLanguage = res.youtube.language.join(',');
-			youtubeTranslation = res.youtube.translation;
 		}
 	});
 </script>

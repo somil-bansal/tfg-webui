@@ -712,7 +712,7 @@
 					</div>
 				</div>
 			{:else}
-				<button
+			<!--	<button
 					class=" flex rounded-xl py-2 px-3.5 w-full hover:bg-gray-200 dark:hover:bg-gray-800 transition"
 					on:click={() => {
 						showResetUploadDirConfirm = true;
@@ -737,102 +737,102 @@
 						</svg>
 					</div>
 					<div class=" self-center text-sm font-medium">{$i18n.t('Reset Upload Directory')}</div>
-				</button>
+				</button>-->
 			{/if}
 
-			{#if showResetConfirm}
-				<div class="flex justify-between rounded-md items-center py-2 px-3.5 w-full transition">
-					<div class="flex items-center space-x-3">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 16 16"
-							fill="currentColor"
-							class="w-4 h-4"
-						>
-							<path
-								fill-rule="evenodd"
-								d="M3.5 2A1.5 1.5 0 0 0 2 3.5v9A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5v-7A1.5 1.5 0 0 0 12.5 4H9.621a1.5 1.5 0 0 1-1.06-.44L7.439 2.44A1.5 1.5 0 0 0 6.38 2H3.5Zm6.75 7.75a.75.75 0 0 0 0-1.5h-4.5a.75.75 0 0 0 0 1.5h4.5Z"
-								clip-rule="evenodd"
-							/>
-						</svg>
-						<span>{$i18n.t('Are you sure?')}</span>
-					</div>
-
-					<div class="flex space-x-1.5 items-center">
-						<button
-							class="hover:text-white transition"
-							on:click={() => {
-								const res = resetVectorDB(localStorage.token).catch((error) => {
-									toast.error(error);
-									return null;
-								});
-
-								if (res) {
-									toast.success($i18n.t('Success'));
-								}
-
-								showResetConfirm = false;
-							}}
-							type="button"
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 20 20"
-								fill="currentColor"
-								class="w-4 h-4"
-							>
-								<path
-									fill-rule="evenodd"
-									d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-									clip-rule="evenodd"
-								/>
-							</svg>
-						</button>
-						<button
-							class="hover:text-white transition"
-							on:click={() => {
-								showResetConfirm = false;
-							}}
-							type="button"
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 20 20"
-								fill="currentColor"
-								class="w-4 h-4"
-							>
-								<path
-									d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
-								/>
-							</svg>
-						</button>
-					</div>
+			<!--{#if showResetConfirm}
+		&lt;!&ndash;<div class="flex justify-between rounded-md items-center py-2 px-3.5 w-full transition">
+				<div class="flex items-center space-x-3">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 16 16"
+						fill="currentColor"
+						class="w-4 h-4"
+					>
+						<path
+							fill-rule="evenodd"
+							d="M3.5 2A1.5 1.5 0 0 0 2 3.5v9A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5v-7A1.5 1.5 0 0 0 12.5 4H9.621a1.5 1.5 0 0 1-1.06-.44L7.439 2.44A1.5 1.5 0 0 0 6.38 2H3.5Zm6.75 7.75a.75.75 0 0 0 0-1.5h-4.5a.75.75 0 0 0 0 1.5h4.5Z"
+							clip-rule="evenodd"
+						/>
+					</svg>
+					<span>{$i18n.t('Are you sure?')}</span>
 				</div>
-			{:else}
-				<button
-					class=" flex rounded-xl py-2 px-3.5 w-full hover:bg-gray-200 dark:hover:bg-gray-800 transition"
-					on:click={() => {
-						showResetConfirm = true;
-					}}
-					type="button"
-				>
-					<div class=" self-center mr-3">
+
+				<div class="flex space-x-1.5 items-center">
+					<button
+						class="hover:text-white transition"
+						on:click={() => {
+							const res = resetVectorDB(localStorage.token).catch((error) => {
+								toast.error(error);
+								return null;
+							});
+
+							if (res) {
+								toast.success($i18n.t('Success'));
+							}
+
+							showResetConfirm = false;
+						}}
+						type="button"
+					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 16 16"
+							viewBox="0 0 20 20"
 							fill="currentColor"
 							class="w-4 h-4"
 						>
 							<path
 								fill-rule="evenodd"
-								d="M3.5 2A1.5 1.5 0 0 0 2 3.5v9A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5v-7A1.5 1.5 0 0 0 12.5 4H9.621a1.5 1.5 0 0 1-1.06-.44L7.439 2.44A1.5 1.5 0 0 0 6.38 2H3.5Zm6.75 7.75a.75.75 0 0 0 0-1.5h-4.5a.75.75 0 0 0 0 1.5h4.5Z"
+								d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
 								clip-rule="evenodd"
 							/>
 						</svg>
-					</div>
-					<div class=" self-center text-sm font-medium">{$i18n.t('Reset Vector Storage')}</div>
-				</button>
-			{/if}
+					</button>
+					<button
+						class="hover:text-white transition"
+						on:click={() => {
+							showResetConfirm = false;
+						}}
+						type="button"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 20 20"
+							fill="currentColor"
+							class="w-4 h-4"
+						>
+							<path
+								d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
+							/>
+						</svg>
+					</button>
+				</div>
+			</div>&ndash;&gt;
+		{:else}
+			<button
+				class=" flex rounded-xl py-2 px-3.5 w-full hover:bg-gray-200 dark:hover:bg-gray-800 transition"
+				on:click={() => {
+					showResetConfirm = true;
+				}}
+				type="button"
+			>
+				<div class=" self-center mr-3">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 16 16"
+						fill="currentColor"
+						class="w-4 h-4"
+					>
+						<path
+							fill-rule="evenodd"
+							d="M3.5 2A1.5 1.5 0 0 0 2 3.5v9A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5v-7A1.5 1.5 0 0 0 12.5 4H9.621a1.5 1.5 0 0 1-1.06-.44L7.439 2.44A1.5 1.5 0 0 0 6.38 2H3.5Zm6.75 7.75a.75.75 0 0 0 0-1.5h-4.5a.75.75 0 0 0 0 1.5h4.5Z"
+							clip-rule="evenodd"
+						/>
+					</svg>
+				</div>
+				<div class=" self-center text-sm font-medium">{$i18n.t('Reset Vector Storage')}</div>
+			</button>
+		{/if}-->
 		</div>
 	</div>
 	<div class="flex justify-end pt-3 text-sm font-medium">

@@ -618,35 +618,6 @@ def query_collection_handler(
         )
 
 
-@app.post("/youtube")
-def store_youtube_video(form_data: UrlForm, user=Depends(get_current_user)):
-    try:
-        loader = YoutubeLoader.from_youtube_url(
-            form_data.url,
-            add_video_info=True,
-            language=app.state.config.YOUTUBE_LOADER_LANGUAGE,
-            translation=app.state.YOUTUBE_LOADER_TRANSLATION,
-        )
-        data = loader.load()
-
-        collection_name = form_data.collection_name
-        if collection_name == "":
-            collection_name = calculate_sha256_string(form_data.url)[:63]
-
-        store_data_in_vector_db(data, collection_name, overwrite=True)
-        return {
-            "status": True,
-            "collection_name": collection_name,
-            "filename": form_data.url,
-        }
-    except Exception as e:
-        log.exception(e)
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=ERROR_MESSAGES.DEFAULT(e),
-        )
-
-
 @app.post("/web")
 def store_web(form_data: UrlForm, user=Depends(get_current_user)):
     # "https://www.gutenberg.org/files/1727/1727-h/1727-h.htm"
@@ -921,6 +892,7 @@ def store_docs_in_vector_db(docs, collection_name, overwrite: bool = False) -> b
     except Exception as e:
         log.exception(e)
         if e.__class__.__name__ == "UniqueConstraintError":
+            log.info("document exists, moving to next")
             return True
 
         return False
@@ -1133,7 +1105,7 @@ def scan_docs_dir(user=Depends(get_admin_user)):
                     if result:
                         sanitized_filename = sanitize_filename(filename)
                         doc = Documents.get_doc_by_name(sanitized_filename)
-
+                        # doc = Documents.update_doc_content_by_name(form_data.name, {"tags": form_data.tags})
                         if doc == None:
                             doc = Documents.insert_new_doc(
                                 user.id,

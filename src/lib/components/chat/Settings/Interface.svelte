@@ -107,7 +107,7 @@
 	}}
 >
 	<div class=" space-y-3 pr-1.5 overflow-y-scroll max-h-[25rem]">
-		<div>
+		<!--<div>
 			<div class=" mb-1 text-sm font-medium">{$i18n.t('WebUI Add-ons')}</div>
 
 			<div>
@@ -255,7 +255,7 @@
 					{/if}
 				</button>
 			</div>
-		</div>
+		</div>-->
 
 		<hr class=" dark:border-gray-850" />
 
