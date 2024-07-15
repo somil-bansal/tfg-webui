@@ -114,8 +114,6 @@ from config import (
     TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE,
     SAFE_MODE,
     OAUTH_PROVIDERS,
-    ENABLE_OAUTH_SIGNUP,
-    OAUTH_MERGE_ACCOUNTS_BY_EMAIL,
     WEBUI_SECRET_KEY,
     WEBUI_SESSION_COOKIE_SAME_SITE,
     WEBUI_SESSION_COOKIE_SECURE,
@@ -1640,7 +1638,6 @@ async def get_app_config():
         "default_prompt_suggestions": webui_app.state.config.DEFAULT_PROMPT_SUGGESTIONS,
         "features": {
             "auth": WEBUI_AUTH,
-            "auth_trusted_header": bool(webui_app.state.AUTH_TRUSTED_EMAIL_HEADER),
             "enable_web_search": rag_app.state.config.ENABLE_RAG_WEB_SEARCH,
             "enable_admin_export": ENABLE_ADMIN_EXPORT,
         },

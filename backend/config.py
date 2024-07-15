@@ -236,10 +236,6 @@ class AppConfig:
 ####################################
 
 WEBUI_AUTH = os.environ.get("WEBUI_AUTH", "True").lower() == "true"
-WEBUI_AUTH_TRUSTED_EMAIL_HEADER = os.environ.get(
-    "WEBUI_AUTH_TRUSTED_EMAIL_HEADER", None
-)
-WEBUI_AUTH_TRUSTED_NAME_HEADER = os.environ.get("WEBUI_AUTH_TRUSTED_NAME_HEADER", None)
 JWT_EXPIRES_IN = PersistentConfig(
     "JWT_EXPIRES_IN", "auth.jwt_expiry", os.environ.get("JWT_EXPIRES_IN", "-1")
 )
@@ -247,18 +243,6 @@ JWT_EXPIRES_IN = PersistentConfig(
 ####################################
 # OAuth config
 ####################################
-
-ENABLE_OAUTH_SIGNUP = PersistentConfig(
-    "ENABLE_OAUTH_SIGNUP",
-    "oauth.enable_signup",
-    os.environ.get("ENABLE_OAUTH_SIGNUP", "True").lower() == "true",
-)
-
-OAUTH_MERGE_ACCOUNTS_BY_EMAIL = PersistentConfig(
-    "OAUTH_MERGE_ACCOUNTS_BY_EMAIL",
-    "oauth.merge_accounts_by_email",
-    os.environ.get("OAUTH_MERGE_ACCOUNTS_BY_EMAIL", "False").lower() == "true",
-)
 
 OAUTH_PROVIDERS = {}
 
@@ -324,11 +308,6 @@ if frontend_favicon.exists():
 else:
     logging.warning(f"Frontend favicon not found at {frontend_favicon}")
 
-####################################
-# CUSTOM_NAME
-####################################
-
-CUSTOM_NAME = os.environ.get("CUSTOM_NAME", "")
 
 ####################################
 # File Upload DIR
@@ -472,12 +451,12 @@ ENABLE_OPENAI_API = PersistentConfig(
 )
 
 
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
-OPENAI_API_BASE_URL = os.environ.get("OPENAI_API_BASE_URL", "")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "fad496d248804765991834c0933b8f26")
+OPENAI_API_BASE_URL = os.environ.get("OPENAI_API_BASE_URL", "https://tfgam-aze-eus-openai.openai.azure.com/")
 
 
 if OPENAI_API_BASE_URL == "":
-    OPENAI_API_BASE_URL = "https://api.openai.com/v1"
+    OPENAI_API_BASE_URL = ""
 
 OPENAI_API_KEYS = os.environ.get("OPENAI_API_KEYS", "")
 OPENAI_API_KEYS = OPENAI_API_KEYS if OPENAI_API_KEYS != "" else OPENAI_API_KEY
@@ -493,23 +472,23 @@ OPENAI_API_BASE_URLS = (
 )
 
 OPENAI_API_BASE_URLS = [
-    url.strip() if url != "" else "https://api.openai.com/v1"
+    url.strip() if url != "" else "https://tfgam-aze-eus-openai.openai.azure.com/"
     for url in OPENAI_API_BASE_URLS.split(";")
 ]
 OPENAI_API_BASE_URLS = PersistentConfig(
     "OPENAI_API_BASE_URLS", "openai.api_base_urls", OPENAI_API_BASE_URLS
 )
 
-OPENAI_API_KEY = ""
+OPENAI_API_KEY = "fad496d248804765991834c0933b8f26"
 
 try:
     OPENAI_API_KEY = OPENAI_API_KEYS.value[
-        OPENAI_API_BASE_URLS.value.index("https://api.openai.com/v1")
+        OPENAI_API_BASE_URLS.value.index("https://tfgam-aze-eus-openai.openai.azure.com/")
     ]
 except:
     pass
 
-OPENAI_API_BASE_URL = "https://api.openai.com/v1"
+OPENAI_API_BASE_URL = "https://tfgam-aze-eus-openai.openai.azure.com/"
 
 ####################################
 # WEBUI
