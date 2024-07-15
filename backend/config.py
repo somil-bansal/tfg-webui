@@ -76,11 +76,11 @@ for source in log_sources:
 
 log.setLevel(SRC_LOG_LEVELS["CONFIG"])
 
-WEBUI_NAME = os.environ.get("WEBUI_NAME", "Open WebUI")
-if WEBUI_NAME != "Open WebUI":
-    WEBUI_NAME += " (Open WebUI)"
+WEBUI_NAME = os.environ.get("WEBUI_NAME", "The Finance Genie")
+if WEBUI_NAME != "The Finance Genie":
+    WEBUI_NAME += " (The Finance Genie)"
 
-WEBUI_URL = os.environ.get("WEBUI_URL", "http://localhost:3000")
+WEBUI_URL = os.environ.get("WEBUI_URL", "http://localhost:8080")
 
 WEBUI_FAVICON_URL = "https://openwebui.com/favicon.png"
 
@@ -163,6 +163,12 @@ for version in soup.find_all("h2"):
 
 CHANGELOG = changelog_json
 
+
+####################################
+# SAFE_MODE
+####################################
+
+SAFE_MODE = os.environ.get("SAFE_MODE", "false").lower() == "true"
 
 ####################################
 # WEBUI_BUILD_HASH
@@ -291,9 +297,78 @@ WEBUI_AUTH = os.environ.get("WEBUI_AUTH", "True").lower() == "true"
 WEBUI_AUTH_TRUSTED_EMAIL_HEADER = os.environ.get(
     "WEBUI_AUTH_TRUSTED_EMAIL_HEADER", None
 )
+WEBUI_AUTH_TRUSTED_NAME_HEADER = os.environ.get("WEBUI_AUTH_TRUSTED_NAME_HEADER", None)
 JWT_EXPIRES_IN = PersistentConfig(
     "JWT_EXPIRES_IN", "auth.jwt_expiry", os.environ.get("JWT_EXPIRES_IN", "-1")
 )
+
+####################################
+# OAuth config
+####################################
+
+ENABLE_OAUTH_SIGNUP = PersistentConfig(
+    "ENABLE_OAUTH_SIGNUP",
+    "oauth.enable_signup",
+    os.environ.get("ENABLE_OAUTH_SIGNUP", "True").lower() == "true",
+)
+
+OAUTH_MERGE_ACCOUNTS_BY_EMAIL = PersistentConfig(
+    "OAUTH_MERGE_ACCOUNTS_BY_EMAIL",
+    "oauth.merge_accounts_by_email",
+    os.environ.get("OAUTH_MERGE_ACCOUNTS_BY_EMAIL", "False").lower() == "true",
+)
+
+OAUTH_PROVIDERS = {}
+
+OAUTH_CLIENT_ID = PersistentConfig(
+    "OAUTH_CLIENT_ID",
+    "oauth.oidc.client_id",
+    os.environ.get("OAUTH_CLIENT_ID", "0oacnb0rzzSF6CfD55d7"),
+)
+
+OAUTH_CLIENT_SECRET = PersistentConfig(
+    "OAUTH_CLIENT_SECRET",
+    "oauth.oidc.client_secret",
+    os.environ.get("OAUTH_CLIENT_SECRET", "VZmIFmr14fNL_cKWvG5DqUM6DAY1-3rfhAG-zCCopQ5rZL5ssjzOU5Wx0gbvh5Ys"),
+)
+
+OPENID_PROVIDER_URL = PersistentConfig(
+    "OPENID_PROVIDER_URL",
+    "oauth.oidc.provider_url",
+    os.environ.get("OPENID_PROVIDER_URL", "https://dev-80031539.okta.com/oauth2/default/.well-known/openid-configuration"),
+)
+
+OAUTH_SCOPES = PersistentConfig(
+    "OAUTH_SCOPES",
+    "oauth.oidc.scopes",
+    os.environ.get("OAUTH_SCOPES", "openid email profile groups"),
+)
+
+OAUTH_PROVIDER_NAME = PersistentConfig(
+    "OAUTH_PROVIDER_NAME",
+    "oauth.oidc.provider_name",
+    os.environ.get("OAUTH_PROVIDER_NAME", "okta"),
+)
+
+
+def load_oauth_providers():
+    OAUTH_PROVIDERS.clear()
+
+    if (
+        OAUTH_CLIENT_ID.value
+        and OAUTH_CLIENT_SECRET.value
+        and OPENID_PROVIDER_URL.value
+    ):
+        OAUTH_PROVIDERS["oidc"] = {
+            "client_id": OAUTH_CLIENT_ID.value,
+            "client_secret": OAUTH_CLIENT_SECRET.value,
+            "server_metadata_url": OPENID_PROVIDER_URL.value,
+            "scope": OAUTH_SCOPES.value,
+            "name": OAUTH_PROVIDER_NAME.value,
+        }
+
+
+load_oauth_providers()
 
 ####################################
 # Static DIR
@@ -349,7 +424,7 @@ Path(UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
 # Cache DIR
 ####################################
 
-# CACHE_DIR = f"{DATA_DIR}/cache"
+CACHE_DIR = f"{DATA_DIR}/cache"
 # Path(CACHE_DIR).mkdir(parents=True, exist_ok=True)
 
 
@@ -370,28 +445,44 @@ Path(TOOLS_DIR).mkdir(parents=True, exist_ok=True)
 
 
 ####################################
+# Functions DIR
+####################################
+
+FUNCTIONS_DIR = os.getenv("FUNCTIONS_DIR", f"{DATA_DIR}/functions")
+Path(FUNCTIONS_DIR).mkdir(parents=True, exist_ok=True)
+
+
+####################################
 # LITELLM_CONFIG
 ####################################
 
 
-# def create_config_file(file_path):
-#     directory = os.path.dirname(file_path)
-#
-#     # Check if directory exists, if not, create it
-#     if not os.path.exists(directory):
-#         os.makedirs(directory)
-#
-#     # Data to write into the YAML file
-#     config_data = {
-#         "general_settings": {},
-#         "litellm_settings": {},
-#         "model_list": [],
-#         "router_settings": {},
-#     }
-#
-#     # Write data to YAML file
-#     with open(file_path, "w") as file:
-#         yaml.dump(config_data, file)
+def create_config_file(file_path):
+    directory = os.path.dirname(file_path)
+
+    # Check if directory exists, if not, create it
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    # Data to write into the YAML file
+    config_data = {
+        "general_settings": {},
+        "litellm_settings": {},
+        "model_list": [],
+        "router_settings": {},
+    }
+
+    # Write data to YAML file
+    with open(file_path, "w") as file:
+        yaml.dump(config_data, file)
+
+
+LITELLM_CONFIG_PATH = f"{DATA_DIR}/litellm/config.yaml"
+
+# if not os.path.exists(LITELLM_CONFIG_PATH):
+#     log.info("Config file doesn't exist. Creating...")
+#     create_config_file(LITELLM_CONFIG_PATH)
+#     log.info("Config file created successfully.")
 
 
 ####################################
@@ -410,6 +501,17 @@ OLLAMA_API_BASE_URL = os.environ.get(
 )
 
 OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "")
+AIOHTTP_CLIENT_TIMEOUT = os.environ.get("AIOHTTP_CLIENT_TIMEOUT", "")
+
+if AIOHTTP_CLIENT_TIMEOUT == "":
+    AIOHTTP_CLIENT_TIMEOUT = None
+else:
+    try:
+        AIOHTTP_CLIENT_TIMEOUT = int(AIOHTTP_CLIENT_TIMEOUT)
+    except:
+        AIOHTTP_CLIENT_TIMEOUT = 300
+
+
 K8S_FLAG = os.environ.get("K8S_FLAG", "")
 USE_OLLAMA_DOCKER = os.environ.get("USE_OLLAMA_DOCKER", "false")
 
@@ -504,6 +606,13 @@ ENABLE_SIGNUP = PersistentConfig(
         else os.environ.get("ENABLE_SIGNUP", "True").lower() == "true"
     ),
 )
+
+DEFAULT_LOCALE = PersistentConfig(
+    "DEFAULT_LOCALE",
+    "ui.default_locale",
+    os.environ.get("DEFAULT_LOCALE", ""),
+)
+
 DEFAULT_MODELS = PersistentConfig(
     "DEFAULT_MODELS", "ui.default_models", os.environ.get("DEFAULT_MODELS", None)
 )
@@ -545,7 +654,7 @@ DEFAULT_PROMPT_SUGGESTIONS = PersistentConfig(
 DEFAULT_USER_ROLE = PersistentConfig(
     "DEFAULT_USER_ROLE",
     "ui.default_user_role",
-    os.getenv("DEFAULT_USER_ROLE", "pending"),
+    os.getenv("DEFAULT_USER_ROLE", "user"),
 )
 
 USER_PERMISSIONS_CHAT_DELETION = (
@@ -670,6 +779,16 @@ WEBUI_SECRET_KEY = os.environ.get(
     os.environ.get(
         "WEBUI_JWT_SECRET_KEY", "t0p-s3cr3t"
     ),  # DEPRECATED: remove at next major version
+)
+
+WEBUI_SESSION_COOKIE_SAME_SITE = os.environ.get(
+    "WEBUI_SESSION_COOKIE_SAME_SITE",
+    os.environ.get("WEBUI_SESSION_COOKIE_SAME_SITE", "lax"),
+)
+
+WEBUI_SESSION_COOKIE_SECURE = os.environ.get(
+    "WEBUI_SESSION_COOKIE_SECURE",
+    os.environ.get("WEBUI_SESSION_COOKIE_SECURE", "false").lower() == "true",
 )
 
 if WEBUI_AUTH and WEBUI_SECRET_KEY == "":
@@ -847,6 +966,18 @@ RAG_WEB_SEARCH_ENGINE = PersistentConfig(
     os.getenv("RAG_WEB_SEARCH_ENGINE", ""),
 )
 
+# You can provide a list of your own websites to filter after performing a web search.
+# This ensures the highest level of safety and reliability of the information sources.
+RAG_WEB_SEARCH_DOMAIN_FILTER_LIST = PersistentConfig(
+    "RAG_WEB_SEARCH_DOMAIN_FILTER_LIST",
+    "rag.rag.web.search.domain.filter_list",
+    [
+        # "wikipedia.com",
+        # "wikimedia.org",
+        # "wikidata.org",
+    ],
+)
+
 SEARXNG_QUERY_URL = PersistentConfig(
     "SEARXNG_QUERY_URL",
     "rag.web.search.searxng_query_url",
@@ -895,6 +1026,11 @@ SERPLY_API_KEY = PersistentConfig(
     os.getenv("SERPLY_API_KEY", ""),
 )
 
+TAVILY_API_KEY = PersistentConfig(
+    "TAVILY_API_KEY",
+    "rag.web.search.tavily_api_key",
+    os.getenv("TAVILY_API_KEY", ""),
+)
 
 RAG_WEB_SEARCH_RESULT_COUNT = PersistentConfig(
     "RAG_WEB_SEARCH_RESULT_COUNT",

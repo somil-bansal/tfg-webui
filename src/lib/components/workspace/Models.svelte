@@ -20,12 +20,15 @@
 
 	const i18n = getContext('i18n');
 
+	let showModelDeleteConfirm = false;
+
 	let localModelfiles = [];
 
 	let importFiles;
 	let modelsImportInputElement: HTMLInputElement;
 
 	let _models = [];
+	let selectedModel = null;
 
 	let sortable = null;
 	let searchValue = '';
@@ -63,6 +66,27 @@
 			});
 			goto('/workspace/models/create');
 		}
+	};
+
+	const shareModelHandler = async (model) => {
+		toast.success($i18n.t('Redirecting you to OpenWebUI Community'));
+
+		const url = 'https://openwebui.com';
+
+		const tab = await window.open(`${url}/models/create`, '_blank');
+
+		// Define the event handler function
+		const messageHandler = (event) => {
+			if (event.origin !== url) return;
+			if (event.data === 'loaded') {
+				tab.postMessage(JSON.stringify(model), '*');
+
+				// Remove the event listener after handling the message
+				window.removeEventListener('message', messageHandler);
+			}
+		};
+
+		window.addEventListener('message', messageHandler, false);
 	};
 
 	const hideModelHandler = async (model) => {
@@ -239,8 +263,8 @@
 	</div>
 
 	<div class=" self-center">
-		<div class=" font-bold">{$i18n.t('Create a model')}</div>
-		<div class=" text-sm">{$i18n.t('Customize models for a specific purpose')}</div>
+		<div class=" font-bold line-clamp-1">{$i18n.t('Create a model')}</div>
+		<div class=" text-sm line-clamp-1">{$i18n.t('Customize models for a specific purpose')}</div>
 	</div>
 </a>
 
@@ -318,7 +342,8 @@
 						hideModelHandler(model);
 					}}
 					deleteHandler={() => {
-						deleteModelHandler(model);
+						selectedModel = model;
+						showModelDeleteConfirm = false;
 					}}
 					onClose={() => {}}
 				>

@@ -1,9 +1,12 @@
-from peewee import *
+import os
+import logging
 import json
 
+from peewee import *
 from peewee_migrate import Router
-from config import SRC_LOG_LEVELS, BACKEND_DIR
-import logging
+
+from apps.webui.internal.wrappers import register_connection
+from config import SRC_LOG_LEVELS, DATA_DIR, BACKEND_DIR
 
 log = logging.getLogger(__name__)
 log.setLevel(SRC_LOG_LEVELS["DB"])
@@ -37,4 +40,8 @@ router = Router(
     logger=log,
 )
 router.run()
-DB.connect(reuse_if_open=True)
+try:
+    DB.connect(reuse_if_open=True)
+except OperationalError as e:
+    log.info(f"Failed to connect to database again due to: {e}")
+    pass

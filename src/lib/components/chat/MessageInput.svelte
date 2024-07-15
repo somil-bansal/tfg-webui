@@ -15,10 +15,18 @@
 	import { blobToFile, calculateSHA256, findWordIndices } from '$lib/utils';
 
 	import {
+		processDocToVectorDB,
 		uploadDocToVectorDB,
-		uploadWebToVectorDB,
+		uploadWebToVectorDB
 	} from '$lib/apis/rag';
-	import { SUPPORTED_FILE_TYPE, SUPPORTED_FILE_EXTENSIONS, WEBUI_BASE_URL } from '$lib/constants';
+
+	import { uploadFile } from '$lib/apis/files';
+	import {
+		SUPPORTED_FILE_TYPE,
+		SUPPORTED_FILE_EXTENSIONS,
+		WEBUI_BASE_URL,
+		WEBUI_API_BASE_URL
+	} from '$lib/constants';
 
 	import Prompts from './MessageInput/PromptCommands.svelte';
 	import Suggestions from './MessageInput/Suggestions.svelte';
@@ -31,6 +39,8 @@
 
 	const i18n = getContext('i18n');
 
+	export let transparentBackground = false;
+
 	export let submitPrompt: Function;
 	export let stopResponse: Function;
 
@@ -38,6 +48,8 @@
 
 	export let atSelectedModel: Model | undefined;
 	export let selectedModels: [''];
+
+	let recording = false;
 
 	let chatTextAreaElement: HTMLTextAreaElement;
 	let filesInputElement;
@@ -80,32 +92,62 @@
 		element.scrollTop = element.scrollHeight;
 	};
 
-
-	const uploadDoc = async (file) => {
+	const uploadFileHandler = async (file) => {
 		console.log(file);
 
-		const doc = {
-			type: 'doc',
-			name: file.name,
-			collection_name: '',
-			upload_status: false,
-			error: ''
-		};
+		// Upload the file to the server
+		const uploadedFile = await uploadFile(localStorage.token, file).catch((error) => {
+			toast.error(error);
+			return null;
+		});
 
+		if (uploadedFile) {
+			const fileItem = {
+				type: 'file',
+				file: uploadedFile,
+				id: uploadedFile.id,
+				url: `${WEBUI_API_BASE_URL}/files/${uploadedFile.id}`,
+				name: file.name,
+				collection_name: '',
+				status: 'uploaded',
+				error: ''
+			};
+			files = [...files, fileItem];
+
+			// TODO: Check if tools & functions have files support to skip this step to delegate file processing
+			// Default Upload to VectorDB
+			if (
+				SUPPORTED_FILE_TYPE.includes(file['type']) ||
+				SUPPORTED_FILE_EXTENSIONS.includes(file.name.split('.').at(-1))
+			) {
+				processFileItem(fileItem);
+			} else {
+				toast.error(
+					$i18n.t(`Unknown file type '{{file_type}}'. Proceeding with the file upload anyway.`, {
+						file_type: file['type']
+					})
+				);
+				processFileItem(fileItem);
+			}
+		}
+	};
+
+	const processFileItem = async (fileItem) => {
 		try {
-			files = [...files, doc];
-
-			const res = await uploadDocToVectorDB(localStorage.token, '', file);
+			const res = await processDocToVectorDB(localStorage.token, fileItem.id);
 
 			if (res) {
-				doc.upload_status = true;
-				doc.collection_name = res.collection_name;
+				fileItem.status = 'processed';
+				fileItem.collection_name = res.collection_name;
 				files = files;
 			}
 		} catch (e) {
 			// Remove the failed doc from the files array
-			files = files.filter((f) => f.name !== file.name);
+			// files = files.filter((f) => f.id !== fileItem.id);
 			toast.error(e);
+
+			fileItem.status = 'processed';
+			files = files;
 		}
 	};
 
@@ -116,7 +158,7 @@
 			type: 'doc',
 			name: url,
 			collection_name: '',
-			upload_status: false,
+			status: false,
 			url: url,
 			error: ''
 		};
@@ -126,7 +168,7 @@
 			const res = await uploadWebToVectorDB(localStorage.token, '', url);
 
 			if (res) {
-				doc.upload_status = true;
+				doc.status = 'processed';
 				doc.collection_name = res.collection_name;
 				files = files;
 			}
@@ -169,34 +211,23 @@
 					inputFiles.forEach((file) => {
 						console.log(file, file.name.split('.').at(-1));
 						if (['image/gif', 'image/webp', 'image/jpeg', 'image/png'].includes(file['type'])) {
-							if (visionCapableModels.length === 0) {
-								toast.error($i18n.t('Selected model(s) do not support image inputs'));
+							// if (visionCapableModels.length === 0) {
+								toast.error($i18n.t('App does not support images'));
 								return;
-							}
-							let reader = new FileReader();
-							reader.onload = (event) => {
-								files = [
-									...files,
-									{
-										type: 'image',
-										url: `${event.target.result}`
-									}
-								];
-							};
-							reader.readAsDataURL(file);
-						} else if (
-							SUPPORTED_FILE_TYPE.includes(file['type']) ||
-							SUPPORTED_FILE_EXTENSIONS.includes(file.name.split('.').at(-1))
-						) {
-							uploadDoc(file);
+							// }
+							// let reader = new FileReader();
+							// reader.onload = (event) => {
+							// 	files = [
+							// 		...files,
+							// 		{
+							// 			type: 'image',
+							// 			url: `${event.target.result}`
+							// 		}
+							// 	];
+							// };
+							// reader.readAsDataURL(file);
 						} else {
-							toast.error(
-								$i18n.t(
-									`Unknown File Type '{{file_type}}', but accepting and treating as plain text`,
-									{ file_type: file['type'] }
-								)
-							);
-							uploadDoc(file);
+							uploadFileHandler(file);
 						}
 					});
 				} else {
@@ -247,9 +278,11 @@
 		<div class="flex flex-col max-w-6xl px-2.5 md:px-6 w-full">
 			<div class="relative">
 				{#if autoScroll === false && messages.length > 0}
-					<div class=" absolute -top-12 left-0 right-0 flex justify-center z-30">
+					<div
+						class=" absolute -top-12 left-0 right-0 flex justify-center z-30 pointer-events-none"
+					>
 						<button
-							class=" bg-white border border-gray-100 dark:border-none dark:bg-white/20 p-1.5 rounded-full"
+							class=" bg-white border border-gray-100 dark:border-none dark:bg-white/20 p-1.5 rounded-full pointer-events-auto"
 							on:click={() => {
 								autoScroll = true;
 								scrollToBottom();
@@ -274,7 +307,7 @@
 
 			<div class="w-full relative">
 				{#if prompt.charAt(0) === '/'}
-					<Prompts bind:this={promptsElement} bind:prompt />
+					<Prompts bind:this={promptsElement} bind:prompt bind:files />
 				{:else if prompt.charAt(0) === '#'}
 					<Documents
 						bind:this={documentsElement}
@@ -288,9 +321,9 @@
 							files = [
 								...files,
 								{
-									type: e?.detail?.type ?? 'doc',
+									type: e?.detail?.type ?? 'file',
 									...e.detail,
-									upload_status: true
+									status: 'processed'
 								}
 							];
 						}}
@@ -300,7 +333,6 @@
 				<Models
 					bind:this={modelsElement}
 					bind:prompt
-					bind:user
 					bind:chatInputPlaceholder
 					{messages}
 					on:select={(e) => {
@@ -344,10 +376,10 @@
 		</div>
 	</div>
 
-	<div class="bg-white dark:bg-gray-900">
+	<div class="{transparentBackground ? 'bg-transparent' : 'bg-white dark:bg-gray-900'} ">
 		<div class="max-w-6xl px-2.5 md:px-6 mx-auto inset-x-0">
 			<div class=" pb-2">
-				<input
+<!--				<input
 					bind:this={filesInputElement}
 					bind:files={inputFiles}
 					type="file"
@@ -360,8 +392,6 @@
 								if (['image/gif', 'image/webp', 'image/jpeg', 'image/png'].includes(file['type'])) {
 									if (visionCapableModels.length === 0) {
 										toast.error($i18n.t('Selected model(s) do not support image inputs'));
-										inputFiles = null;
-										filesInputElement.value = '';
 										return;
 									}
 									let reader = new FileReader();
@@ -373,136 +403,143 @@
 												url: `${event.target.result}`
 											}
 										];
-										inputFiles = null;
-										filesInputElement.value = '';
 									};
 									reader.readAsDataURL(file);
-								} else if (
-									SUPPORTED_FILE_TYPE.includes(file['type']) ||
-									SUPPORTED_FILE_EXTENSIONS.includes(file.name.split('.').at(-1))
-								) {
-									uploadDoc(file);
-									filesInputElement.value = '';
 								} else {
-									toast.error(
-										$i18n.t(
-											`Unknown File Type '{{file_type}}', but accepting and treating as plain text`,
-											{ file_type: file['type'] }
-										)
-									);
-									uploadDoc(file);
-									filesInputElement.value = '';
+									uploadFileHandler(file);
 								}
 							});
 						} else {
 							toast.error($i18n.t(`File not found.`));
 						}
+						filesInputElement.value = '';
 					}}
-				/>
-				<form
-					dir={$settings?.chatDirection ?? 'LTR'}
-					class=" flex flex-col relative w-full rounded-3xl px-1.5 bg-gray-50 dark:bg-gray-850 dark:text-gray-100"
-					on:submit|preventDefault={() => {
-						// check if selectedModels support image input
-						submitPrompt(prompt, user);
-					}}
-				>
-					{#if files.length > 0}
-						<div class="mx-2 mt-2 mb-1 flex flex-wrap gap-2">
-							{#each files as file, fileIdx}
-								<div class=" relative group">
-									{#if file.type === 'image'}
-										<div class="relative">
-											<img src={file.url} alt="input" class=" h-16 w-16 rounded-xl object-cover" />
-											{#if atSelectedModel ? visionCapableModels.length === 0 : selectedModels.length !== visionCapableModels.length}
-												<Tooltip
-													className=" absolute top-1 left-1"
-													content={$i18n.t('{{ models }}', {
-														models: [...(atSelectedModel ? [atSelectedModel] : selectedModels)]
-															.filter((id) => !visionCapableModels.includes(id))
-															.join(', ')
-													})}
+				/>-->
+
+					<form
+						class="w-full flex gap-1.5"
+						on:submit|preventDefault={() => {
+							// check if selectedModels support image input
+							submitPrompt(prompt);
+						}}
+					>
+						<div
+							class="flex-1 flex flex-col relative w-full rounded-3xl px-1.5 bg-gray-50 dark:bg-gray-850 dark:text-gray-100"
+							dir={$settings?.chatDirection ?? 'LTR'}
+						>
+							{#if files.length > 0}
+								<div class="mx-2 mt-2 mb-1 flex flex-wrap gap-2">
+									{#each files as file, fileIdx}
+										<div class=" relative group">
+											{#if file.type === 'image'}
+												<div class="relative">
+													<img
+														src={file.url}
+														alt="input"
+														class=" h-16 w-16 rounded-xl object-cover"
+													/>
+													{#if atSelectedModel ? visionCapableModels.length === 0 : selectedModels.length !== visionCapableModels.length}
+														<Tooltip
+															className=" absolute top-1 left-1"
+															content={$i18n.t('{{ models }}', {
+																models: [...(atSelectedModel ? [atSelectedModel] : selectedModels)]
+																	.filter((id) => !visionCapableModels.includes(id))
+																	.join(', ')
+															})}
+														>
+															<svg
+																xmlns="http://www.w3.org/2000/svg"
+																viewBox="0 0 24 24"
+																fill="currentColor"
+																class="size-4 fill-yellow-300"
+															>
+																<path
+																	fill-rule="evenodd"
+																	d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"
+																	clip-rule="evenodd"
+																/>
+															</svg>
+														</Tooltip>
+													{/if}
+												</div>
+											{:else if ['doc', 'file'].includes(file.type)}
+												<div
+													class="h-16 w-[15rem] flex items-center space-x-3 px-2.5 dark:bg-gray-600 rounded-xl border border-gray-200 dark:border-none"
 												>
-													<svg
-														xmlns="http://www.w3.org/2000/svg"
-														viewBox="0 0 24 24"
-														fill="currentColor"
-														class="size-4 fill-yellow-300"
-													>
-														<path
-															fill-rule="evenodd"
-															d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"
-															clip-rule="evenodd"
-														/>
-													</svg>
-												</Tooltip>
-											{/if}
-										</div>
-									{:else if file.type === 'doc'}
-										<div
-											class="h-16 w-[15rem] flex items-center space-x-3 px-2.5 dark:bg-gray-600 rounded-xl border border-gray-200 dark:border-none"
-										>
-											<div class="p-2.5 bg-red-400 text-white rounded-lg">
-												{#if file.upload_status}
-													<svg
-														xmlns="http://www.w3.org/2000/svg"
-														viewBox="0 0 24 24"
-														fill="currentColor"
-														class="w-6 h-6"
-													>
-														<path
-															fill-rule="evenodd"
-															d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0 0 16.5 9h-1.875a1.875 1.875 0 0 1-1.875-1.875V5.25A3.75 3.75 0 0 0 9 1.5H5.625ZM7.5 15a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 7.5 15Zm.75 2.25a.75.75 0 0 0 0 1.5H12a.75.75 0 0 0 0-1.5H8.25Z"
-															clip-rule="evenodd"
-														/>
-														<path
-															d="M12.971 1.816A5.23 5.23 0 0 1 14.25 5.25v1.875c0 .207.168.375.375.375H16.5a5.23 5.23 0 0 1 3.434 1.279 9.768 9.768 0 0 0-6.963-6.963Z"
-														/>
-													</svg>
-												{:else}
-													<svg
-														class=" w-6 h-6 translate-y-[0.5px]"
-														fill="currentColor"
-														viewBox="0 0 24 24"
-														xmlns="http://www.w3.org/2000/svg"
-														><style>
-															.spinner_qM83 {
-																animation: spinner_8HQG 1.05s infinite;
-															}
-															.spinner_oXPr {
-																animation-delay: 0.1s;
-															}
-															.spinner_ZTLf {
-																animation-delay: 0.2s;
-															}
-															@keyframes spinner_8HQG {
-																0%,
-																57.14% {
-																	animation-timing-function: cubic-bezier(0.33, 0.66, 0.66, 1);
-																	transform: translate(0);
-																}
-																28.57% {
-																	animation-timing-function: cubic-bezier(0.33, 0, 0.66, 0.33);
-																	transform: translateY(-6px);
-																}
-																100% {
-																	transform: translate(0);
-																}
-															}
-														</style><circle class="spinner_qM83" cx="4" cy="12" r="2.5" /><circle
-															class="spinner_qM83 spinner_oXPr"
-															cx="12"
-															cy="12"
-															r="2.5"
-														/><circle
-															class="spinner_qM83 spinner_ZTLf"
-															cx="20"
-															cy="12"
-															r="2.5"
-														/></svg
-													>
-												{/if}
-											</div>
+													<div class="p-2.5 bg-red-400 text-white rounded-lg">
+														{#if file.status === 'processed'}
+															<svg
+																xmlns="http://www.w3.org/2000/svg"
+																viewBox="0 0 24 24"
+																fill="currentColor"
+																class="w-6 h-6"
+															>
+																<path
+																	fill-rule="evenodd"
+																	d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0 0 16.5 9h-1.875a1.875 1.875 0 0 1-1.875-1.875V5.25A3.75 3.75 0 0 0 9 1.5H5.625ZM7.5 15a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 7.5 15Zm.75 2.25a.75.75 0 0 0 0 1.5H12a.75.75 0 0 0 0-1.5H8.25Z"
+																	clip-rule="evenodd"
+																/>
+																<path
+																	d="M12.971 1.816A5.23 5.23 0 0 1 14.25 5.25v1.875c0 .207.168.375.375.375H16.5a5.23 5.23 0 0 1 3.434 1.279 9.768 9.768 0 0 0-6.963-6.963Z"
+																/>
+															</svg>
+														{:else}
+															<svg
+																class=" w-6 h-6 translate-y-[0.5px]"
+																fill="currentColor"
+																viewBox="0 0 24 24"
+																xmlns="http://www.w3.org/2000/svg"
+															>
+																<style>
+                                    .spinner_qM83 {
+                                        animation: spinner_8HQG 1.05s infinite;
+                                    }
+
+                                    .spinner_oXPr {
+                                        animation-delay: 0.1s;
+                                    }
+
+                                    .spinner_ZTLf {
+                                        animation-delay: 0.2s;
+                                    }
+
+                                    @keyframes spinner_8HQG {
+                                        0%,
+                                        57.14% {
+                                            animation-timing-function: cubic-bezier(0.33, 0.66, 0.66, 1);
+                                            transform: translate(0);
+                                        }
+                                        28.57% {
+                                            animation-timing-function: cubic-bezier(0.33, 0, 0.66, 0.33);
+                                            transform: translateY(-6px);
+                                        }
+                                        100% {
+                                            transform: translate(0);
+                                        }
+                                    }
+																</style>
+																<circle
+																	class="spinner_qM83"
+																	cx="4"
+																	cy="12"
+																	r="2.5"
+																/>
+																<circle
+																	class="spinner_qM83 spinner_oXPr"
+																	cx="12"
+																	cy="12"
+																	r="2.5"
+																/>
+																<circle
+																	class="spinner_qM83 spinner_ZTLf"
+																	cx="20"
+																	cy="12"
+																	r="2.5"
+																/>
+															</svg
+															>
+														{/if}
+													</div>
 
 													<div class="flex flex-col justify-center -space-y-0.5">
 														<div class=" dark:text-gray-100 text-sm font-medium line-clamp-1">
@@ -609,29 +646,29 @@
 									</InputMenu>
 								</div>
 
-						<textarea
-							id="chat-textarea"
-							bind:this={chatTextAreaElement}
-							class="scrollbar-hidden bg-gray-50 dark:bg-gray-850 dark:text-gray-100 outline-none w-full py-3 px-3 rounded-xl resize-none h-[48px]"
-							placeholder={chatInputPlaceholder }
-							bind:value={prompt}
-							on:keypress={(e) => {
-								if (
-									!$mobile ||
-									!(
-										'ontouchstart' in window ||
-										navigator.maxTouchPoints > 0 ||
-										navigator.msMaxTouchPoints > 0
-									)
-								) {
-									// Prevent Enter key from creating a new line
-									if (e.key === 'Enter' && !e.shiftKey) {
-										e.preventDefault();
-									}
+								<textarea
+									id="chat-textarea"
+									bind:this={chatTextAreaElement}
+									class="scrollbar-hidden bg-gray-50 dark:bg-gray-850 dark:text-gray-100 outline-none w-full py-3 px-1 rounded-xl resize-none h-[48px]"
+									placeholder={chatInputPlaceholder}
+									bind:value={prompt}
+									on:keypress={(e) => {
+										if (
+											!$mobile ||
+											!(
+												'ontouchstart' in window ||
+												navigator.maxTouchPoints > 0 ||
+												navigator.msMaxTouchPoints > 0
+											)
+										) {
+											// Prevent Enter key from creating a new line
+											if (e.key === 'Enter' && !e.shiftKey) {
+												e.preventDefault();
+											}
 
 											// Submit the prompt when Enter key is pressed
 											if (prompt !== '' && e.key === 'Enter' && !e.shiftKey) {
-												submitPrompt(prompt, user);
+												submitPrompt(prompt);
 											}
 										}
 									}}
@@ -776,66 +813,27 @@
 									}}
 								/>
 
-						<div class="self-end mb-2 flex space-x-1 mr-1">
-							{#if messages.length == 0 || messages.at(-1).done == true}
-								<Tooltip content={$i18n.t('Send message')}>
-									<button
-										id="send-message-button"
-										class="{prompt !== ''
-											? 'bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 '
-											: 'text-white bg-gray-200 dark:text-gray-900 dark:bg-gray-700 disabled'} transition rounded-full p-1.5 self-center"
-										type="submit"
-										disabled={prompt === ''}
-									>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											viewBox="0 0 16 16"
-											fill="currentColor"
-											class="w-5 h-5"
-										>
-											<path
-												fill-rule="evenodd"
-												d="M8 14a.75.75 0 0 1-.75-.75V4.56L4.03 7.78a.75.75 0 0 1-1.06-1.06l4.5-4.5a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1-1.06 1.06L8.75 4.56v8.69A.75.75 0 0 1 8 14Z"
-												clip-rule="evenodd"
-											/>
-										</svg>
-									</button>
-								</Tooltip>
-							{:else}
-								<button
-									class="bg-white hover:bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-800 transition rounded-full p-1.5"
-									on:click={stopResponse}
-								>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										viewBox="0 0 24 24"
-										fill="currentColor"
-										class="w-5 h-5"
-									>
-										<path
-											fill-rule="evenodd"
-											d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm6-2.438c0-.724.588-1.312 1.313-1.312h4.874c.725 0 1.313.588 1.313 1.313v4.874c0 .725-.588 1.313-1.313 1.313H9.564a1.312 1.312 0 01-1.313-1.313V9.564z"
-											clip-rule="evenodd"
-										/>
-									</svg>
-								</button>
-							{/if}
+							</div>
 						</div>
-					</div>
-				</form>
+					</form>
 
+
+				<div class="mt-1.5 text-xs text-gray-500 text-center line-clamp-1">
+					{$i18n.t('LLMs can make mistakes. Verify important information.')}
 				</div>
 			</div>
 		</div>
 	</div>
+</div>
 
 <style>
-	.scrollbar-hidden:active::-webkit-scrollbar-thumb,
-	.scrollbar-hidden:focus::-webkit-scrollbar-thumb,
-	.scrollbar-hidden:hover::-webkit-scrollbar-thumb {
-		visibility: visible;
-	}
-	.scrollbar-hidden::-webkit-scrollbar-thumb {
-		visibility: hidden;
-	}
+    .scrollbar-hidden:active::-webkit-scrollbar-thumb,
+    .scrollbar-hidden:focus::-webkit-scrollbar-thumb,
+    .scrollbar-hidden:hover::-webkit-scrollbar-thumb {
+        visibility: visible;
+    }
+
+    .scrollbar-hidden::-webkit-scrollbar-thumb {
+        visibility: hidden;
+    }
 </style>

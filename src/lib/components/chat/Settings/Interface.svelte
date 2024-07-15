@@ -5,11 +5,17 @@
 	import { createEventDispatcher, onMount, getContext } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import { updateUserInfo } from '$lib/apis/users';
+	import { getUserPosition } from '$lib/utils';
 	const dispatch = createEventDispatcher();
 
 	const i18n = getContext('i18n');
 
 	export let saveSettings: Function;
+
+	let backgroundImageUrl = null;
+	let inputFiles = null;
+	let filesInputElement;
 
 	// Addons
 	let titleAutoGenerate = true;
@@ -20,6 +26,7 @@
 	// Interface
 	let defaultModelId = '';
 	let showUsername = false;
+
 	let chatBubble = true;
 	let chatDirection: 'LTR' | 'RTL' = 'LTR';
 
@@ -88,14 +95,18 @@
 
 	onMount(async () => {
 		titleAutoGenerate = $settings?.title?.auto ?? true;
+
 		responseAutoCopy = $settings.responseAutoCopy ?? false;
 		showUsername = $settings.showUsername ?? false;
+
 		chatBubble = $settings.chatBubble ?? true;
 		widescreenMode = $settings.widescreenMode ?? false;
 		splitLargeChunks = $settings.splitLargeChunks ?? false;
 		chatDirection = $settings.chatDirection ?? 'LTR';
 
 		defaultModelId = ($settings?.models ?? ['']).at(0);
+
+		backgroundImageUrl = $settings.backgroundImageUrl ?? null;
 	});
 </script>
 
