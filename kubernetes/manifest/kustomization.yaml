@@ -1,5 +1,5 @@
 resources:
-- base/open-webui.yaml
+- base/the-finance-genie.yaml
 - base/ollama-service.yaml
 - base/ollama-statefulset.yaml
 - base/webui-deployment.yaml

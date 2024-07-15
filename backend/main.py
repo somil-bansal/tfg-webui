@@ -94,9 +94,8 @@ from config import (
     WEBUI_URL,
     WEBUI_AUTH,
     ENV,
-    VERSION,
-    CHANGELOG,
     FRONTEND_BUILD_DIR,
+    CACHE_DIR,
     STATIC_DIR,
     DEFAULT_LOCALE,
     ENABLE_OPENAI_API,
@@ -105,7 +104,6 @@ from config import (
     MODEL_FILTER_LIST,
     GLOBAL_LOG_LEVEL,
     SRC_LOG_LEVELS,
-    WEBHOOK_URL,
     ENABLE_ADMIN_EXPORT,
     WEBUI_BUILD_HASH,
     TASK_MODEL,
@@ -123,8 +121,7 @@ from config import (
     WEBUI_SESSION_COOKIE_SECURE,
     AppConfig,
 )
-from constants import ERROR_MESSAGES, WEBHOOK_MESSAGES
-from utils.webhook import post_webhook
+from constants import ERROR_MESSAGES
 
 if SAFE_MODE:
     print("SAFE MODE ENABLED")
@@ -163,8 +160,6 @@ app.state.config.ENABLE_OLLAMA_API = ENABLE_OLLAMA_API
 
 app.state.config.ENABLE_MODEL_FILTER = ENABLE_MODEL_FILTER
 app.state.config.MODEL_FILTER_LIST = MODEL_FILTER_LIST
-
-app.state.config.WEBHOOK_URL = WEBHOOK_URL
 
 
 app.state.config.TASK_MODEL = TASK_MODEL
@@ -1640,7 +1635,6 @@ async def get_app_config():
     return {
         "status": True,
         "name": WEBUI_NAME,
-        "version": VERSION,
         "default_locale": str(DEFAULT_LOCALE),
         "default_models": webui_app.state.config.DEFAULT_MODELS,
         "default_prompt_suggestions": webui_app.state.config.DEFAULT_PROMPT_SUGGESTIONS,
@@ -1685,56 +1679,8 @@ async def update_model_filter_config(
     }
 
 
-# TODO: webhook endpoint should be under config endpoints
-
-
-@app.get("/api/webhook")
-async def get_webhook_url(user=Depends(get_admin_user)):
-    return {
-        "url": app.state.config.WEBHOOK_URL,
-    }
-
-
 class UrlForm(BaseModel):
     url: str
-
-
-@app.post("/api/webhook")
-async def update_webhook_url(form_data: UrlForm, user=Depends(get_admin_user)):
-    app.state.config.WEBHOOK_URL = form_data.url
-    webui_app.state.WEBHOOK_URL = app.state.config.WEBHOOK_URL
-    return {"url": app.state.config.WEBHOOK_URL}
-
-
-@app.get("/api/version")
-async def get_app_config():
-    return {
-        "version": VERSION,
-    }
-
-
-@app.get("/api/changelog")
-async def get_app_changelog():
-    return {key: CHANGELOG[key] for idx, key in enumerate(CHANGELOG) if idx < 5}
-
-
-@app.get("/api/version/updates")
-async def get_app_latest_release_version():
-    try:
-        async with aiohttp.ClientSession(trust_env=True) as session:
-            async with session.get(
-                "https://api.github.com/repos/open-webui/open-webui/releases/latest"
-            ) as response:
-                response.raise_for_status()
-                data = await response.json()
-                latest_version = data["tag_name"]
-
-                return {"current": VERSION, "latest": latest_version[1:]}
-    except aiohttp.ClientError as e:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=ERROR_MESSAGES.RATE_LIMIT_EXCEEDED,
-        )
 
 
 ############################

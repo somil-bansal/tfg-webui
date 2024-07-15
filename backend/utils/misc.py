@@ -81,7 +81,6 @@ def stream_message_template(model: str, message: str):
     }
 
 
-
 def calculate_sha256(file):
     sha256 = hashlib.sha256()
     # Read the file in chunks to efficiently handle large files

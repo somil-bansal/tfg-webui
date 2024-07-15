@@ -16,7 +16,6 @@ import config
 
 logging.getLogger("passlib").setLevel(logging.ERROR)
 
-
 SESSION_SECRET = config.WEBUI_SECRET_KEY
 ALGORITHM = "HS256"
 
@@ -57,10 +56,6 @@ def decode_token(token: str) -> Optional[dict]:
         return None
 
 
-def extract_token_from_auth_header(auth_header: str):
-    return auth_header[len("Bearer ") :]
-
-
 def get_http_authorization_cred(auth_header: str):
     try:
         scheme, credentials = auth_header.split(" ")
@@ -70,8 +65,8 @@ def get_http_authorization_cred(auth_header: str):
 
 
 def get_current_user(
-    request: Request,
-    auth_token: HTTPAuthorizationCredentials = Depends(bearer_security),
+        request: Request,
+        auth_token: HTTPAuthorizationCredentials = Depends(bearer_security),
 ):
     token = None
 
@@ -83,7 +78,6 @@ def get_current_user(
 
     if token is None:
         raise HTTPException(status_code=403, detail="Not authenticated")
-
 
     # auth by jwt token
     data = decode_token(token)

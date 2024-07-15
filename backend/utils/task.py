@@ -6,7 +6,7 @@ from typing import Optional
 
 
 def prompt_template(
-    template: str, user_name: str = None, user_location: str = None
+        template: str, user_name: str = None, user_location: str = None
 ) -> str:
     # Get the current date
     current_date = datetime.now()
@@ -39,7 +39,7 @@ def prompt_template(
 
 
 def title_generation_template(
-    template: str, prompt: str, user: Optional[dict] = None
+        template: str, prompt: str, user: Optional[dict] = None
 ) -> str:
     def replacement_function(match):
         full_match = match.group(0)
@@ -52,13 +52,13 @@ def title_generation_template(
         elif start_length is not None:
             return prompt[: int(start_length)]
         elif end_length is not None:
-            return prompt[-int(end_length) :]
+            return prompt[-int(end_length):]
         elif middle_length is not None:
             middle_length = int(middle_length)
             if len(prompt) <= middle_length:
                 return prompt
             start = prompt[: math.ceil(middle_length / 2)]
-            end = prompt[-math.floor(middle_length / 2) :]
+            end = prompt[-math.floor(middle_length / 2):]
             return f"{start}...{end}"
         return ""
 
@@ -81,9 +81,8 @@ def title_generation_template(
 
 
 def search_query_generation_template(
-    template: str, prompt: str, user: Optional[dict] = None
+        template: str, prompt: str, user: Optional[dict] = None
 ) -> str:
-
     def replacement_function(match):
         full_match = match.group(0)
         start_length = match.group(1)
@@ -95,13 +94,13 @@ def search_query_generation_template(
         elif start_length is not None:
             return prompt[: int(start_length)]
         elif end_length is not None:
-            return prompt[-int(end_length) :]
+            return prompt[-int(end_length):]
         elif middle_length is not None:
             middle_length = int(middle_length)
             if len(prompt) <= middle_length:
                 return prompt
             start = prompt[: math.ceil(middle_length / 2)]
-            end = prompt[-math.floor(middle_length / 2) :]
+            end = prompt[-math.floor(middle_length / 2):]
             return f"{start}...{end}"
         return ""
 

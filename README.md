@@ -1,6 +1,6 @@
 # Open WebUI (Formerly Ollama WebUI) 👋
 
-![GitHub stars](https://img.shields.io/github/stars/open-webui/open-webui?style=social)
+![GitHub stars](https://img.shields.io/github/stars/the-finance-genie/open-webui?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/open-webui/open-webui?style=social)
 ![GitHub watchers](https://img.shields.io/github/watchers/open-webui/open-webui?style=social)
 ![GitHub repo size](https://img.shields.io/github/repo-size/open-webui/open-webui)

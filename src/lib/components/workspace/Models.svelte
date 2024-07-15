@@ -329,9 +329,6 @@
 
 				<ModelMenu
 					{model}
-					shareHandler={() => {
-						shareModelHandler(model);
-					}}
 					cloneHandler={() => {
 						cloneModelHandler(model);
 					}}

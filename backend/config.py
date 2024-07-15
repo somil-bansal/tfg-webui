@@ -62,7 +62,6 @@ log_sources = [
     "OLLAMA",
     "OPENAI",
     "RAG",
-    "WEBHOOK",
 ]
 
 SRC_LOG_LEVELS = {}
@@ -82,24 +81,11 @@ if WEBUI_NAME != "The Finance Genie":
 
 WEBUI_URL = os.environ.get("WEBUI_URL", "http://localhost:8080")
 
-WEBUI_FAVICON_URL = "https://openwebui.com/favicon.png"
-
-
 ####################################
 # ENV (dev,test,prod)
 ####################################
 
 ENV = os.environ.get("ENV", "dev")
-
-try:
-    PACKAGE_DATA = json.loads((BASE_DIR / "package.json").read_text())
-except:
-    try:
-        PACKAGE_DATA = {"version": importlib.metadata.version("open-webui")}
-    except importlib.metadata.PackageNotFoundError:
-        PACKAGE_DATA = {"version": "0.0.0"}
-
-VERSION = PACKAGE_DATA["version"]
 
 
 # Function to parse each section
@@ -119,50 +105,6 @@ def parse_section(section):
 
         items.append({"title": title, "content": content, "raw": raw_html})
     return items
-
-
-try:
-    changelog_path = BASE_DIR / "CHANGELOG.md"
-    with open(str(changelog_path.absolute()), "r", encoding="utf8") as file:
-        changelog_content = file.read()
-
-except:
-    changelog_content = (pkgutil.get_data("open_webui", "CHANGELOG.md") or b"").decode()
-
-
-# Convert markdown content to HTML
-html_content = markdown.markdown(changelog_content)
-
-# Parse the HTML content
-soup = BeautifulSoup(html_content, "html.parser")
-
-# Initialize JSON structure
-changelog_json = {}
-
-# Iterate over each version
-for version in soup.find_all("h2"):
-    version_number = version.get_text().strip().split(" - ")[0][1:-1]  # Remove brackets
-    date = version.get_text().strip().split(" - ")[1]
-
-    version_data = {"date": date}
-
-    # Find the next sibling that is a h3 tag (section title)
-    current = version.find_next_sibling()
-
-    while current and current.name != "h2":
-        if current.name == "h3":
-            section_title = current.get_text().lower()  # e.g., "added", "fixed"
-            section_items = parse_section(current.find_next_sibling("ul"))
-            version_data[section_title] = section_items
-
-        # Move to the next element
-        current = current.find_next_sibling()
-
-    changelog_json[version_number] = version_data
-
-
-CHANGELOG = changelog_json
-
 
 ####################################
 # SAFE_MODE
@@ -388,30 +330,6 @@ else:
 
 CUSTOM_NAME = os.environ.get("CUSTOM_NAME", "")
 
-# if CUSTOM_NAME:
-#     try:
-#         r = requests.get(f"https://api.openwebui.com/api/v1/custom/{CUSTOM_NAME}")
-#         data = r.json()
-#         if r.ok:
-#             if "logo" in data:
-#                 WEBUI_FAVICON_URL = url = (
-#                     f"https://api.openwebui.com{data['logo']}"
-#                     if data["logo"][0] == "/"
-#                     else data["logo"]
-#                 )
-#
-#                 r = requests.get(url, stream=True)
-#                 if r.status_code == 200:
-#                     with open(f"{STATIC_DIR}/favicon.png", "wb") as f:
-#                         r.raw.decode_content = True
-#                         shutil.copyfileobj(r.raw, f)
-#
-#             WEBUI_NAME = data["name"]
-#     except Exception as e:
-#         log.exception(e)
-#         pass
-
-
 ####################################
 # File Upload DIR
 ####################################
@@ -531,7 +449,7 @@ if ENV == "prod":
         else:
             OLLAMA_BASE_URL = "http://host.docker.internal:11434"
     # elif K8S_FLAG:
-    #     OLLAMA_BASE_URL = "http://ollama-service.open-webui.svc.cluster.local:11434"
+    #     OLLAMA_BASE_URL = "http://ollama-service.the-finance-genie.svc.cluster.local:11434"
 
 
 OLLAMA_BASE_URLS = os.environ.get("OLLAMA_BASE_URLS", "")
@@ -597,15 +515,6 @@ OPENAI_API_BASE_URL = "https://api.openai.com/v1"
 # WEBUI
 ####################################
 
-ENABLE_SIGNUP = PersistentConfig(
-    "ENABLE_SIGNUP",
-    "ui.enable_signup",
-    (
-        False
-        if not WEBUI_AUTH
-        else os.environ.get("ENABLE_SIGNUP", "True").lower() == "true"
-    ),
-)
 
 DEFAULT_LOCALE = PersistentConfig(
     "DEFAULT_LOCALE",
@@ -677,10 +586,6 @@ MODEL_FILTER_LIST = PersistentConfig(
     "MODEL_FILTER_LIST",
     "model_filter.list",
     [model.strip() for model in MODEL_FILTER_LIST.split(";")],
-)
-
-WEBHOOK_URL = PersistentConfig(
-    "WEBHOOK_URL", "webhook_url", os.environ.get("WEBHOOK_URL", "")
 )
 
 ENABLE_ADMIN_EXPORT = os.environ.get("ENABLE_ADMIN_EXPORT", "True").lower() == "true"

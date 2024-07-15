@@ -26,7 +26,7 @@
 
 	export let initNewChat: Function;
 	export let title: string = $WEBUI_NAME;
-	export let shareEnabled: boolean = false;
+	export let shareEnabled: boolean = true;
 
 	export let chat;
 	export let selectedModels;

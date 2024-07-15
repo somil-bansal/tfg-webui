@@ -12,7 +12,7 @@
 aiohttp==3.9.5
     # via langchain
     # via langchain-community
-    # via open-webui
+    # via the-finance-genie
 aiosignal==1.3.1
     # via aiohttp
 annotated-types==0.6.0
@@ -22,9 +22,9 @@ anyio==4.3.0
     # via starlette
     # via watchfiles
 apscheduler==3.10.4
-    # via open-webui
+    # via the-finance-genie
 argon2-cffi==23.1.0
-    # via open-webui
+    # via the-finance-genie
 argon2-cffi-bindings==21.2.0
     # via argon2-cffi
 asgiref==3.8.1
@@ -32,7 +32,7 @@ asgiref==3.8.1
 attrs==23.2.0
     # via aiohttp
 authlib==1.3.0
-    # via open-webui
+    # via the-finance-genie
 av==11.0.0
     # via faster-whisper
 backoff==2.2.1
@@ -41,7 +41,7 @@ backoff==2.2.1
     # via unstructured
 bcrypt==4.1.3
     # via chromadb
-    # via open-webui
+    # via the-finance-genie
     # via passlib
 beautifulsoup4==4.12.3
     # via extract-msg
@@ -49,11 +49,11 @@ beautifulsoup4==4.12.3
 bidict==0.23.1
     # via python-socketio
 black==24.4.2
-    # via open-webui
+    # via the-finance-genie
 blinker==1.8.2
     # via flask
 boto3==1.34.110
-    # via open-webui
+    # via the-finance-genie
 botocore==1.34.110
     # via boto3
     # via s3transfer
@@ -79,7 +79,7 @@ chroma-hnswlib==0.7.3
     # via chromadb
 chromadb==0.5.0
     # via langchain-chroma
-    # via open-webui
+    # via the-finance-genie
 click==8.1.7
     # via black
     # via duckduckgo-search
@@ -115,9 +115,9 @@ deprecated==1.2.14
 dnspython==2.6.1
     # via email-validator
 docx2txt==0.8
-    # via open-webui
+    # via the-finance-genie
 duckduckgo-search==6.1.5
-    # via open-webui
+    # via the-finance-genie
 easygui==0.98.3
     # via oletools
 ebcdic==1.1.1
@@ -131,9 +131,9 @@ emoji==2.11.1
 et-xmlfile==1.1.0
     # via openpyxl
 extract-msg==0.48.5
-    # via open-webui
+    # via the-finance-genie
 fake-useragent==1.5.1
-    # via open-webui
+    # via the-finance-genie
 fastapi==0.111.0
     # via chromadb
     # via langchain-chroma

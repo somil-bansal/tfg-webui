@@ -9,11 +9,6 @@ class MESSAGES(str, Enum):
     )
 
 
-class WEBHOOK_MESSAGES(str, Enum):
-    DEFAULT = lambda msg="": f"{msg if msg else ''}"
-    USER_SIGNUP = lambda username="": (
-        f"New user signed up: {username}" if username else "New user signed up"
-    )
 
 
 class ERROR_MESSAGES(str, Enum):

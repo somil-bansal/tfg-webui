@@ -1,22 +1,16 @@
 <script>
 	import { goto } from '$app/navigation';
-	import { getSessionUser, userSignIn, userSignUp } from '$lib/apis/auths';
+	import { getSessionUser } from '$lib/apis/auths';
 	import Spinner from '$lib/components/common/Spinner.svelte';
-	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
-	import { WEBUI_NAME, config, user, socket } from '$lib/stores';
-	import { onMount, getContext } from 'svelte';
+	import { WEBUI_BASE_URL } from '$lib/constants';
+	import { config, socket, user, WEBUI_NAME } from '$lib/stores';
+	import { getContext, onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
-	import { generateInitialsImage, canvasPixelTest } from '$lib/utils';
 	import { page } from '$app/stores';
 
 	const i18n = getContext('i18n');
 
 	let loaded = false;
-	let mode = 'signin';
-
-	let name = '';
-	let email = '';
-	let password = '';
 
 	const setSessionUser = async (sessionUser) => {
 		if (sessionUser) {
@@ -30,15 +24,6 @@
 			await user.set(sessionUser);
 			goto('/');
 		}
-	};
-
-	const signInHandler = async () => {
-		const sessionUser = await userSignIn(email, password).catch((error) => {
-			toast.error(error);
-			return null;
-		});
-
-		await setSessionUser(sessionUser);
 	};
 
 
@@ -72,9 +57,6 @@
 		}
 		await checkOauthCallback();
 		loaded = true;
-		if (($config?.features.auth_trusted_header ?? false) || $config?.features.auth === false) {
-			await signInHandler();
-		}
 	});
 </script>
 
