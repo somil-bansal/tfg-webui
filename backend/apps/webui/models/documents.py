@@ -5,15 +5,16 @@ from typing import List, Union, Optional
 import time
 import logging
 
-
 from apps.webui.internal.db import DB
 
 import json
 
+from apps.webui.models.users import UserModel
 from config import SRC_LOG_LEVELS
 
 log = logging.getLogger(__name__)
 log.setLevel(SRC_LOG_LEVELS["MODELS"])
+
 
 ####################
 # Documents DB Schema
@@ -26,6 +27,7 @@ class Document(Model):
     title = TextField()
     filename = TextField()
     content = TextField(null=True)
+    user_groups = TextField()
     user_id = CharField()
     timestamp = BigIntegerField()
 
@@ -39,6 +41,7 @@ class DocumentModel(BaseModel):
     title: str
     filename: str
     content: Optional[str] = None
+    user_groups: str
     user_id: str
     timestamp: int  # timestamp in epoch
 
@@ -51,6 +54,7 @@ class DocumentModel(BaseModel):
 class DocumentResponse(BaseModel):
     collection_name: str
     name: str
+    user_groups: str
     title: str
     filename: str
     content: Optional[dict] = None
@@ -75,12 +79,13 @@ class DocumentsTable:
         self.db.create_tables([Document])
 
     def insert_new_doc(
-        self, user_id: str, form_data: DocumentForm
+            self, user_id: str, user_group: str, form_data: DocumentForm
     ) -> Optional[DocumentModel]:
         document = DocumentModel(
             **{
                 **form_data.model_dump(),
                 "user_id": user_id,
+                "user_groups": user_group,
                 "timestamp": int(time.time()),
             }
         )
@@ -94,22 +99,25 @@ class DocumentsTable:
         except:
             return None
 
-    def get_doc_by_name(self, name: str) -> Optional[DocumentModel]:
+    def get_doc_by_name(self, name: str, user: UserModel) -> Optional[DocumentModel]:
         try:
-            document = Document.get(Document.name == name)
+            document = Document.get(
+                (Document.name == name) & (Document.user_groups.in_(user.groups))
+            )
             return DocumentModel(**model_to_dict(document))
         except:
             return None
 
-    def get_docs(self) -> List[DocumentModel]:
+    def get_docs(self, user: UserModel) -> List[DocumentModel]:
+
         return [
             DocumentModel(**model_to_dict(doc))
-            for doc in Document.select()
+            for doc in Document.select().where(Document.user_groups.in_(user.groups))
             # .limit(limit).offset(skip)
         ]
 
     def update_doc_by_name(
-        self, name: str, form_data: DocumentUpdateForm
+            self, name: str, form_data: DocumentUpdateForm
     ) -> Optional[DocumentModel]:
         try:
             query = Document.update(
@@ -126,10 +134,10 @@ class DocumentsTable:
             return None
 
     def update_doc_content_by_name(
-        self, name: str, updated: dict
+            self, name: str, user: UserModel, updated: dict
     ) -> Optional[DocumentModel]:
         try:
-            doc = self.get_doc_by_name(name)
+            doc = self.get_doc_by_name(name, user)
             doc_content = json.loads(doc.content if doc.content else "{}")
             doc_content = {**doc_content, **updated}
 

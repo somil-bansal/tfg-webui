@@ -42,8 +42,8 @@
 
 	let pipelineUrls = {};
 
-	let ENABLE_OPENAI_API = null;
-	let ENABLE_OLLAMA_API = null;
+	let ENABLE_OPENAI_API = true;
+	let ENABLE_OLLAMA_API = true;
 
 	const verifyOpenAIHandler = async (idx) => {
 		OPENAI_API_BASE_URLS = OPENAI_API_BASE_URLS.map((url) => url.replace(/\/$/, ''));

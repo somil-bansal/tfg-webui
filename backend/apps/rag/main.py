@@ -40,7 +40,6 @@ import validators
 import urllib.parse
 import socket
 
-
 from pydantic import BaseModel
 from typing import Optional
 import mimetypes
@@ -84,7 +83,7 @@ from utils.misc import (
     sanitize_filename,
     extract_folders_after_data_docs,
 )
-from utils.utils import get_verified_user, get_admin_user
+from utils.utils import get_verified_user, get_admin_user, get_data_admin
 
 from config import (
     AppConfig,
@@ -155,12 +154,10 @@ app.state.config.RAG_EMBEDDING_OPENAI_BATCH_SIZE = RAG_EMBEDDING_OPENAI_BATCH_SI
 app.state.config.RAG_RERANKING_MODEL = RAG_RERANKING_MODEL
 app.state.config.RAG_TEMPLATE = RAG_TEMPLATE
 
-
 app.state.config.OPENAI_API_BASE_URL = RAG_OPENAI_API_BASE_URL
 app.state.config.OPENAI_API_KEY = RAG_OPENAI_API_KEY
 
 app.state.config.PDF_EXTRACT_IMAGES = PDF_EXTRACT_IMAGES
-
 
 app.state.config.ENABLE_RAG_WEB_SEARCH = ENABLE_RAG_WEB_SEARCH
 app.state.config.RAG_WEB_SEARCH_ENGINE = RAG_WEB_SEARCH_ENGINE
@@ -180,8 +177,8 @@ app.state.config.RAG_WEB_SEARCH_CONCURRENT_REQUESTS = RAG_WEB_SEARCH_CONCURRENT_
 
 
 def update_embedding_model(
-    embedding_model: str,
-    update_model: bool = False,
+        embedding_model: str,
+        update_model: bool = False,
 ):
     if embedding_model and app.state.config.RAG_EMBEDDING_ENGINE == "":
         app.state.sentence_transformer_ef = sentence_transformers.SentenceTransformer(
@@ -194,8 +191,8 @@ def update_embedding_model(
 
 
 def update_reranking_model(
-    reranking_model: str,
-    update_model: bool = False,
+        reranking_model: str,
+        update_model: bool = False,
 ):
     if reranking_model:
         app.state.sentence_transformer_rf = sentence_transformers.CrossEncoder(
@@ -217,7 +214,6 @@ update_reranking_model(
     RAG_RERANKING_MODEL_AUTO_UPDATE,
 )
 
-
 app.state.EMBEDDING_FUNCTION = get_embedding_function(
     app.state.config.RAG_EMBEDDING_ENGINE,
     app.state.config.RAG_EMBEDDING_MODEL,
@@ -228,7 +224,6 @@ app.state.EMBEDDING_FUNCTION = get_embedding_function(
 )
 
 origins = ["*"]
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -301,7 +296,7 @@ class EmbeddingModelUpdateForm(BaseModel):
 
 @app.post("/embedding/update")
 async def update_embedding_config(
-    form_data: EmbeddingModelUpdateForm, user=Depends(get_admin_user)
+        form_data: EmbeddingModelUpdateForm, user=Depends(get_admin_user)
 ):
     log.info(
         f"Updating embedding model: {app.state.config.RAG_EMBEDDING_MODEL} to {form_data.embedding_model}"
@@ -355,7 +350,7 @@ class RerankingModelUpdateForm(BaseModel):
 
 @app.post("/reranking/update")
 async def update_reranking_config(
-    form_data: RerankingModelUpdateForm, user=Depends(get_admin_user)
+        form_data: RerankingModelUpdateForm, user=Depends(get_admin_user)
 ):
     log.info(
         f"Updating reranking model: {app.state.config.RAG_RERANKING_MODEL} to {form_data.reranking_model}"
@@ -410,6 +405,7 @@ async def get_rag_config(user=Depends(get_admin_user)):
 class ChunkParamUpdateForm(BaseModel):
     chunk_size: int
     chunk_overlap: int
+
 
 class WebSearchConfig(BaseModel):
     enabled: bool
@@ -531,7 +527,7 @@ class QuerySettingsForm(BaseModel):
 
 @app.post("/query/settings/update")
 async def update_query_settings(
-    form_data: QuerySettingsForm, user=Depends(get_admin_user)
+        form_data: QuerySettingsForm, user=Depends(get_admin_user)
 ):
     app.state.config.RAG_TEMPLATE = (
         form_data.template if form_data.template else RAG_TEMPLATE
@@ -560,8 +556,8 @@ class QueryDocForm(BaseModel):
 
 @app.post("/query/doc")
 def query_doc_handler(
-    form_data: QueryDocForm,
-    user=Depends(get_verified_user),
+        form_data: QueryDocForm,
+        user=Depends(get_verified_user),
 ):
     try:
         if app.state.config.ENABLE_RAG_HYBRID_SEARCH:
@@ -600,8 +596,8 @@ class QueryCollectionsForm(BaseModel):
 
 @app.post("/query/collection")
 def query_collection_handler(
-    form_data: QueryCollectionsForm,
-    user=Depends(get_verified_user),
+        form_data: QueryCollectionsForm,
+        user=Depends(get_verified_user),
 ):
     try:
         if app.state.config.ENABLE_RAG_HYBRID_SEARCH:
@@ -633,7 +629,6 @@ def query_collection_handler(
 
 @app.post("/web")
 def store_web(form_data: UrlForm, user=Depends(get_verified_user)):
-    # "https://www.gutenberg.org/files/1727/1727-h/1727-h.htm"
     try:
         loader = get_web_loader(
             form_data.url,
@@ -733,8 +728,8 @@ def search_web(engine: str, query: str) -> list[SearchResult]:
             raise Exception("No SEARXNG_QUERY_URL found in environment variables")
     elif engine == "google_pse":
         if (
-            app.state.config.GOOGLE_PSE_API_KEY
-            and app.state.config.GOOGLE_PSE_ENGINE_ID
+                app.state.config.GOOGLE_PSE_API_KEY
+                and app.state.config.GOOGLE_PSE_ENGINE_ID
         ):
             return search_google_pse(
                 app.state.config.GOOGLE_PSE_API_KEY,
@@ -851,7 +846,6 @@ def store_web_search(form_data: SearchForm, user=Depends(get_verified_user)):
 
 
 def store_data_in_vector_db(data, collection_name, overwrite: bool = False) -> bool:
-
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=app.state.config.CHUNK_SIZE,
         chunk_overlap=app.state.config.CHUNK_OVERLAP,
@@ -868,7 +862,7 @@ def store_data_in_vector_db(data, collection_name, overwrite: bool = False) -> b
 
 
 def store_text_in_vector_db(
-    text, metadata, collection_name, overwrite: bool = False
+        text, metadata, collection_name, overwrite: bool = False
 ) -> bool:
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=app.state.config.CHUNK_SIZE,
@@ -914,11 +908,11 @@ def store_docs_in_vector_db(docs, collection_name, overwrite: bool = False) -> b
         embeddings = embedding_func(embedding_texts)
 
         for batch in create_batches(
-            api=CHROMA_CLIENT,
-            ids=[str(uuid.uuid4()) for _ in texts],
-            metadatas=metadatas,
-            embeddings=embeddings,
-            documents=texts,
+                api=CHROMA_CLIENT,
+                ids=[str(uuid.uuid4()) for _ in texts],
+                metadatas=metadatas,
+                embeddings=embeddings,
+                documents=texts,
         ):
             collection.add(*batch)
 
@@ -998,9 +992,9 @@ def get_loader(filename: str, file_content_type: str, file_path: str):
     elif file_content_type == "application/epub+zip":
         loader = UnstructuredEPubLoader(file_path)
     elif (
-        file_content_type
-        == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        or file_ext in ["doc", "docx"]
+            file_content_type
+            == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            or file_ext in ["doc", "docx"]
     ):
         loader = Docx2txtLoader(file_path)
     elif file_content_type in [
@@ -1016,7 +1010,7 @@ def get_loader(filename: str, file_content_type: str, file_path: str):
     elif file_ext == "msg":
         loader = OutlookMessageLoader(file_path)
     elif file_ext in known_source_ext or (
-        file_content_type and file_content_type.find("text/") >= 0
+            file_content_type and file_content_type.find("text/") >= 0
     ):
         loader = TextLoader(file_path, autodetect_encoding=True)
     else:
@@ -1028,12 +1022,10 @@ def get_loader(filename: str, file_content_type: str, file_path: str):
 
 @app.post("/doc")
 def store_doc(
-    collection_name: Optional[str] = Form(None),
-    file: UploadFile = File(...),
-    user=Depends(get_verified_user),
+        collection_name: Optional[str] = Form(None),
+        file: UploadFile = File(...),
+        user=Depends(get_verified_user),
 ):
-    # "https://www.gutenberg.org/files/1727/1727-h/1727-h.htm"
-
     log.info(f"file.content_type: {file.content_type}")
     try:
         unsanitized_filename = file.filename
@@ -1090,8 +1082,8 @@ class ProcessDocForm(BaseModel):
 
 @app.post("/process/doc")
 def process_doc(
-    form_data: ProcessDocForm,
-    user=Depends(get_verified_user),
+        form_data: ProcessDocForm,
+        user=Depends(get_verified_user),
 ):
     try:
         file = Files.get_file_by_id(form_data.file_id)
@@ -1145,10 +1137,9 @@ class TextRAGForm(BaseModel):
 
 @app.post("/text")
 def store_text(
-    form_data: TextRAGForm,
-    user=Depends(get_verified_user),
+        form_data: TextRAGForm,
+        user=Depends(get_verified_user),
 ):
-
     collection_name = form_data.collection_name
     if collection_name == None:
         collection_name = calculate_sha256_string(form_data.content)
@@ -1169,7 +1160,7 @@ def store_text(
 
 
 @app.get("/scan")
-def scan_docs_dir(user=Depends(get_admin_user)):
+def scan_docs_dir(user=Depends(get_data_admin)):
     for path in Path(DOCS_DIR).rglob("./**/*"):
         try:
             if path.is_file() and not path.name.startswith("."):
@@ -1177,6 +1168,12 @@ def scan_docs_dir(user=Depends(get_admin_user)):
                 filename = path.name
                 file_content_type = mimetypes.guess_type(path)
 
+                parts = path.as_posix().split('/')
+                try:
+                    docs_index = parts.index('docs')
+                    group_name = parts[docs_index + 1]
+                except (ValueError, IndexError) :
+                    group_name = "tfg"
                 f = open(path, "rb")
                 collection_name = calculate_sha256(f)[:63]
                 f.close()
@@ -1191,11 +1188,12 @@ def scan_docs_dir(user=Depends(get_admin_user)):
 
                     if result:
                         sanitized_filename = sanitize_filename(filename)
-                        doc = Documents.get_doc_by_name(sanitized_filename)
+                        doc = Documents.get_doc_by_name(sanitized_filename, user)
                         # doc = Documents.update_doc_content_by_name(form_data.name, {"tags": form_data.tags})
                         if doc == None:
                             doc = Documents.insert_new_doc(
                                 user.id,
+                                group_name,
                                 DocumentForm(
                                     **{
                                         "name": sanitized_filename,
@@ -1229,56 +1227,6 @@ def scan_docs_dir(user=Depends(get_admin_user)):
     return True
 
 
-@app.get("/reset/db")
-def reset_vector_db(user=Depends(get_admin_user)):
-    CHROMA_CLIENT.reset()
-
-
-@app.get("/reset/uploads")
-def reset_upload_dir(user=Depends(get_admin_user)) -> bool:
-    folder = f"{UPLOAD_DIR}"
-    try:
-        # Check if the directory exists
-        if os.path.exists(folder):
-            # Iterate over all the files and directories in the specified directory
-            for filename in os.listdir(folder):
-                file_path = os.path.join(folder, filename)
-                try:
-                    if os.path.isfile(file_path) or os.path.islink(file_path):
-                        os.unlink(file_path)  # Remove the file or link
-                    elif os.path.isdir(file_path):
-                        shutil.rmtree(file_path)  # Remove the directory
-                except Exception as e:
-                    print(f"Failed to delete {file_path}. Reason: {e}")
-        else:
-            print(f"The directory {folder} does not exist")
-    except Exception as e:
-        print(f"Failed to process the directory {folder}. Reason: {e}")
-
-    return True
-
-
-@app.get("/reset")
-def reset(user=Depends(get_admin_user)) -> bool:
-    folder = f"{UPLOAD_DIR}"
-    for filename in os.listdir(folder):
-        file_path = os.path.join(folder, filename)
-        try:
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-        except Exception as e:
-            log.error("Failed to delete %s. Reason: %s" % (file_path, e))
-
-    try:
-        CHROMA_CLIENT.reset()
-    except Exception as e:
-        log.exception(e)
-
-    return True
-
-
 class SafeWebBaseLoader(WebBaseLoader):
     """WebBaseLoader with enhanced error handling for URLs."""
 
@@ -1307,10 +1255,10 @@ class SafeWebBaseLoader(WebBaseLoader):
 
 
 if ENV == "dev":
-
     @app.get("/ef")
     async def get_embeddings():
         return {"result": app.state.EMBEDDING_FUNCTION("hello world")}
+
 
     @app.get("/ef/{text}")
     async def get_embeddings_text(text: str):

@@ -451,8 +451,8 @@ ENABLE_OPENAI_API = PersistentConfig(
 )
 
 
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "fad496d248804765991834c0933b8f26")
-OPENAI_API_BASE_URL = os.environ.get("OPENAI_API_BASE_URL", "https://tfgam-aze-eus-openai.openai.azure.com/")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+OPENAI_API_BASE_URL = os.environ.get("OPENAI_API_BASE_URL", "")
 
 
 if OPENAI_API_BASE_URL == "":
@@ -472,23 +472,23 @@ OPENAI_API_BASE_URLS = (
 )
 
 OPENAI_API_BASE_URLS = [
-    url.strip() if url != "" else "https://tfgam-aze-eus-openai.openai.azure.com/"
+    url.strip() if url != "" else ""
     for url in OPENAI_API_BASE_URLS.split(";")
 ]
 OPENAI_API_BASE_URLS = PersistentConfig(
     "OPENAI_API_BASE_URLS", "openai.api_base_urls", OPENAI_API_BASE_URLS
 )
 
-OPENAI_API_KEY = "fad496d248804765991834c0933b8f26"
+OPENAI_API_KEY = ""
 
 try:
     OPENAI_API_KEY = OPENAI_API_KEYS.value[
-        OPENAI_API_BASE_URLS.value.index("https://tfgam-aze-eus-openai.openai.azure.com/")
+        OPENAI_API_BASE_URLS.value.index("")
     ]
 except:
     pass
 
-OPENAI_API_BASE_URL = "https://tfgam-aze-eus-openai.openai.azure.com/"
+OPENAI_API_BASE_URL = ""
 
 ####################################
 # WEBUI

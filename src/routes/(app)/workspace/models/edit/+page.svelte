@@ -555,7 +555,7 @@
 				/>
 			</div>
 
-			<div class="my-2">
+<!--			<div class="my-2">
 				<div class="flex w-full justify-between mb-1">
 					<div class=" self-center text-sm font-semibold">{$i18n.t('Capabilities')}</div>
 				</div>
@@ -575,7 +575,7 @@
 						</div>
 					{/each}
 				</div>
-			</div>
+			</div>-->
 
 			<div class="my-1">
 				<div class="flex w-full justify-between items-center">

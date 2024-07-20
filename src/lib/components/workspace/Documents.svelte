@@ -234,24 +234,6 @@
 	</div>
 </div>
 
-<!-- <div>
-    <div
-        class="my-3 py-16 rounded-lg border-2 border-dashed dark:border-gray-600 {dragged &&
-            ' dark:bg-gray-700'} "
-        role="region"
-        on:drop={onDrop}
-        on:dragover={onDragOver}
-        on:dragleave={onDragLeave}
-    >
-        <div class="  pointer-events-none">
-            <div class="text-center dark:text-white text-2xl font-semibold z-50">{$i18n.t('Add Files')}</div>
-
-            <div class=" mt-2 text-center text-sm dark:text-gray-200 w-full">
-                Drop any files here to add to my documents
-            </div>
-        </div>
-    </div>
-</div> -->
 
 <hr class=" dark:border-gray-850 my-2.5" />
 
@@ -440,28 +422,6 @@
 					</svg>
 				</button>
 
-				<!-- <button
-            class="self-center w-fit text-sm px-2 py-2 border dark:border-gray-600 rounded-xl"
-            type="button"
-            on:click={() => {
-                console.log('download file');
-            }}
-        >
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                class="w-4 h-4"
-            >
-                <path
-                    d="M8.75 2.75a.75.75 0 0 0-1.5 0v5.69L5.03 6.22a.75.75 0 0 0-1.06 1.06l3.5 3.5a.75.75 0 0 0 1.06 0l3.5-3.5a.75.75 0 0 0-1.06-1.06L8.75 8.44V2.75Z"
-                />
-                <path
-                    d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z"
-                />
-            </svg>
-        </button> -->
-
 				<button
 					class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
 					type="button"
@@ -532,59 +492,6 @@
 			}}
 		/>
 
-		<button
-			class="flex text-xs items-center space-x-1 px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200 transition"
-			on:click={() => {
-				documentsImportInputElement.click();
-			}}
-		>
-			<div class=" self-center mr-2 font-medium line-clamp-1">
-				{$i18n.t('Import Documents Mapping')}
-			</div>
 
-			<div class=" self-center">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 16 16"
-					fill="currentColor"
-					class="w-4 h-4"
-				>
-					<path
-						fill-rule="evenodd"
-						d="M4 2a1.5 1.5 0 0 0-1.5 1.5v9A1.5 1.5 0 0 0 4 14h8a1.5 1.5 0 0 0 1.5-1.5V6.621a1.5 1.5 0 0 0-.44-1.06L9.94 2.439A1.5 1.5 0 0 0 8.878 2H4Zm4 9.5a.75.75 0 0 1-.75-.75V8.06l-.72.72a.75.75 0 0 1-1.06-1.06l2-2a.75.75 0 0 1 1.06 0l2 2a.75.75 0 1 1-1.06 1.06l-.72-.72v2.69a.75.75 0 0 1-.75.75Z"
-						clip-rule="evenodd"
-					/>
-				</svg>
-			</div>
-		</button>
-
-		<button
-			class="flex text-xs items-center space-x-1 px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200 transition"
-			on:click={async () => {
-				let blob = new Blob([JSON.stringify($documents)], {
-					type: 'application/json'
-				});
-				saveAs(blob, `documents-mapping-export-${Date.now()}.json`);
-			}}
-		>
-			<div class=" self-center mr-2 font-medium line-clamp-1">
-				{$i18n.t('Export Documents Mapping')}
-			</div>
-
-			<div class=" self-center">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 16 16"
-					fill="currentColor"
-					class="w-4 h-4"
-				>
-					<path
-						fill-rule="evenodd"
-						d="M4 2a1.5 1.5 0 0 0-1.5 1.5v9A1.5 1.5 0 0 0 4 14h8a1.5 1.5 0 0 0 1.5-1.5V6.621a1.5 1.5 0 0 0-.44-1.06L9.94 2.439A1.5 1.5 0 0 0 8.878 2H4Zm4 3.5a.75.75 0 0 1 .75.75v2.69l.72-.72a.75.75 0 1 1 1.06 1.06l-2 2a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 0 1 1.06-1.06l.72.72V6.25A.75.75 0 0 1 8 5.5Z"
-						clip-rule="evenodd"
-					/>
-				</svg>
-			</div>
-		</button>
 	</div>
 </div>

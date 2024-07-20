@@ -1,17 +1,14 @@
-from fastapi import Depends, FastAPI, HTTPException, status
-from datetime import datetime, timedelta
-from typing import List, Union, Optional
+from typing import List, Optional
 
 from fastapi import APIRouter
-from pydantic import BaseModel
-import json
+from fastapi import Depends, HTTPException, status
 
 from apps.webui.models.prompts import Prompts, PromptForm, PromptModel
-
-from utils.utils import get_verified_user, get_admin_user
 from constants import ERROR_MESSAGES
+from utils.utils import get_verified_user, get_admin_user, get_data_admin
 
 router = APIRouter()
+
 
 ############################
 # GetPrompts
@@ -29,7 +26,7 @@ async def get_prompts(user=Depends(get_verified_user)):
 
 
 @router.post("/create", response_model=Optional[PromptModel])
-async def create_new_prompt(form_data: PromptForm, user=Depends(get_admin_user)):
+async def create_new_prompt(form_data: PromptForm, user=Depends(get_data_admin)):
     prompt = Prompts.get_prompt_by_command(form_data.command)
     if prompt == None:
         prompt = Prompts.insert_new_prompt(user.id, form_data)
@@ -71,7 +68,7 @@ async def get_prompt_by_command(command: str, user=Depends(get_verified_user)):
 
 @router.post("/command/{command}/update", response_model=Optional[PromptModel])
 async def update_prompt_by_command(
-    command: str, form_data: PromptForm, user=Depends(get_admin_user)
+        command: str, form_data: PromptForm, user=Depends(get_data_admin)
 ):
     prompt = Prompts.update_prompt_by_command(f"/{command}", form_data)
     if prompt:
@@ -89,6 +86,6 @@ async def update_prompt_by_command(
 
 
 @router.delete("/command/{command}/delete", response_model=bool)
-async def delete_prompt_by_command(command: str, user=Depends(get_admin_user)):
+async def delete_prompt_by_command(command: str, user=Depends(get_data_admin)):
     result = Prompts.delete_prompt_by_command(f"/{command}")
     return result

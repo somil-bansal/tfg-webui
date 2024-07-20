@@ -96,13 +96,6 @@
 				</button>
 			</div>
 		{/each}
-
-		<!-- <div class="snap-center shrink-0">
-		<img
-			class="shrink-0 w-80 h-40 rounded-lg shadow-xl bg-white"
-			src="https://images.unsplash.com/photo-1604999565976-8913ad2ddb7c?ixlib=rb-1.2.1&amp;ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&amp;auto=format&amp;fit=crop&amp;w=320&amp;h=160&amp;q=80"
-		/>
-	</div> -->
 	</div>
 </div>
 

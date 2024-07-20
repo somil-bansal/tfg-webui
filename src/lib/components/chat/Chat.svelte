@@ -28,7 +28,6 @@
 	import {
 		convertMessagesToHistory,
 		copyToClipboard,
-		getUserPosition,
 		promptTemplate,
 		splitStream
 	} from '$lib/utils';

@@ -7,8 +7,6 @@
 		settings,
 		showSidebar,
 		models,
-		config,
-		showCallOverlay,
 		tools,
 		user as _user
 	} from '$lib/stores';
@@ -49,8 +47,6 @@
 	export let atSelectedModel: Model | undefined;
 	export let selectedModels: [''];
 
-	let recording = false;
-
 	let chatTextAreaElement: HTMLTextAreaElement;
 	let filesInputElement;
 
@@ -62,7 +58,7 @@
 	let dragged = false;
 
 	let user = null;
-	let chatInputPlaceholder = 'Send a message';
+	let chatInputPlaceholder = 'Message Genie';
 
 	export let files = [];
 
@@ -72,12 +68,6 @@
 
 	export let prompt = '';
 	export let messages = [];
-
-
-	let visionCapableModels = [];
-	$: visionCapableModels = [...(atSelectedModel ? [atSelectedModel] : selectedModels)].filter(
-		(model) => $models.find((m) => m.id === model)?.info?.meta?.capabilities?.vision ?? true
-	);
 
 	$: if (prompt) {
 		if (chatTextAreaElement) {
@@ -211,21 +201,8 @@
 					inputFiles.forEach((file) => {
 						console.log(file, file.name.split('.').at(-1));
 						if (['image/gif', 'image/webp', 'image/jpeg', 'image/png'].includes(file['type'])) {
-							// if (visionCapableModels.length === 0) {
 								toast.error($i18n.t('App does not support images'));
 								return;
-							// }
-							// let reader = new FileReader();
-							// reader.onload = (event) => {
-							// 	files = [
-							// 		...files,
-							// 		{
-							// 			type: 'image',
-							// 			url: `${event.target.result}`
-							// 		}
-							// 	];
-							// };
-							// reader.readAsDataURL(file);
 						} else {
 							uploadFileHandler(file);
 						}
@@ -379,7 +356,7 @@
 	<div class="{transparentBackground ? 'bg-transparent' : 'bg-white dark:bg-gray-900'} ">
 		<div class="max-w-6xl px-2.5 md:px-6 mx-auto inset-x-0">
 			<div class=" pb-2">
-<!--				<input
+			<input
 					bind:this={filesInputElement}
 					bind:files={inputFiles}
 					type="file"
@@ -390,21 +367,7 @@
 							const _inputFiles = Array.from(inputFiles);
 							_inputFiles.forEach((file) => {
 								if (['image/gif', 'image/webp', 'image/jpeg', 'image/png'].includes(file['type'])) {
-									if (visionCapableModels.length === 0) {
-										toast.error($i18n.t('Selected model(s) do not support image inputs'));
-										return;
-									}
-									let reader = new FileReader();
-									reader.onload = (event) => {
-										files = [
-											...files,
-											{
-												type: 'image',
-												url: `${event.target.result}`
-											}
-										];
-									};
-									reader.readAsDataURL(file);
+										toast.error($i18n.t('Application currently does not support image inputs'));
 								} else {
 									uploadFileHandler(file);
 								}
@@ -414,7 +377,7 @@
 						}
 						filesInputElement.value = '';
 					}}
-				/>-->
+				/>
 
 					<form
 						class="w-full flex gap-1.5"
@@ -431,38 +394,7 @@
 								<div class="mx-2 mt-2 mb-1 flex flex-wrap gap-2">
 									{#each files as file, fileIdx}
 										<div class=" relative group">
-											{#if file.type === 'image'}
-												<div class="relative">
-													<img
-														src={file.url}
-														alt="input"
-														class=" h-16 w-16 rounded-xl object-cover"
-													/>
-													{#if atSelectedModel ? visionCapableModels.length === 0 : selectedModels.length !== visionCapableModels.length}
-														<Tooltip
-															className=" absolute top-1 left-1"
-															content={$i18n.t('{{ models }}', {
-																models: [...(atSelectedModel ? [atSelectedModel] : selectedModels)]
-																	.filter((id) => !visionCapableModels.includes(id))
-																	.join(', ')
-															})}
-														>
-															<svg
-																xmlns="http://www.w3.org/2000/svg"
-																viewBox="0 0 24 24"
-																fill="currentColor"
-																class="size-4 fill-yellow-300"
-															>
-																<path
-																	fill-rule="evenodd"
-																	d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"
-																	clip-rule="evenodd"
-																/>
-															</svg>
-														</Tooltip>
-													{/if}
-												</div>
-											{:else if ['doc', 'file'].includes(file.type)}
+											{#if ['doc', 'file'].includes(file.type)}
 												<div
 													class="h-16 w-[15rem] flex items-center space-x-3 px-2.5 dark:bg-gray-600 rounded-xl border border-gray-200 dark:border-none"
 												>
@@ -816,11 +748,6 @@
 							</div>
 						</div>
 					</form>
-
-
-				<div class="mt-1.5 text-xs text-gray-500 text-center line-clamp-1">
-					{$i18n.t('LLMs can make mistakes. Verify important information.')}
-				</div>
 			</div>
 		</div>
 	</div>

@@ -41,5 +41,18 @@
 		"list": [
 			""
 		]
+	},
+	"openai": {
+		"api_base_urls": [
+			"http://localhost:9099"
+		],
+		"api_keys": [
+			"0p3n-w3bu!"
+		]
+	},
+	"ollama": {
+		"base_urls": [
+			"http://localhost:11434"
+		]
 	}
 }

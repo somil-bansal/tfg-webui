@@ -1,24 +1,13 @@
-from fastapi import APIRouter, UploadFile, File, Response
-from fastapi import Depends, HTTPException, status
-from peewee import SqliteDatabase
-from starlette.responses import StreamingResponse, FileResponse
-from pydantic import BaseModel
-
-
-from fpdf import FPDF
-import markdown
-import black
-
-
-from apps.webui.internal.db import DB
-from utils.utils import get_admin_user
-
-from config import OLLAMA_BASE_URLS, DATA_DIR, UPLOAD_DIR, ENABLE_ADMIN_EXPORT
-from constants import ERROR_MESSAGES
 from typing import List
 
-router = APIRouter()
+import black
+import markdown
+from fastapi import APIRouter, Response
+from fastapi import HTTPException
+from fpdf import FPDF
+from pydantic import BaseModel
 
+router = APIRouter()
 
 
 class CodeFormatRequest(BaseModel):
@@ -42,7 +31,7 @@ class MarkdownForm(BaseModel):
 
 @router.post("/markdown")
 async def get_html_from_markdown(
-    form_data: MarkdownForm,
+        form_data: MarkdownForm,
 ):
     return {"html": markdown.markdown(form_data.md)}
 
@@ -54,7 +43,7 @@ class ChatForm(BaseModel):
 
 @router.post("/pdf")
 async def download_chat_as_pdf(
-    form_data: ChatForm,
+        form_data: ChatForm,
 ):
     pdf = FPDF()
     pdf.add_page()
@@ -75,7 +64,7 @@ async def download_chat_as_pdf(
 
     # Adjust the effective page width for multi_cell
     effective_page_width = (
-        pdf.w - 2 * pdf.l_margin - 10
+            pdf.w - 2 * pdf.l_margin - 10
     )  # Subtracted an additional 10 for extra padding
 
     # Add chat messages
@@ -98,4 +87,3 @@ async def download_chat_as_pdf(
         media_type="application/pdf",
         headers={"Content-Disposition": f"attachment;filename=chat.pdf"},
     )
-

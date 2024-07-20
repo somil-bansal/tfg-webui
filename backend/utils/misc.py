@@ -1,11 +1,10 @@
-from pathlib import Path
 import hashlib
-import json
 import re
-from datetime import timedelta
-from typing import Optional, List, Tuple
-import uuid
 import time
+import uuid
+from datetime import timedelta
+from pathlib import Path
+from typing import Optional, List, Tuple
 
 
 def get_last_user_message(messages: List[dict]) -> str:
@@ -97,13 +96,6 @@ def calculate_sha256_string(string):
     # Get the hexadecimal representation of the hash
     hashed_string = sha256_hash.hexdigest()
     return hashed_string
-
-
-def validate_email_format(email: str) -> bool:
-    if email.endswith("@localhost"):
-        return True
-
-    return bool(re.match(r"[^@]+@[^@]+\.[^@]+", email))
 
 
 def sanitize_filename(file_name):

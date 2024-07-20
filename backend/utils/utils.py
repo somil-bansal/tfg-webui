@@ -1,18 +1,14 @@
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi import HTTPException, status, Depends, Request
-
-from apps.webui.models.users import Users
-
-from pydantic import BaseModel
-from typing import Union, Optional
-from constants import ERROR_MESSAGES
-from passlib.context import CryptContext
-from datetime import datetime, timedelta
-import requests
-import jwt
-import uuid
 import logging
+from datetime import datetime, timedelta
+from typing import Union, Optional
+
+import jwt
+from fastapi import HTTPException, status, Depends, Request
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
 import config
+from apps.webui.models.users import Users
+from constants import ERROR_MESSAGES
 
 logging.getLogger("passlib").setLevel(logging.ERROR)
 
@@ -24,17 +20,6 @@ ALGORITHM = "HS256"
 ##############
 
 bearer_security = HTTPBearer(auto_error=False)
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-def verify_password(plain_password, hashed_password):
-    return (
-        pwd_context.verify(plain_password, hashed_password) if hashed_password else None
-    )
-
-
-def get_password_hash(password):
-    return pwd_context.hash(password)
 
 
 def create_token(data: dict, expires_delta: Union[timedelta, None] = None) -> str:
@@ -69,7 +54,6 @@ def get_current_user(
         auth_token: HTTPAuthorizationCredentials = Depends(bearer_security),
 ):
     token = None
-
     if auth_token is not None:
         token = auth_token.credentials
 
@@ -81,7 +65,7 @@ def get_current_user(
 
     # auth by jwt token
     data = decode_token(token)
-    if data != None and "id" in data:
+    if data is not None and "id" in data:
         user = Users.get_user_by_id(data["id"])
         if user is None:
             raise HTTPException(
@@ -99,7 +83,7 @@ def get_current_user(
 
 
 def get_verified_user(user=Depends(get_current_user)):
-    if user.role not in {"user", "admin"}:
+    if user.role not in {"user", "admin", "data_admin"}:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=ERROR_MESSAGES.ACCESS_PROHIBITED,
@@ -109,6 +93,15 @@ def get_verified_user(user=Depends(get_current_user)):
 
 def get_admin_user(user=Depends(get_current_user)):
     if user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=ERROR_MESSAGES.ACCESS_PROHIBITED,
+        )
+    return user
+
+
+def get_data_admin(user=Depends(get_current_user)):
+    if user.role != "data_admin" and user.role != "admin":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=ERROR_MESSAGES.ACCESS_PROHIBITED,

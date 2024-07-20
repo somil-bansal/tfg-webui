@@ -1,15 +1,9 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
-	import { createEventDispatcher } from 'svelte';
-	import { onMount, getContext } from 'svelte';
-	import { addUser } from '$lib/apis/auths';
+	import { createEventDispatcher, getContext } from 'svelte';
 
 	import Modal from '../../common/Modal.svelte';
-	import {
-		getFunctionValvesById,
-		getFunctionValvesSpecById,
-		updateFunctionValvesById
-	} from '$lib/apis/functions';
+	import { getFunctionValvesById, getFunctionValvesSpecById, updateFunctionValvesById } from '$lib/apis/functions';
 	import { getToolValvesById, getToolValvesSpecById, updateToolValvesById } from '$lib/apis/tools';
 	import Spinner from '../../common/Spinner.svelte';
 

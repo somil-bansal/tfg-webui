@@ -1,7 +1,6 @@
 <script>
 	import { goto } from '$app/navigation';
 	import { getSessionUser } from '$lib/apis/auths';
-	import Spinner from '$lib/components/common/Spinner.svelte';
 	import { WEBUI_BASE_URL } from '$lib/constants';
 	import { config, socket, user, WEBUI_NAME } from '$lib/stores';
 	import { getContext, onMount } from 'svelte';
@@ -67,71 +66,49 @@
 </svelte:head>
 
 {#if loaded}
-	<div class="fixed m-10 z-50">
-		<div class="flex space-x-2">
-			<div class=" self-center">
-				<img
-					crossorigin="anonymous"
-					src="{WEBUI_BASE_URL}/static/favicon.png"
-					class=" w-8 rounded-full"
-					alt="logo"
-				/>
+	<div class="bg-white dark:bg-gray-950 min-h-screen w-full flex justify-center font-mona">
+		<div class="w-full sm:max-w-md min-h-screen flex flex-col text-center">
+			<div class="my-auto pb-10 w-full dark:text-gray-100">
+				<div class="flex flex-col items-center space-y-6">
+					<div class="self-center">
+						<img
+							crossorigin="anonymous"
+							src="{WEBUI_BASE_URL}/static/favicon.png"
+							class="w-60 rounded-full"
+							alt="logo"
+						/>
+					</div>
+					<div class="self-center text-5xl font-bold dark:text-gray-100">
+						The Finance Genie
+					</div>
+					<div class="self-center text-3xl font-bold dark:text-gray100">
+						TFG Gen AI
+					</div>
+					<div class="flex flex-col font-bold">
+						<button
+							class="flex items-center px-6 border-2 dark:border-gray-800 duration-300 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 w-full rounded-2xl dark:text-white text-sm py-3 transition"
+							on:click={() => {
+										window.location.href = `${WEBUI_BASE_URL}/oauth/oidc/login`;
+									}}
+						>
+                        <span>
+                            {$i18n.t('Continue to sign in {{provider}}', {
+															provider: $config?.oauth?.providers?.oidc ?? 'SSO'
+														})}
+                        </span>
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
 
-	<div class=" bg-white dark:bg-gray-950 min-h-screen w-full flex justify-center font-mona">
-
-		<div class="w-full sm:max-w-md px-10 min-h-screen flex flex-col text-center">
-			{#if ($config?.features.auth_trusted_header ?? false) || $config?.features.auth === false}
-				<div class=" my-auto pb-10 w-full">
-					<div
-						class="flex items-center justify-center gap-3 text-xl sm:text-2xl text-center font-medium dark:text-gray-200"
-					>
-						<div>
-							{$i18n.t('Signing in')}
-							{$i18n.t('to')}
-							{$WEBUI_NAME}
-						</div>
-
-						<div>
-							<Spinner />
-						</div>
-					</div>
-				</div>
-			{:else}
-				<div class="  my-auto pb-10 w-full dark:text-gray-100">
-
-					{#if Object.keys($config?.oauth?.providers ?? {}).length > 0}
-						<div class="inline-flex items-center justify-center w-full">
-							<hr class="w-64 h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
-						</div>
-						<div class="flex flex-col space-y-2">
-								<button
-									class="flex items-center px-6 border-2 dark:border-gray-800 duration-300 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 w-full rounded-2xl dark:text-white text-sm py-3 transition"
-									on:click={() => {
-										window.location.href = `${WEBUI_BASE_URL}/oauth/oidc/login`;
-									}}
-								>
-
-									<span
-										>{$i18n.t('Continue with {{provider}}', {
-											provider: $config?.oauth?.providers?.oidc ?? 'SSO'
-										})}</span
-									>
-								</button>
-						</div>
-					{/if}
-				</div>
-			{/if}
-		</div>
-	</div>
 {/if}
 
 <style>
-	.font-mona {
-		font-family: 'Mona Sans', -apple-system, 'Arimo', ui-sans-serif, system-ui, 'Segoe UI', Roboto,
-			Ubuntu, Cantarell, 'Noto Sans', sans-serif, 'Helvetica Neue', Arial, 'Apple Color Emoji',
-			'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-	}
+    .font-mona {
+        font-family: 'Mona Sans', -apple-system, 'Arimo', ui-sans-serif, system-ui, 'Segoe UI', Roboto,
+        Ubuntu, Cantarell, 'Noto Sans', sans-serif, 'Helvetica Neue', Arial, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    }
 </style>

@@ -1,43 +1,32 @@
-import base64
-import uuid
+from contextlib import asynccontextmanager
+import inspect
+import json
+import logging
+import mimetypes
+import os
+import shutil
+import sys
+import time
 from contextlib import asynccontextmanager
 from datetime import timedelta
+from typing import List, Optional
 
+import requests
 from authlib.integrations.starlette_client import OAuth
 from authlib.oidc.core import UserInfo
-from bs4 import BeautifulSoup
-import json
-import markdown
-import time
-import os
-import sys
-import logging
-import aiohttp
-import requests
-import mimetypes
-import shutil
-import os
-import uuid
-import inspect
-import asyncio
-
-from fastapi.concurrency import run_in_threadpool
 from fastapi import FastAPI, Request, Depends, status, UploadFile, File, Form
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
 from fastapi import HTTPException
-from fastapi.middleware.wsgi import WSGIMiddleware
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import StreamingResponse, Response, RedirectResponse
 
-
-from apps.socket.main import app as socket_app
 from apps.ollama.main import (
     app as ollama_app,
-    OpenAIChatCompletionForm,
     get_all_models as get_ollama_models,
     generate_openai_chat_completion as generate_ollama_chat_completion,
 )
@@ -46,50 +35,20 @@ from apps.openai.main import (
     get_all_models as get_openai_models,
     generate_chat_completion as generate_openai_chat_completion,
 )
-
 from apps.rag.main import app as rag_app
+from apps.rag.utils import get_rag_context, rag_template
+from apps.socket.main import app as socket_app
 from apps.webui.main import (
     app as webui_app,
     get_pipe_models,
     generate_function_chat_completion,
 )
-
-
-from pydantic import BaseModel
-from typing import List, Optional, Iterator, Generator, Union
-
-from apps.webui.models.auths import Auths
-from apps.webui.models.models import Models, ModelModel
-from apps.webui.models.tools import Tools
 from apps.webui.models.functions import Functions
+from apps.webui.models.models import Models
+from apps.webui.models.tools import Tools
 from apps.webui.models.users import Users
-
 from apps.webui.utils import load_toolkit_module_by_id, load_function_module_by_id
-
-from utils.utils import (
-    get_admin_user,
-    get_verified_user,
-    get_current_user,
-    get_http_authorization_cred,
-    get_password_hash,
-    create_token,
-)
-from utils.task import (
-    title_generation_template,
-    search_query_generation_template,
-    tools_function_calling_generation_template,
-)
-from utils.misc import (
-    get_last_user_message,
-    add_or_update_system_message,
-    stream_message_template,
-    parse_duration,
-)
-
-from apps.rag.utils import get_rag_context, rag_template
-
 from config import (
-    CONFIG_DATA,
     WEBUI_NAME,
     WEBUI_URL,
     WEBUI_AUTH,
@@ -105,7 +64,6 @@ from config import (
     GLOBAL_LOG_LEVEL,
     SRC_LOG_LEVELS,
     ENABLE_ADMIN_EXPORT,
-    WEBUI_BUILD_HASH,
     TASK_MODEL,
     TASK_MODEL_EXTERNAL,
     TITLE_GENERATION_PROMPT_TEMPLATE,
@@ -120,11 +78,26 @@ from config import (
     AppConfig,
 )
 from constants import ERROR_MESSAGES
+from utils.misc import (
+    get_last_user_message,
+    add_or_update_system_message,
+)
+from utils.task import (
+    title_generation_template,
+    search_query_generation_template,
+    tools_function_calling_generation_template,
+)
+from utils.utils import (
+    get_admin_user,
+    get_verified_user,
+    get_current_user,
+    get_http_authorization_cred,
+    create_token,
+)
 
 if SAFE_MODE:
     print("SAFE MODE ENABLED")
     Functions.deactivate_all_functions()
-
 
 logging.basicConfig(stream=sys.stdout, level=GLOBAL_LOG_LEVEL)
 log = logging.getLogger(__name__)
@@ -159,7 +132,6 @@ app.state.config.ENABLE_OLLAMA_API = ENABLE_OLLAMA_API
 app.state.config.ENABLE_MODEL_FILTER = ENABLE_MODEL_FILTER
 app.state.config.MODEL_FILTER_LIST = MODEL_FILTER_LIST
 
-
 app.state.config.TASK_MODEL = TASK_MODEL
 app.state.config.TASK_MODEL_EXTERNAL = TASK_MODEL_EXTERNAL
 app.state.config.TITLE_GENERATION_PROMPT_TEMPLATE = TITLE_GENERATION_PROMPT_TEMPLATE
@@ -186,7 +158,7 @@ origins = ["*"]
 
 
 async def get_function_call_response(
-    messages, files, tool_id, template, task_model_id, user
+        messages, files, tool_id, template, task_model_id, user
 ):
     tool = Tools.get_tool_by_id(tool_id)
     tools_specs = json.dumps(tool.specs, indent=2)
@@ -194,14 +166,14 @@ async def get_function_call_response(
 
     user_message = get_last_user_message(messages)
     prompt = (
-        "History:\n"
-        + "\n".join(
-            [
-                f"{message['role'].upper()}: \"\"\"{message['content']}\"\"\""
-                for message in messages[::-1][:4]
-            ]
-        )
-        + f"\nQuery: {user_message}"
+            "History:\n"
+            + "\n".join(
+        [
+            f"{message['role'].upper()}: \"\"\"{message['content']}\"\"\""
+            for message in messages[::-1][:4]
+        ]
+    )
+            + f"\nQuery: {user_message}"
     )
 
     print(prompt)
@@ -261,7 +233,7 @@ async def get_function_call_response(
                     print("file_handler: ", file_handler)
 
                 if hasattr(toolkit_module, "valves") and hasattr(
-                    toolkit_module, "Valves"
+                        toolkit_module, "Valves"
                 ):
                     valves = Tools.get_tool_valves_by_id(tool_id)
                     toolkit_module.valves = toolkit_module.Valves(
@@ -354,8 +326,8 @@ class ChatCompletionMiddleware(BaseHTTPMiddleware):
         citations = []
 
         if request.method == "POST" and any(
-            endpoint in request.url.path
-            for endpoint in ["/ollama/api/chat", "/chat/completions"]
+                endpoint in request.url.path
+                for endpoint in ["/ollama/api/chat", "/chat/completions"]
         ):
             log.debug(f"request.url.path: {request.url.path}")
 
@@ -424,7 +396,7 @@ class ChatCompletionMiddleware(BaseHTTPMiddleware):
                         skip_files = function_module.file_handler
 
                     if hasattr(function_module, "valves") and hasattr(
-                        function_module, "Valves"
+                            function_module, "Valves"
                     ):
                         valves = Functions.get_function_valves_by_id(filter_id)
                         function_module.valves = function_module.Valves(
@@ -482,14 +454,14 @@ class ChatCompletionMiddleware(BaseHTTPMiddleware):
             # Check if the user has a custom task model and use that model
             if app.state.MODELS[task_model_id]["owned_by"] == "ollama":
                 if (
-                    app.state.config.TASK_MODEL
-                    and app.state.config.TASK_MODEL in app.state.MODELS
+                        app.state.config.TASK_MODEL
+                        and app.state.config.TASK_MODEL in app.state.MODELS
                 ):
                     task_model_id = app.state.config.TASK_MODEL
             else:
                 if (
-                    app.state.config.TASK_MODEL_EXTERNAL
-                    and app.state.config.TASK_MODEL_EXTERNAL in app.state.MODELS
+                        app.state.config.TASK_MODEL_EXTERNAL
+                        and app.state.config.TASK_MODEL_EXTERNAL in app.state.MODELS
                 ):
                     task_model_id = app.state.config.TASK_MODEL_EXTERNAL
 
@@ -620,6 +592,7 @@ class ChatCompletionMiddleware(BaseHTTPMiddleware):
 
 app.add_middleware(ChatCompletionMiddleware)
 
+
 ##################################
 #
 # Pipeline Middleware
@@ -634,15 +607,15 @@ def filter_pipeline(payload, user):
         model
         for model in app.state.MODELS.values()
         if "pipeline" in model
-        and "type" in model["pipeline"]
-        and model["pipeline"]["type"] == "filter"
-        and (
-            model["pipeline"]["pipelines"] == ["*"]
-            or any(
-                model_id == target_model_id
-                for target_model_id in model["pipeline"]["pipelines"]
-            )
-        )
+           and "type" in model["pipeline"]
+           and model["pipeline"]["type"] == "filter"
+           and (
+                   model["pipeline"]["pipelines"] == ["*"]
+                   or any(
+               model_id == target_model_id
+               for target_model_id in model["pipeline"]["pipelines"]
+           )
+           )
     ]
     sorted_filters = sorted(filters, key=lambda x: x["pipeline"]["priority"])
 
@@ -703,8 +676,8 @@ def filter_pipeline(payload, user):
 class PipelineMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         if request.method == "POST" and (
-            "/ollama/api/chat" in request.url.path
-            or "/chat/completions" in request.url.path
+                "/ollama/api/chat" in request.url.path
+                or "/chat/completions" in request.url.path
         ):
             log.debug(f"request.url.path: {request.url.path}")
 
@@ -749,7 +722,6 @@ class PipelineMiddleware(BaseHTTPMiddleware):
 
 
 app.add_middleware(PipelineMiddleware)
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -827,8 +799,8 @@ async def get_all_models():
         if custom_model.base_model_id == None:
             for model in models:
                 if (
-                    custom_model.id == model["id"]
-                    or custom_model.id == model["id"].split(":")[0]
+                        custom_model.id == model["id"]
+                        or custom_model.id == model["id"].split(":")[0]
                 ):
                     model["name"] = custom_model.name
                     model["info"] = custom_model.model_dump()
@@ -836,8 +808,8 @@ async def get_all_models():
             owned_by = "openai"
             for model in models:
                 if (
-                    custom_model.base_model_id == model["id"]
-                    or custom_model.base_model_id == model["id"].split(":")[0]
+                        custom_model.base_model_id == model["id"]
+                        or custom_model.base_model_id == model["id"].split(":")[0]
                 ):
                     owned_by = model["owned_by"]
                     break
@@ -920,15 +892,15 @@ async def chat_completed(form_data: dict, user=Depends(get_verified_user)):
         model
         for model in app.state.MODELS.values()
         if "pipeline" in model
-        and "type" in model["pipeline"]
-        and model["pipeline"]["type"] == "filter"
-        and (
-            model["pipeline"]["pipelines"] == ["*"]
-            or any(
-                model_id == target_model_id
-                for target_model_id in model["pipeline"]["pipelines"]
-            )
-        )
+           and "type" in model["pipeline"]
+           and model["pipeline"]["type"] == "filter"
+           and (
+                   model["pipeline"]["pipelines"] == ["*"]
+                   or any(
+               model_id == target_model_id
+               for target_model_id in model["pipeline"]["pipelines"]
+           )
+           )
     ]
 
     sorted_filters = sorted(filters, key=lambda x: x["pipeline"]["priority"])
@@ -1013,7 +985,7 @@ async def chat_completed(form_data: dict, user=Depends(get_verified_user)):
                 webui_app.state.FUNCTIONS[filter_id] = function_module
 
             if hasattr(function_module, "valves") and hasattr(
-                function_module, "Valves"
+                    function_module, "Valves"
             ):
                 valves = Functions.get_function_valves_by_id(filter_id)
                 function_module.valves = function_module.Valves(
@@ -1161,7 +1133,6 @@ async def generate_title(form_data: dict, user=Depends(get_verified_user)):
         form_data["prompt"],
         {
             "name": user.name,
-            "location": user.info.get("location") if user.info else None,
         },
     )
 
@@ -1325,7 +1296,7 @@ async def get_pipelines_list(user=Depends(get_admin_user)):
 
 @app.post("/api/pipelines/upload")
 async def upload_pipeline(
-    urlIdx: int = Form(...), file: UploadFile = File(...), user=Depends(get_admin_user)
+        urlIdx: int = Form(...), file: UploadFile = File(...), user=Depends(get_admin_user)
 ):
     print("upload_pipeline", urlIdx, file.filename)
     # Check if the uploaded file is a python file
@@ -1387,7 +1358,6 @@ class AddPipelineForm(BaseModel):
 
 @app.post("/api/pipelines/add")
 async def add_pipeline(form_data: AddPipelineForm, user=Depends(get_admin_user)):
-
     r = None
     try:
         urlIdx = form_data.urlIdx
@@ -1430,7 +1400,6 @@ class DeletePipelineForm(BaseModel):
 
 @app.delete("/api/pipelines/delete")
 async def delete_pipeline(form_data: DeletePipelineForm, user=Depends(get_admin_user)):
-
     r = None
     try:
         urlIdx = form_data.urlIdx
@@ -1503,7 +1472,7 @@ async def get_pipelines(urlIdx: Optional[int] = None, user=Depends(get_admin_use
 
 @app.get("/api/pipelines/{pipeline_id}/valves")
 async def get_pipeline_valves(
-    urlIdx: Optional[int], pipeline_id: str, user=Depends(get_admin_user)
+        urlIdx: Optional[int], pipeline_id: str, user=Depends(get_admin_user)
 ):
     models = await get_all_models()
     r = None
@@ -1541,7 +1510,7 @@ async def get_pipeline_valves(
 
 @app.get("/api/pipelines/{pipeline_id}/valves/spec")
 async def get_pipeline_valves_spec(
-    urlIdx: Optional[int], pipeline_id: str, user=Depends(get_admin_user)
+        urlIdx: Optional[int], pipeline_id: str, user=Depends(get_admin_user)
 ):
     models = await get_all_models()
 
@@ -1578,10 +1547,10 @@ async def get_pipeline_valves_spec(
 
 @app.post("/api/pipelines/{pipeline_id}/valves/update")
 async def update_pipeline_valves(
-    urlIdx: Optional[int],
-    pipeline_id: str,
-    form_data: dict,
-    user=Depends(get_admin_user),
+        urlIdx: Optional[int],
+        pipeline_id: str,
+        form_data: dict,
+        user=Depends(get_admin_user),
 ):
     models = await get_all_models()
 
@@ -1665,7 +1634,7 @@ class ModelFilterConfigForm(BaseModel):
 
 @app.post("/api/config/model/filter")
 async def update_model_filter_config(
-    form_data: ModelFilterConfigForm, user=Depends(get_admin_user)
+        form_data: ModelFilterConfigForm, user=Depends(get_admin_user)
 ):
     app.state.config.ENABLE_MODEL_FILTER = form_data.enabled
     app.state.config.MODEL_FILTER_LIST = form_data.models
@@ -1758,7 +1727,7 @@ async def oauth_callback(provider: str, request: Request, response: Response):
     log.info(f"User groups: {groups}")
 
     # Define the required group for access
-    required_group = ["admin",  "reader"]
+    required_group = ["admin", "reader"]
     role = ""
 
     required_groups_set = set(required_group)
@@ -1775,20 +1744,21 @@ async def oauth_callback(provider: str, request: Request, response: Response):
             if Users.get_num_users() == 0
             else webui_app.state.config.DEFAULT_USER_ROLE
         )
-        user = Auths.insert_new_auth(
+        user = Users.insert_new_user(
+            id=sub,
             email=email,
-            password=get_password_hash(
-                str(uuid.uuid4())
-            ),  # Random password, not used
             name=user_data.get("name", "User"),
             profile_image_url=picture_url,
             role=role,
-            oauth_sub=sub,
+            groups=groups
         )
+
+    Users.update_groups(id=sub, groups=groups)
+
 
     # Create a JWT token or session here based on the user info
     jwt_token = create_token(
-        data={"id": sub, "email": email, "groups": required_group, "role": role, "name":  name },
+        data={"id": sub, "email": email, "groups": required_group, "role": role, "name": name},
         expires_delta=timedelta(hours=8)  # Replace with actual JWT expiry
     )
 

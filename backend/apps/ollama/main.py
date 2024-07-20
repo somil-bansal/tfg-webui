@@ -832,9 +832,6 @@ async def generate_chat_completion(
                 **(
                     {
                         "user_name": user.name,
-                        "user_location": (
-                            user.info.get("location") if user.info else None
-                        ),
                     }
                     if user
                     else {}
@@ -931,10 +928,7 @@ async def generate_openai_chat_completion(
                 system,
                 **(
                     {
-                        "user_name": user.name,
-                        "user_location": (
-                            user.info.get("location") if user.info else None
-                        ),
+                        "user_name": user.name
                     }
                     if user
                     else {}

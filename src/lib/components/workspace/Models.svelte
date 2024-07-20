@@ -247,26 +247,26 @@
 </div>
 <hr class=" dark:border-gray-850 my-2.5" />
 
-<a class=" flex space-x-4 cursor-pointer w-full mb-2 px-3 py-2" href="/workspace/models/create">
-	<div class=" self-center w-10">
-		<div
-			class="w-full h-10 flex justify-center rounded-full bg-transparent dark:bg-gray-700 border border-dashed border-gray-200"
-		>
-			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6">
-				<path
-					fill-rule="evenodd"
-					d="M12 3.75a.75.75 0 01.75.75v6.75h6.75a.75.75 0 010 1.5h-6.75v6.75a.75.75 0 01-1.5 0v-6.75H4.5a.75.75 0 010-1.5h6.75V4.5a.75.75 0 01.75-.75z"
-					clip-rule="evenodd"
-				/>
-			</svg>
-		</div>
-	</div>
+<!--<a class=" flex space-x-4 cursor-pointer w-full mb-2 px-3 py-2" href="/workspace/models/create">-->
+<!--	<div class=" self-center w-10">-->
+<!--		<div-->
+<!--			class="w-full h-10 flex justify-center rounded-full bg-transparent dark:bg-gray-700 border border-dashed border-gray-200"-->
+<!--		>-->
+<!--			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6">-->
+<!--				<path-->
+<!--					fill-rule="evenodd"-->
+<!--					d="M12 3.75a.75.75 0 01.75.75v6.75h6.75a.75.75 0 010 1.5h-6.75v6.75a.75.75 0 01-1.5 0v-6.75H4.5a.75.75 0 010-1.5h6.75V4.5a.75.75 0 01.75-.75z"-->
+<!--					clip-rule="evenodd"-->
+<!--				/>-->
+<!--			</svg>-->
+<!--		</div>-->
+<!--	</div>-->
 
-	<div class=" self-center">
-		<div class=" font-bold line-clamp-1">{$i18n.t('Create a model')}</div>
-		<div class=" text-sm line-clamp-1">{$i18n.t('Customize models for a specific purpose')}</div>
-	</div>
-</a>
+<!--	<div class=" self-center">-->
+<!--		<div class=" font-bold line-clamp-1">{$i18n.t('Create a model')}</div>-->
+<!--		<div class=" text-sm line-clamp-1">{$i18n.t('Customize models for a specific purpose')}</div>-->
+<!--	</div>-->
+<!--</a>-->
 
 <hr class=" dark:border-gray-850" />
 
@@ -306,7 +306,7 @@
 				</div>
 			</a>
 			<div class="flex flex-row gap-0.5 self-center">
-				<a
+				<!--<a
 					class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
 					type="button"
 					href={`/workspace/models/edit?id=${encodeURIComponent(model.id)}`}
@@ -325,9 +325,9 @@
 							d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
 						/>
 					</svg>
-				</a>
+				</a>-->
 
-				<ModelMenu
+				<!--<ModelMenu
 					{model}
 					cloneHandler={() => {
 						cloneModelHandler(model);
@@ -350,7 +350,7 @@
 					>
 						<EllipsisHorizontal className="size-5" />
 					</button>
-				</ModelMenu>
+				</ModelMenu>-->
 			</div>
 		</div>
 	{/each}
@@ -395,7 +395,7 @@
 			}}
 		/>
 
-		<button
+		<!--<button
 			class="flex text-xs items-center space-x-1 px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200 transition"
 			on:click={() => {
 				modelsImportInputElement.click();
@@ -441,7 +441,7 @@
 					/>
 				</svg>
 			</div>
-		</button>
+		</button>-->
 	</div>
 
 	{#if localModelfiles.length > 0}
