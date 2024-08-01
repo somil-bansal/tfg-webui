@@ -1729,13 +1729,12 @@ async def oauth_callback(provider: str, request: Request, response: Response):
     # Define the required group for access
     required_group = ["admin", "reader"]
     role = ""
-
     required_groups_set = set(required_group)
     groups_set = set(groups)
 
-    if not (required_groups_set & groups_set):
-        log.warning(f"User does not belong to the required group: {required_group}")
-        raise HTTPException(403, detail=ERROR_MESSAGES["ACCESS_PROHIBITED"])
+    # if not (required_groups_set & groups_set):
+    #     log.warning(f"User does not belong to the required group: {required_group}")
+    #     raise HTTPException(403, detail=ERROR_MESSAGES["ACCESS_PROHIBITED"])
     user = Users.get_user_by_id(sub)
     if not user:
         picture_url = "/user.png"
@@ -1753,7 +1752,7 @@ async def oauth_callback(provider: str, request: Request, response: Response):
             groups=groups
         )
 
-    Users.update_groups(id=sub, groups=groups)
+    # Users.update_groups(id=sub, groups=groups)
 
 
     # Create a JWT token or session here based on the user info

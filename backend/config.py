@@ -249,20 +249,20 @@ OAUTH_PROVIDERS = {}
 OAUTH_CLIENT_ID = PersistentConfig(
     "OAUTH_CLIENT_ID",
     "oauth.oidc.client_id",
-    os.environ.get("OAUTH_CLIENT_ID", "0oacnb0rzzSF6CfD55d7"),
+    os.environ.get("OAUTH_CLIENT_ID", "0oa1xw6my2zQrKkwA0h8"),
 )
 
 OAUTH_CLIENT_SECRET = PersistentConfig(
     "OAUTH_CLIENT_SECRET",
     "oauth.oidc.client_secret",
-    os.environ.get("OAUTH_CLIENT_SECRET", "VZmIFmr14fNL_cKWvG5DqUM6DAY1-3rfhAG-zCCopQ5rZL5ssjzOU5Wx0gbvh5Ys"),
+    os.environ.get("OAUTH_CLIENT_SECRET", "Sau4MKzcWU80d9oc-SeHCfVRjYFRDHdHGmF7olvy8qDEevm48jwBOJo38IWndK7G"),
 )
 
 OPENID_PROVIDER_URL = PersistentConfig(
     "OPENID_PROVIDER_URL",
     "oauth.oidc.provider_url",
     os.environ.get("OPENID_PROVIDER_URL",
-                   "https://dev-80031539.okta.com/oauth2/default/.well-known/openid-configuration"),
+                   "https://tetragon-admin.okta.com/oauth2/default/.well-known/openid-configuration"),
 )
 
 OAUTH_SCOPES = PersistentConfig(
