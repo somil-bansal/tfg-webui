@@ -1,3 +1,21 @@
+import json
+import logging
+import mimetypes
+import os
+import socket
+import urllib.parse
+import uuid
+from datetime import datetime
+from pathlib import Path
+from typing import List, Union, Sequence, Iterator, Dict, Any
+from typing import Optional
+
+import nltk
+# from langchain.text_splitter import RecursiveCharacterTextSplitter
+import pymupdf4llm
+import sentence_transformers
+import validators
+from chromadb.utils.batch_utils import create_batches
 from fastapi import (
     FastAPI,
     Depends,
@@ -8,83 +26,49 @@ from fastapi import (
     Form,
 )
 from fastapi.middleware.cors import CORSMiddleware
-import requests
-import os, shutil, logging, re
-from datetime import datetime
-
-from pathlib import Path
-from typing import List, Union, Sequence, Iterator, Any
-
-from chromadb.utils.batch_utils import create_batches
+from langchain_community.document_loaders import WebBaseLoader
 from langchain_core.documents import Document
-
-from langchain_community.document_loaders import (
-    WebBaseLoader,
-    TextLoader,
-    PyPDFLoader,
-    CSVLoader,
-    BSHTMLLoader,
-    Docx2txtLoader,
-    UnstructuredEPubLoader,
-    UnstructuredWordDocumentLoader,
-    UnstructuredMarkdownLoader,
-    UnstructuredXMLLoader,
-    UnstructuredRSTLoader,
-    UnstructuredExcelLoader,
-    UnstructuredPowerPointLoader,
-    OutlookMessageLoader,
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from llama_index.core.node_parser import SimpleNodeParser, MarkdownElementNodeParser, TokenTextSplitter
+from llama_index.core.schema import ImageNode, TextNode, ImageDocument
+# from langchain_core.documents import Document
+from llama_index.core.utils import Tokenizer
+from llama_index.llms.azure_openai import AzureOpenAI
+from llama_index.readers.file import (
+    UnstructuredReader
 )
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-
-import validators
-import urllib.parse
-import socket
-
+from llama_parse import LlamaParse
 from pydantic import BaseModel
-from typing import Optional
-import mimetypes
-import uuid
-import json
+from llama_index.core.schema import Document as LlamaIndexDocument
+from pymupdf import pymupdf
+from redis.commands.search import result
+from unstructured.documents.elements import CompositeElement, Element, Table, Image, Text
+from unstructured.partition.pdf import partition_pdf
+from unstructured.staging.base import elements_to_json
 
-import sentence_transformers
-
-from apps.webui.models.documents import (
-    Documents,
-    DocumentForm,
-    DocumentResponse,
-)
-from apps.webui.models.files import (
-    Files,
-)
-
+from apps.rag.search.brave import search_brave
+from apps.rag.search.duckduckgo import search_duckduckgo
+from apps.rag.search.google_pse import search_google_pse
+from apps.rag.search.jina_search import search_jina
+from apps.rag.search.main import SearchResult
+from apps.rag.search.searxng import search_searxng
+from apps.rag.search.serper import search_serper
+from apps.rag.search.serply import search_serply
+from apps.rag.search.serpstack import search_serpstack
+from apps.rag.search.tavily import search_tavily
 from apps.rag.utils import (
     get_model_path,
     get_embedding_function,
     query_doc,
     query_doc_with_hybrid_search,
-    query_collection,
-    query_collection_with_hybrid_search,
 )
-
-from apps.rag.search.brave import search_brave
-from apps.rag.search.google_pse import search_google_pse
-from apps.rag.search.main import SearchResult
-from apps.rag.search.searxng import search_searxng
-from apps.rag.search.serper import search_serper
-from apps.rag.search.serpstack import search_serpstack
-from apps.rag.search.serply import search_serply
-from apps.rag.search.duckduckgo import search_duckduckgo
-from apps.rag.search.tavily import search_tavily
-from apps.rag.search.jina_search import search_jina
-
-from utils.misc import (
-    calculate_sha256,
-    calculate_sha256_string,
-    sanitize_filename,
-    extract_folders_after_data_docs,
+from apps.webui.models.documents import (
+    Documents,
+    DocumentForm,
 )
-from utils.utils import get_verified_user, get_admin_user, get_data_admin
-
+from apps.webui.models.files import (
+    Files,
+)
 from config import (
     AppConfig,
     ENV,
@@ -127,8 +111,14 @@ from config import (
     RAG_WEB_SEARCH_CONCURRENT_REQUESTS,
     RAG_EMBEDDING_OPENAI_BATCH_SIZE,
 )
-
 from constants import ERROR_MESSAGES
+from utils.misc import (
+    calculate_sha256,
+    calculate_sha256_string,
+    sanitize_filename,
+    extract_folders_after_data_docs,
+)
+from utils.utils import get_verified_user, get_admin_user, get_data_admin
 
 log = logging.getLogger(__name__)
 log.setLevel(SRC_LOG_LEVELS["RAG"])
@@ -594,39 +584,6 @@ class QueryCollectionsForm(BaseModel):
     hybrid: Optional[bool] = None
 
 
-@app.post("/query/collection")
-def query_collection_handler(
-        form_data: QueryCollectionsForm,
-        user=Depends(get_verified_user),
-):
-    try:
-        if app.state.config.ENABLE_RAG_HYBRID_SEARCH:
-            return query_collection_with_hybrid_search(
-                collection_names=form_data.collection_names,
-                query=form_data.query,
-                embedding_function=app.state.EMBEDDING_FUNCTION,
-                k=form_data.k if form_data.k else app.state.config.TOP_K,
-                reranking_function=app.state.sentence_transformer_rf,
-                r=(
-                    form_data.r if form_data.r else app.state.config.RELEVANCE_THRESHOLD
-                ),
-            )
-        else:
-            return query_collection(
-                collection_names=form_data.collection_names,
-                query=form_data.query,
-                embedding_function=app.state.EMBEDDING_FUNCTION,
-                k=form_data.k if form_data.k else app.state.config.TOP_K,
-            )
-
-    except Exception as e:
-        log.exception(e)
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=ERROR_MESSAGES.DEFAULT(e),
-        )
-
-
 @app.post("/web")
 def store_web(form_data: UrlForm, user=Depends(get_verified_user)):
     try:
@@ -845,20 +802,89 @@ def store_web_search(form_data: SearchForm, user=Depends(get_verified_user)):
         )
 
 
+# def custom_chunking_tokenizer(text, chunk_size=512, chunk_overlap=20):
+#     chunks = []
+#     current_chunk = ""
+#     current_chunk_size = 0
+#
+#     for line in text.split('\n'):
+#         # line_tokens = Tokenizer.encode(line)
+#         # line_token_count = len(line_tokens)
+#
+#         if line.startswith('!['):  # Image reference in Markdown
+#             if current_chunk:
+#                 chunks.append(current_chunk.strip())
+#             chunks.append(line)
+#             current_chunk = ""
+#             current_chunk_size = 0
+#         elif current_chunk_size + line_token_count > chunk_size:
+#             if current_chunk:
+#                 chunks.append(current_chunk.strip())
+#             current_chunk = line + "\n"
+#             current_chunk_size = line_token_count
+#         else:
+#             current_chunk += line + "\n"
+#             current_chunk_size += line_token_count
+#
+#     if current_chunk:
+#         chunks.append(current_chunk.strip())
+#
+#     return chunks
+
+
+def get_text_nodes(docs: List[LlamaIndexDocument]):
+    text_nodes = []
+    for idx, page in enumerate(docs):
+        text_node = TextNode(text="", metadata={})
+        text_nodes.append(text_node)
+    return text_nodes
+
+
+multi_modal_llm = AzureOpenAI(
+    engine="tfg-gpt4o",
+    azure_endpoint="https://tfgam-aze-eus-openai.openai.azure.com/",
+    api_key="fad496d248804765991834c0933b8f26",
+    api_version="2024-02-15-preview",
+    temperature=0.4,
+    model="gpt-4o",
+    streaming=False,
+)
+
+
+def get_image_text_nodes(docs: List[LlamaIndexDocument]):
+    image_dicts = "get iamges here"
+    image_text_nodes = []
+    for image_dict in image_dicts:
+        image_doc = ImageDocument(iamge_path=image_dict["path"])
+        response = multi_modal_llm.complete(prompt="Describe image as alt text, if it is a chart of graph, "
+                                                   "be accurate in text describing relationships",
+                                            image_documents=[image_doc]
+                                            )
+        text_node = TextNode(text=str(response), metadata={})
+        image_text_nodes.append(text_node)
+        return image_text_nodes
+
+
 def store_data_in_vector_db(data, collection_name, overwrite: bool = False) -> bool:
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=app.state.config.CHUNK_SIZE,
-        chunk_overlap=app.state.config.CHUNK_OVERLAP,
-        add_start_index=True,
-    )
+    # TODO: Create metadata tags, clean docs, process images, process tables,
+    # node_parser = SimpleNodeParser.from_defaults(chunk_size=app.state.config.CHUNK_SIZE,
+    #                                              chunk_overlap=app.state.config.CHUNK_OVERLAP,
+    #                                              tokenizer=custom_chunking_tokenizer)
 
-    docs = text_splitter.split_documents(data)
+    # nodes = node_parser.get_nodes_from_documents(data)
+    # Process the nodes, handling text and images separately
+    # processed_nodes = []
+    # for node in nodes:
+    #     if node.text.startswith('!['):  # Image node
+    #         # Extract image path or data from the Markdown reference
+    #         image_path = node.text.split('(')[1].split(')')[0]
+    #         processed_nodes.append(ImageNode(image_path=image_path))
+    #     else:  # Text node
+    #         processed_nodes.append(TextNode(text=node.text))
 
-    if len(docs) > 0:
-        log.info(f"store_data_in_vector_db {docs}")
-        return store_docs_in_vector_db(docs, collection_name, overwrite), None
-    else:
-        raise ValueError(ERROR_MESSAGES.EMPTY_CONTENT)
+    text_nodes = get_text_nodes(data)
+    image_nodes = get_image_text_nodes(data)
+    return store_docs_in_vector_db(text_nodes + image_nodes, collection_name, overwrite)
 
 
 def store_text_in_vector_db(
@@ -925,6 +951,258 @@ def store_docs_in_vector_db(docs, collection_name, overwrite: bool = False) -> b
         return False
 
 
+def extract_pdf_content_with_context(file_path: str) -> List[Dict[str, Any]]:
+    """
+    Extract text, images, and tables from a PDF using PyMuPDF while maintaining their order and context.
+
+    Args:
+        file_path (str): Path to the input PDF file.
+
+    Returns:
+        List[Dict[str, Any]]: List of extracted elements with their content, metadata, and context.
+    """
+    doc = pymupdf.open(file_path)
+    extracted_data = []
+
+    for page_num, page in enumerate(doc):
+        page_content = []
+
+        # Extract text blocks
+        text_blocks = page.get_text("blocks")
+        for block in text_blocks:
+            x0, y0, x1, y1, text, block_no, block_type = block
+            if block_type == 0:  # Text block
+                page_content.append({
+                    "type": "Text",
+                    "content": text.strip(),
+                    "bbox": (x0, y0, x1, y1),
+                    "metadata": {"page": page_num + 1}
+                })
+
+        # Extract images
+        images = page.get_images(full=True)
+        for img_index, img in enumerate(images):
+            xref = img[0]
+            base_image = doc.extract_image(xref)
+            image_data = base_image["image"]
+            image_ext = base_image["ext"]
+            image_filename = f"image_p{page_num + 1}_{img_index + 1}.{image_ext}"
+            with open(image_filename, "wb") as image_file:
+                image_file.write(image_data)
+
+            # Get image rectangle
+            image_rect = page.get_image_bbox(img)
+            page_content.append({
+                "type": "Image",
+                "content": image_filename,
+                "bbox": image_rect,
+                "metadata": {"page": page_num + 1}
+            })
+
+        # Extract tables
+        tables = page.find_tables()
+        for table_index, table in enumerate(tables):
+            df = table.to_pandas()
+            page_content.append({
+                "type": "Table",
+                "content": df,
+                "bbox": table.bbox,
+                "metadata": {"page": page_num + 1}
+            })
+
+        # Sort page content by vertical position (top to bottom)
+        page_content.sort(key=lambda x: x['bbox'][1])
+
+        extracted_data.extend(page_content)
+
+    doc.close()
+    return extracted_data
+
+
+def group_elements_by_proximity(extracted_data: List[Dict[str, Any]], proximity_threshold: float = 20.0) -> List[
+    Dict[str, Any]]:
+    """
+    Group elements that are close to each other on the page.
+
+    Args:
+        extracted_data (List[Dict[str, Any]]): List of extracted elements from the PDF.
+        proximity_threshold (float): Maximum vertical distance to consider elements as related.
+
+    Returns:
+        List[Dict[str, Any]]: List of grouped elements.
+    """
+    grouped_data = []
+    current_group = []
+
+    for item in extracted_data:
+        if not current_group or item['metadata']['page'] != current_group[-1]['metadata']['page'] or \
+                item['bbox'][1] - current_group[-1]['bbox'][3] > proximity_threshold:
+            if current_group:
+                grouped_data.append({
+                    "type": "ElementGroup",
+                    "content": current_group,
+                    "metadata": {"page": current_group[0]['metadata']['page']}
+                })
+            current_group = [item]
+        else:
+            current_group.append(item)
+
+    if current_group:
+        grouped_data.append({
+            "type": "ElementGroup",
+            "content": current_group,
+            "metadata": {"page": current_group[0]['metadata']['page']}
+        })
+
+    return grouped_data
+
+
+def process_grouped_content(grouped_data: List[Dict[str, Any]], chunk_size: int = 1000, chunk_overlap: int = 200) -> \
+        List[Dict[str, Any]]:
+    """
+    Process the grouped content using LlamaIndex for text chunking and prepare for analysis.
+
+    Args:
+        grouped_data (List[Dict[str, Any]]): List of grouped elements from the PDF.
+        chunk_size (int): Size of text chunks for semantic chunking.
+        chunk_overlap (int): Overlap between text chunks.
+
+    Returns:
+        List[Dict[str, Any]]: List of processed elements ready for analysis.
+    """
+    # text_splitter = TokenTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+    parser = SimpleNodeParser(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+
+    processed_data = []
+    for group in grouped_data:
+        group_text = ""
+        group_elements = []
+
+        for item in group['content']:
+            if item['type'] == 'Text':
+                group_text += item['content'] + "\n"
+            group_elements.append(item)
+
+        if group_text.strip():
+            chunks = parser.get_nodes_from_documents([LlamaIndexDocument(page_content=group_text)])
+            for chunk in chunks:
+                processed_data.append({
+                    "type": "ContentGroup",
+                    "text_content": chunk.text,
+                    "elements": group_elements,
+                    "metadata": group['metadata']
+                })
+        else:
+            processed_data.append({
+                "type": "ContentGroup",
+                "text_content": "",
+                "elements": group_elements,
+                "metadata": group['metadata']
+            })
+
+    return processed_data
+
+
+from llama_index.multi_modal_llms.azure_openai import AzureOpenAIMultiModal
+
+mm_llm = AzureOpenAIMultiModal(
+    engine="tfg-gpt4o",
+    azure_endpoint="https://tfgam-aze-eus-openai.openai.azure.com/",
+    api_key="fad496d248804765991834c0933b8f26",
+    api_version="2024-02-15-preview",
+    temperature=0.4,
+    model="gpt-4o",
+    streaming=False,
+)
+
+
+def analyze_content(processed_data: List[Dict[str, Any]]) -> list[TextNode]:
+    """
+    Analyze the processed content using Claude AI.
+
+    Args:
+        processed_data (List[Dict[str, Any]]): List of processed elements from the PDF.
+
+    Returns:
+        List[Dict[str, Any]]: List of analyzed elements.
+    """
+
+    analyzed_data = []
+    for item in processed_data:
+        for element in item["elements"]:
+            if element["type"] == "Image":
+                image_doc = ImageDocument(image_path=element["content"])
+                response = mm_llm.complete(prompt="Describe image as alt text, if it is a chart of graph, "
+                                                  "be accurate in text describing relationships",
+                                           image_documents=[image_doc]
+                                           )
+
+                text_node = TextNode(text=str(response), metadata={})
+            elif element["type"] == "Text":
+                text_node = TextNode(text=element["content"], metadata={})
+            elif element["type"] == "Table":
+                df = element["content"]
+                description = f"Table  on page {item['metadata']['page']}: {df.shape[0]} rows, {df.shape[1]} columns. Columns: {', '.join(df.columns)}"
+                metadata = {
+                    "table_id": "table",
+                    "page": item["metadata"]["page"],
+                    "bbox": item["bbox"]
+                }
+                text_node = TextNode(text=description, metadata=metadata)
+            else:
+                text_node = TextNode(text="Table here", metadata={})
+            analyzed_data.append(text_node)
+
+    return analyzed_data
+
+
+def multimodal_extraction_pymupdf_with_context(file_path: str, chunk_size: int = 1000, chunk_overlap: int = 200,
+                                               proximity_threshold: float = 20.0) -> list[TextNode]:
+    """
+    Perform multi-modal extraction on a PDF document using PyMuPDF, maintaining context and order.
+
+    Args:
+        file_path (str): Path to the input PDF file.
+        chunk_size (int): Size of text chunks for semantic chunking.
+        chunk_overlap (int): Overlap between text chunks.
+        proximity_threshold (float): Maximum vertical distance to consider elements as related.
+
+    Returns:
+        List[Dict[str, Any]]: List of extracted, grouped, and analyzed elements.
+    """
+    extracted_data = extract_pdf_content_with_context(file_path)
+    grouped_data = group_elements_by_proximity(extracted_data, proximity_threshold)
+    processed_data = process_grouped_content(grouped_data, chunk_size, chunk_overlap)
+    analyzed_data = analyze_content(processed_data)
+    return analyzed_data
+
+
+def process_element(element: Element) -> Dict[str, Any]:
+    """
+    Process a single element and return a dictionary with its type, content, and metadata.
+    """
+    base_info = {
+        "type": element.__class__.__name__,
+        "metadata": element.metadata.to_dict()
+    }
+
+    if element.category == "Table":
+        base_info["content"] = element.metadata.text_as_html
+    elif element.category == "TableChunk":
+        base_info["content"] = element.metadata.text_as_html
+    elif element.category == "Image":
+        base_info["content"] = element.metadata.image_path
+    elif element.category == "Text":
+        base_info["content"] = element.text
+    elif element.category == "CompositeElement":
+        base_info["content"] = [
+            process_element(e) for e in element.metadata.orig_elements
+        ]
+    else:
+        base_info["content"] = element.text
+    return base_info
+
+
 def get_loader(filename: str, file_content_type: str, file_path: str):
     file_ext = filename.split(".")[-1].lower()
     known_type = True
@@ -940,86 +1218,129 @@ def get_loader(filename: str, file_content_type: str, file_path: str):
         "js",
         "ts",
         "css",
-        "cpp",
-        "hpp",
-        "h",
-        "c",
         "cs",
         "sql",
         "log",
-        "ini",
-        "pl",
-        "pm",
-        "r",
         "dart",
         "dockerfile",
-        "env",
-        "php",
-        "hs",
-        "hsc",
-        "lua",
-        "nginxconf",
         "conf",
-        "m",
-        "mm",
-        "plsql",
-        "perl",
-        "rb",
-        "rs",
-        "db2",
-        "scala",
         "bash",
-        "swift",
-        "vue",
         "svelte",
         "msg",
     ]
 
     if file_ext == "pdf":
-        loader = PyPDFLoader(
-            file_path, extract_images=app.state.config.PDF_EXTRACT_IMAGES
-        )
-    elif file_ext == "csv":
-        loader = CSVLoader(file_path)
-    elif file_ext == "rst":
-        loader = UnstructuredRSTLoader(file_path, mode="elements")
-    elif file_ext == "xml":
-        loader = UnstructuredXMLLoader(file_path)
-    elif file_ext in ["htm", "html"]:
-        loader = BSHTMLLoader(file_path, open_encoding="unicode_escape")
-    elif file_ext == "md":
-        loader = UnstructuredMarkdownLoader(file_path)
-    elif file_content_type == "application/epub+zip":
-        loader = UnstructuredEPubLoader(file_path)
-    elif (
-            file_content_type
-            == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            or file_ext in ["doc", "docx"]
-    ):
-        loader = Docx2txtLoader(file_path)
-    elif file_content_type in [
-        "application/vnd.ms-excel",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    ] or file_ext in ["xls", "xlsx"]:
-        loader = UnstructuredExcelLoader(file_path)
-    elif file_content_type in [
-        "application/vnd.ms-powerpoint",
-        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-    ] or file_ext in ["ppt", "pptx"]:
-        loader = UnstructuredPowerPointLoader(file_path)
-    elif file_ext == "msg":
-        loader = OutlookMessageLoader(file_path)
-    elif file_ext in known_source_ext or (
-            file_content_type and file_content_type.find("text/") >= 0
-    ):
-        loader = TextLoader(file_path, autodetect_encoding=True)
-    else:
-        loader = TextLoader(file_path, autodetect_encoding=True)
-        known_type = False
+        llama_reader = pymupdf4llm.LlamaMarkdownReader()
+        llama_reader = pymupdf
+        # docs = pymupdf4llm.to_markdown(file_path, write_images=True)
+        folder_path = Path(file_path).parent
+        folder_name = Path(file_path).stem + "_images"
+        folder_path = folder_path / folder_name
+        if not folder_path.exists():
+            folder_path.mkdir(parents=True, exist_ok=True)
 
-    return loader, known_type
+        # markdown = pymupdf4llm.to_markdown(file_path, write_images=True, image_path=folder_path, table_strategy="all")
+        # LlamaParse(result_type="markdown").load_data("")
+        # node_parser = MarkdownElementNodeParser(llm=multi_modal_llm, num_workers=3)
+        # node_parser.get_nodes_from_documents(docs)
+        # node_parser.
+        # docs = llama_reader.load_data(file_path, write_images=True, image_path=folder_path, table_strategy="all")
+        # loader = PyPDFLoader(
+        #     file_path, extract_images=app.state.config.PDF_EXTRACT_IMAGES
+        # )
+
+        extracted_data = extract_pdf_content_with_context(file_path)
+        grouped_data = group_elements_by_proximity(extracted_data, 20.0)
+        processed_data = process_grouped_content(grouped_data, 1024, 100)
+        analyzed_data = analyze_content(processed_data)
 
 
+
+        # return analyzed_data
+        # raw_pdf_elements = partition_pdf(
+        #     filename=file_path,
+        #     # Unstructured Helpers
+        #     extract_images_in_pdf=True,
+        #     chunking_strategy="by_title",
+        #     strategy="hi_res",
+        #     infer_table_structure=True,
+        #     hi_res_model_name="yolox",
+        #     max_characters=4000,
+        #     new_after_n_chars=3800,
+        #     combine_text_under_n_chars=2000,
+        #     extract_image_block_output_dir=folder_path.as_posix(),
+        # )
+
+        # extracted_data = [process_element(element) for element in raw_pdf_elements]
+
+        # Step 3: Optionally use LlamaIndex for additional semantic chunking of text elements
+        # text_splitter = TokenTextSplitter(chunk_size=1024, chunk_overlap=100)
+        # parser = SimpleNodeParser.from_defaults(chunk_size=1024, chunk_overlap=100)
+
+        # chunked_data = []
+        # for item in extracted_data:
+        #     if item["type"] == "Text":
+        #         chunks = parser.get_nodes_from_documents([Document(text=item["content"])])
+        #         for chunk in chunks:
+        #             chunked_data.append({
+        #                 "type": "TextChunk",
+        #                 "content": chunk.text,
+        #                 "metadata": item["metadata"]
+        #             })
+        #     else:
+        #         chunked_data.append(item)
+
+        # Step 4: Use Claude AI for multi-modal analysis
+
+        # analyzed_data = []
+        # for item in chunked_data:
+        #     if item["type"] == "Image":
+        #         response = multi_modal_llm.completions.create(
+        #             prompt=f"Analyze the following image at path: {item['content']}",
+        #             max_tokens_to_sample=1000
+        #         )
+        #         item["analysis"] = response.completion
+        #     if item["type"] in ["Table", "TableChunk"]:
+        #         response = multi_modal_llm.completions.create(
+        #             prompt=f"Analyze the following {item['type']}:\n\n{item['content']}",
+        #             max_tokens_to_sample=1000
+        #         )
+        #         item["analysis"] = response.completion
+        #     elif item["type"] in ["Header", "NarrativeText", "Title", "FigureCaption"]:
+        #         response = multi_modal_llm.completions.create(
+        #             prompt=f"Analyze the following {item['type']}:\n\n{item['content']}",
+        #             max_tokens_to_sample=1000
+        #         )
+        #         item["analysis"] = response.completion
+        #     elif item["type"] == "CompositeElement":
+        #         composite_content = "\n".join([
+        #             f"{subitem['type']}: {subitem['content']}"
+        #             for subitem in item["content"]
+        #         ])
+        #         response = multi_modal_llm.completions.create(
+        #             prompt=f"Analyze the following composite element:\n\n{composite_content}",
+        #             max_tokens_to_sample=1000
+        #         )
+        #         item["analysis"] = response.completion
+        #
+        #     analyzed_data.append(item)
+
+    # elif file_ext in (["csv", "xml", "html", "html", "ppt", "md", "msg", "doc", "docx", "xls", "xlsx"]):
+    #     reader = UnstructuredReader()
+    #     docs = reader.load_data(Path(file_path))
+    # # elif file_ext in known_source_ext or (
+    # #         file_content_type and file_content_type.find("text/") >= 0
+    # # ):
+    # #     loader = Tex(file_path, autodetect_encoding=True)
+    # else:
+    #     # loader = TextLoader(file_path, autodetect_encoding=True)
+    #     docs = None
+    #     known_type = False
+    #
+    # return docs, known_type
+
+
+# End point to process upload doc
 @app.post("/doc")
 def store_doc(
         collection_name: Optional[str] = Form(None),
@@ -1080,6 +1401,7 @@ class ProcessDocForm(BaseModel):
     collection_name: Optional[str] = None
 
 
+# Endpoint to process message input document
 @app.post("/process/doc")
 def process_doc(
         form_data: ProcessDocForm,
@@ -1096,13 +1418,13 @@ def process_doc(
             collection_name = calculate_sha256(f)[:63]
         f.close()
 
-        loader, known_type = get_loader(
+        docs, known_type = get_loader(
             file.filename, file.meta.get("content_type"), file_path
         )
-        data = loader.load()
+        # data = loader.load()
 
         try:
-            result = store_data_in_vector_db(data, collection_name)
+            result = store_data_in_vector_db(docs, collection_name)
 
             if result:
                 return {
@@ -1172,19 +1494,19 @@ def scan_docs_dir(user=Depends(get_data_admin)):
                 try:
                     docs_index = parts.index('docs')
                     group_name = parts[docs_index + 1]
-                except (ValueError, IndexError) :
+                except (ValueError, IndexError):
                     group_name = "tfg"
                 f = open(path, "rb")
                 collection_name = calculate_sha256(f)[:63]
                 f.close()
 
-                loader, known_type = get_loader(
+                docs, known_type = get_loader(
                     filename, file_content_type[0], str(path)
                 )
-                data = loader.load()
+                # data = loader.load()
 
                 try:
-                    result = store_data_in_vector_db(data, collection_name)
+                    result = store_data_in_vector_db(docs, collection_name)
 
                     if result:
                         sanitized_filename = sanitize_filename(filename)

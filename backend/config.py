@@ -38,7 +38,6 @@ try:
 except ImportError:
     print("dotenv not installed, skipping...")
 
-
 ####################################
 # LOGGING
 ####################################
@@ -106,6 +105,7 @@ def parse_section(section):
         items.append({"title": title, "content": content, "raw": raw_html})
     return items
 
+
 ####################################
 # SAFE_MODE
 ####################################
@@ -126,7 +126,7 @@ DATA_DIR = Path(os.getenv("DATA_DIR", BACKEND_DIR / "data")).resolve()
 FRONTEND_BUILD_DIR = Path(os.getenv("FRONTEND_BUILD_DIR", BASE_DIR / "build")).resolve()
 
 RESET_CONFIG_ON_START = (
-    os.environ.get("RESET_CONFIG_ON_START", "False").lower() == "true"
+        os.environ.get("RESET_CONFIG_ON_START", "False").lower() == "true"
 )
 if RESET_CONFIG_ON_START:
     try:
@@ -261,7 +261,8 @@ OAUTH_CLIENT_SECRET = PersistentConfig(
 OPENID_PROVIDER_URL = PersistentConfig(
     "OPENID_PROVIDER_URL",
     "oauth.oidc.provider_url",
-    os.environ.get("OPENID_PROVIDER_URL", "https://dev-80031539.okta.com/oauth2/default/.well-known/openid-configuration"),
+    os.environ.get("OPENID_PROVIDER_URL",
+                   "https://dev-80031539.okta.com/oauth2/default/.well-known/openid-configuration"),
 )
 
 OAUTH_SCOPES = PersistentConfig(
@@ -281,9 +282,9 @@ def load_oauth_providers():
     OAUTH_PROVIDERS.clear()
 
     if (
-        OAUTH_CLIENT_ID.value
-        and OAUTH_CLIENT_SECRET.value
-        and OPENID_PROVIDER_URL.value
+            OAUTH_CLIENT_ID.value
+            and OAUTH_CLIENT_SECRET.value
+            and OPENID_PROVIDER_URL.value
     ):
         OAUTH_PROVIDERS["oidc"] = {
             "client_id": OAUTH_CLIENT_ID.value,
@@ -308,14 +309,12 @@ if frontend_favicon.exists():
 else:
     logging.warning(f"Frontend favicon not found at {frontend_favicon}")
 
-
 ####################################
 # File Upload DIR
 ####################################
 
 UPLOAD_DIR = f"{DATA_DIR}/uploads"
 Path(UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
-
 
 ####################################
 # Cache DIR
@@ -332,14 +331,12 @@ CACHE_DIR = f"{DATA_DIR}/cache"
 DOCS_DIR = os.getenv("DOCS_DIR", f"{DATA_DIR}/docs")
 Path(DOCS_DIR).mkdir(parents=True, exist_ok=True)
 
-
 ####################################
 # Tools DIR
 ####################################
 
 TOOLS_DIR = os.getenv("TOOLS_DIR", f"{DATA_DIR}/tools")
 Path(TOOLS_DIR).mkdir(parents=True, exist_ok=True)
-
 
 ####################################
 # Functions DIR
@@ -408,7 +405,6 @@ else:
     except:
         AIOHTTP_CLIENT_TIMEOUT = 300
 
-
 K8S_FLAG = os.environ.get("K8S_FLAG", "")
 USE_OLLAMA_DOCKER = os.environ.get("USE_OLLAMA_DOCKER", "false")
 
@@ -430,7 +426,6 @@ if ENV == "prod":
     # elif K8S_FLAG:
     #     OLLAMA_BASE_URL = "http://ollama-service.the-finance-genie.svc.cluster.local:11434"
 
-
 OLLAMA_BASE_URLS = os.environ.get("OLLAMA_BASE_URLS", "")
 OLLAMA_BASE_URLS = OLLAMA_BASE_URLS if OLLAMA_BASE_URLS != "" else OLLAMA_BASE_URL
 
@@ -450,10 +445,8 @@ ENABLE_OPENAI_API = PersistentConfig(
     os.environ.get("ENABLE_OPENAI_API", "True").lower() == "true",
 )
 
-
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 OPENAI_API_BASE_URL = os.environ.get("OPENAI_API_BASE_URL", "")
-
 
 if OPENAI_API_BASE_URL == "":
     OPENAI_API_BASE_URL = ""
@@ -546,7 +539,7 @@ DEFAULT_USER_ROLE = PersistentConfig(
 )
 
 USER_PERMISSIONS_CHAT_DELETION = (
-    os.environ.get("USER_PERMISSIONS_CHAT_DELETION", "True").lower() == "true"
+        os.environ.get("USER_PERMISSIONS_CHAT_DELETION", "True").lower() == "true"
 )
 
 USER_PERMISSIONS = PersistentConfig(
@@ -580,7 +573,6 @@ ADMIN_EMAIL = PersistentConfig(
     "auth.admin.email",
     os.environ.get("ADMIN_EMAIL", None),
 )
-
 
 ####################################
 # TASKS
@@ -619,7 +611,6 @@ Artificial Intelligence in Healthcare
     ),
 )
 
-
 SEARCH_QUERY_GENERATION_PROMPT_TEMPLATE = PersistentConfig(
     "SEARCH_QUERY_GENERATION_PROMPT_TEMPLATE",
     "task.search.prompt_template",
@@ -653,7 +644,6 @@ If a function tool doesn't match the query, return an empty string. Else, pick a
     ),
 )
 
-
 ####################################
 # WEBUI_SECRET_KEY
 ####################################
@@ -685,10 +675,10 @@ if WEBUI_AUTH and WEBUI_SECRET_KEY == "":
 CHROMA_DATA_PATH = f"{DATA_DIR}/vector_db"
 CHROMA_TENANT = os.environ.get("CHROMA_TENANT", chromadb.DEFAULT_TENANT)
 CHROMA_DATABASE = os.environ.get("CHROMA_DATABASE", chromadb.DEFAULT_DATABASE)
-CHROMA_HTTP_HOST = os.environ.get("CHROMA_HTTP_HOST", "")
-CHROMA_HTTP_PORT = int(os.environ.get("CHROMA_HTTP_PORT", "8000"))
+CHROMA_HTTP_HOST = os.environ.get("CHROMA_HTTP_HOST", "locat")
+CHROMA_HTTP_PORT = int(os.environ.get("CHROMA_HTTP_PORT", "443"))
 # Comma-separated list of header=value pairs
-CHROMA_HTTP_HEADERS = os.environ.get("CHROMA_HTTP_HEADERS", "")
+CHROMA_HTTP_HEADERS = os.environ.get("CHROMA_HTTP_HEADERS", "x-api-key=0oO7WuHQXK5H8FisjPD9Q8ftv26Kb1Sk7JGqS5yG")
 if CHROMA_HTTP_HEADERS:
     CHROMA_HTTP_HEADERS = dict(
         [pair.split("=") for pair in CHROMA_HTTP_HEADERS.split(",")]
@@ -739,11 +729,11 @@ RAG_EMBEDDING_MODEL = PersistentConfig(
 log.info(f"Embedding model set: {RAG_EMBEDDING_MODEL.value}"),
 
 RAG_EMBEDDING_MODEL_AUTO_UPDATE = (
-    os.environ.get("RAG_EMBEDDING_MODEL_AUTO_UPDATE", "").lower() == "true"
+        os.environ.get("RAG_EMBEDDING_MODEL_AUTO_UPDATE", "").lower() == "true"
 )
 
 RAG_EMBEDDING_MODEL_TRUST_REMOTE_CODE = (
-    os.environ.get("RAG_EMBEDDING_MODEL_TRUST_REMOTE_CODE", "").lower() == "true"
+        os.environ.get("RAG_EMBEDDING_MODEL_TRUST_REMOTE_CODE", "").lower() == "true"
 )
 
 RAG_EMBEDDING_OPENAI_BATCH_SIZE = PersistentConfig(
@@ -761,23 +751,26 @@ if RAG_RERANKING_MODEL.value != "":
     log.info(f"Reranking model set: {RAG_RERANKING_MODEL.value}"),
 
 RAG_RERANKING_MODEL_AUTO_UPDATE = (
-    os.environ.get("RAG_RERANKING_MODEL_AUTO_UPDATE", "").lower() == "true"
+        os.environ.get("RAG_RERANKING_MODEL_AUTO_UPDATE", "").lower() == "true"
 )
 
 RAG_RERANKING_MODEL_TRUST_REMOTE_CODE = (
-    os.environ.get("RAG_RERANKING_MODEL_TRUST_REMOTE_CODE", "").lower() == "true"
+        os.environ.get("RAG_RERANKING_MODEL_TRUST_REMOTE_CODE", "").lower() == "true"
 )
 
+# os.environ['SSL_CERT_FILE'] = '/home/sbansal@polygoninv.local/Downloads/certificates/cert_root.pem'
 
 if CHROMA_HTTP_HOST != "":
     CHROMA_CLIENT = chromadb.HttpClient(
-        host=CHROMA_HTTP_HOST,
-        port=CHROMA_HTTP_PORT,
-        headers=CHROMA_HTTP_HEADERS,
-        ssl=CHROMA_HTTP_SSL,
+        # host=CHROMA_HTTP_HOST,
+        # port=CHROMA_HTTP_PORT,
+        # headers=CHROMA_HTTP_HEADERS,
+        ssl=False,
         tenant=CHROMA_TENANT,
         database=CHROMA_DATABASE,
-        settings=Settings(allow_reset=True, anonymized_telemetry=False),
+        settings=Settings(allow_reset=True, anonymized_telemetry=False, chroma_server_api_default_path="/api/v1",
+                          chroma_server_ssl_verify=False
+                          ),
     )
 else:
     CHROMA_CLIENT = chromadb.PersistentClient(
@@ -787,6 +780,8 @@ else:
         database=CHROMA_DATABASE,
     )
 
+# DEFAULT_TENANT = "default_tenant"
+# DEFAULT_DATABASE = "default_database"
 
 # device type embedding models - "cpu" (default), "cuda" (nvidia gpu required) or "mps" (apple silicon) - choosing this right can lead to better performance
 USE_CUDA = os.environ.get("USE_CUDA_DOCKER", "false")
@@ -835,7 +830,7 @@ RAG_OPENAI_API_KEY = PersistentConfig(
 )
 
 ENABLE_RAG_LOCAL_WEB_FETCH = (
-    os.getenv("ENABLE_RAG_LOCAL_WEB_FETCH", "False").lower() == "true"
+        os.getenv("ENABLE_RAG_LOCAL_WEB_FETCH", "False").lower() == "true"
 )
 
 ENABLE_RAG_WEB_SEARCH = PersistentConfig(
@@ -927,4 +922,3 @@ RAG_WEB_SEARCH_CONCURRENT_REQUESTS = PersistentConfig(
     "rag.web.search.concurrent_requests",
     int(os.getenv("RAG_WEB_SEARCH_CONCURRENT_REQUESTS", "10")),
 )
-

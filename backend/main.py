@@ -524,7 +524,7 @@ class ChatCompletionMiddleware(BaseHTTPMiddleware):
                     if rag_citations:
                         citations.extend(rag_citations)
 
-                del data["files"]
+                # del data["files"]
 
             if show_citations and len(citations) > 0:
                 data_items.append({"citations": citations})

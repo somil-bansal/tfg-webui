@@ -10,11 +10,9 @@
 		updateEmbeddingConfig,
 		getRerankingConfig,
 		updateRerankingConfig,
-		resetUploadDir,
 		getRAGConfig,
 		updateRAGConfig
 	} from '$lib/apis/rag';
-	import ResetUploadDirConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
 	import ResetVectorDBConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
 
 	import { documents, models } from '$lib/stores';
@@ -31,7 +29,6 @@
 	let updateRerankingModelLoading = false;
 
 	let showResetConfirm = false;
-	let showResetUploadDirConfirm = false;
 
 	let embeddingEngine = '';
 	let embeddingModel = '';

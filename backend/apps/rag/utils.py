@@ -1,37 +1,38 @@
-import os
 import logging
-import requests
-
+import os
 from typing import List, Union
+from typing import Optional
+
+import requests
+from huggingface_hub import snapshot_download
+from langchain_core.documents import Document
+from llama_index.core import Document as LlamaDocument, QueryBundle, VectorStoreIndex
+from llama_index.core.llms import MockLLM
+from llama_index.core.postprocessor import SentenceTransformerRerank
+from llama_index.core.retrievers import QueryFusionRetriever
+from llama_index.core.retrievers.fusion_retriever import FUSION_MODES
+from llama_index.core.schema import NodeWithScore
+from llama_index.core.storage.docstore import SimpleDocumentStore
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.retrievers.bm25 import BM25Retriever
+from llama_index.vector_stores.chroma import ChromaVectorStore
 
 from apps.ollama.main import (
     generate_ollama_embeddings,
     GenerateEmbeddingsForm,
 )
-
-from huggingface_hub import snapshot_download
-
-from langchain_core.documents import Document
-from langchain_community.retrievers import BM25Retriever
-from langchain.retrievers import (
-    ContextualCompressionRetriever,
-    EnsembleRetriever,
-)
-
-from typing import Optional
-
-from utils.misc import get_last_user_message, add_or_update_system_message
 from config import SRC_LOG_LEVELS, CHROMA_CLIENT
+from utils.misc import get_last_user_message
 
 log = logging.getLogger(__name__)
 log.setLevel(SRC_LOG_LEVELS["RAG"])
 
 
 def query_doc(
-    collection_name: str,
-    query: str,
-    embedding_function,
-    k: int,
+        collection_name: str,
+        query: str,
+        embedding_function,
+        k: int,
 ):
     try:
         collection = CHROMA_CLIENT.get_collection(name=collection_name)
@@ -48,53 +49,69 @@ def query_doc(
         raise e
 
 
+reranker = SentenceTransformerRerank(model="BAAI/bge-reranker-v2-m3", top_n=10)
+embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
+
 def query_doc_with_hybrid_search(
-    collection_name: str,
-    query: str,
-    embedding_function,
-    k: int,
-    reranking_function,
-    r: float,
+        collection_name: str,
+        query: str,
+        embedding_function,
+        k: int,
+        reranking_function,
+        r: float,
 ):
     try:
         collection = CHROMA_CLIENT.get_collection(name=collection_name)
+        vector_store = ChromaVectorStore(chroma_collection=collection)
         documents = collection.get()  # get all documents
+        docs = [Document(page_content=doc, metadata=meta) for doc, meta in
+                zip(documents.get("documents"), documents.get("metadatas"))]
+        llama_documents = [
+            LlamaDocument.from_langchain_format(doc)
+            for doc in docs
+        ]
+        docstore = SimpleDocumentStore()
+        docstore.add_documents(llama_documents)
 
-        bm25_retriever = BM25Retriever.from_texts(
-            texts=documents.get("documents"),
-            metadatas=documents.get("metadatas"),
-        )
-        bm25_retriever.k = k
+        index = VectorStoreIndex.from_vector_store(vector_store, embed_model=embed_model)
 
-        chroma_retriever = ChromaRetriever(
-            collection=collection,
-            embedding_function=embedding_function,
-            top_n=k,
-        )
-
-        ensemble_retriever = EnsembleRetriever(
-            retrievers=[bm25_retriever, chroma_retriever], weights=[0.5, 0.5]
-        )
-
-        compressor = RerankCompressor(
-            embedding_function=embedding_function,
-            top_n=k,
-            reranking_function=reranking_function,
-            r_score=r,
-        )
-
-        compression_retriever = ContextualCompressionRetriever(
-            base_compressor=compressor, base_retriever=ensemble_retriever
+        retriever = QueryFusionRetriever(
+            [
+                index.as_retriever(similarity_top_k=k),
+                BM25Retriever.from_defaults(
+                    docstore=docstore, similarity_top_k=k
+                ),
+            ],
+            llm=MockLLM(),
+            similarity_top_k=k,
+            mode=FUSION_MODES.RECIPROCAL_RANK,
+            num_queries=3,
+            use_async=False,
         )
 
-        result = compression_retriever.invoke(query)
+        # compressor = RerankCompressor(
+        #     embedding_function=embedding_function,
+        #     top_n=k,
+        #     reranking_function=reranking_function,
+        #     r_score=r,
+        # )
+        #
+        # compression_retriever = ContextualCompressionRetriever(
+        #     base_compressor=compressor, base_retriever=ensemble_retriever
+        # )
+        # result = compression_retriever.invoke(query)
+
+        query_bundle = QueryBundle(query)
+        retrieved_nodes = retriever.retrieve(query_bundle)
+        retrieved_nodes = reranker.postprocess_nodes(
+            retrieved_nodes, query_bundle
+        )
         result = {
-            "distances": [[d.metadata.get("score") for d in result]],
-            "documents": [[d.page_content for d in result]],
-            "metadatas": [[d.metadata for d in result]],
+            "distances": [[d.score for d in retrieved_nodes]],
+            "documents": [[d.text for d in retrieved_nodes]],
+            "metadatas": [[d.metadata for d in retrieved_nodes]],
         }
-
-        log.info(f"query_doc_with_hybrid_search:result {result}")
         return result
     except Exception as e:
         raise e
@@ -142,10 +159,10 @@ def merge_and_sort_query_results(query_results, k, reverse=False):
 
 
 def query_collection(
-    collection_names: List[str],
-    query: str,
-    embedding_function,
-    k: int,
+        collection_names: List[str],
+        query: str,
+        embedding_function,
+        k: int,
 ):
     results = []
     for collection_name in collection_names:
@@ -163,12 +180,12 @@ def query_collection(
 
 
 def query_collection_with_hybrid_search(
-    collection_names: List[str],
-    query: str,
-    embedding_function,
-    k: int,
-    reranking_function,
-    r: float,
+        collection_names: List[str],
+        query: str,
+        embedding_function,
+        k: int,
+        reranking_function,
+        r: float,
 ):
     results = []
     for collection_name in collection_names:
@@ -194,12 +211,12 @@ def rag_template(template: str, context: str, query: str):
 
 
 def get_embedding_function(
-    embedding_engine,
-    embedding_model,
-    embedding_function,
-    openai_key,
-    openai_url,
-    batch_size,
+        embedding_engine,
+        embedding_model,
+        embedding_function,
+        openai_key,
+        openai_url,
+        batch_size,
 ):
     if embedding_engine == "":
         return lambda query: embedding_function.encode(query).tolist()
@@ -226,7 +243,7 @@ def get_embedding_function(
                 if embedding_engine == "openai":
                     embeddings = []
                     for i in range(0, len(query), batch_size):
-                        embeddings.extend(f(query[i : i + batch_size]))
+                        embeddings.extend(f(query[i: i + batch_size]))
                     return embeddings
                 else:
                     return [f(q) for q in query]
@@ -237,13 +254,13 @@ def get_embedding_function(
 
 
 def get_rag_context(
-    files,
-    messages,
-    embedding_function,
-    k,
-    reranking_function,
-    r,
-    hybrid_search,
+        files,
+        messages,
+        embedding_function,
+        k,
+        reranking_function,
+        r,
+        hybrid_search,
 ):
     log.debug(f"files: {files} {messages} {embedding_function} {reranking_function}")
     query = get_last_user_message(messages)
@@ -336,9 +353,9 @@ def get_model_path(model: str, update_model: bool = False):
 
     # Inspiration from upstream sentence_transformers
     if (
-        os.path.exists(model)
-        or ("\\" in model or model.count("/") > 1)
-        and local_files_only
+            os.path.exists(model)
+            or ("\\" in model or model.count("/") > 1)
+            and local_files_only
     ):
         # If fully qualified path exists, return input, else set repo_id
         return model
@@ -359,10 +376,10 @@ def get_model_path(model: str, update_model: bool = False):
 
 
 def generate_openai_embeddings(
-    model: str,
-    text: Union[str, list[str]],
-    key: str,
-    url: str = "https://api.openai.com/v1",
+        model: str,
+        text: Union[str, list[str]],
+        key: str,
+        url: str = "https://api.openai.com/v1",
 ):
     if isinstance(text, list):
         embeddings = generate_openai_batch_embeddings(model, text, key, url)
@@ -373,7 +390,7 @@ def generate_openai_embeddings(
 
 
 def generate_openai_batch_embeddings(
-    model: str, texts: list[str], key: str, url: str = "https://api.openai.com/v1"
+        model: str, texts: list[str], key: str, url: str = "https://api.openai.com/v1"
 ) -> Optional[list[list[float]]]:
     try:
         r = requests.post(
@@ -397,20 +414,23 @@ def generate_openai_batch_embeddings(
 
 from typing import Any
 
-from langchain_core.retrievers import BaseRetriever
+from llama_index.core.retrievers import BaseRetriever as LIBaseRetriever
 from langchain_core.callbacks import CallbackManagerForRetrieverRun
 
 
-class ChromaRetriever(BaseRetriever):
+class ChromaRetriever(LIBaseRetriever):
+    def _retrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:
+        pass
+
     collection: Any
     embedding_function: Any
     top_n: int
 
     def _get_relevant_documents(
-        self,
-        query: str,
-        *,
-        run_manager: CallbackManagerForRetrieverRun,
+            self,
+            query: str,
+            *,
+            run_manager: CallbackManagerForRetrieverRun,
     ) -> List[Document]:
         query_embeddings = self.embedding_function(query)
 
@@ -456,10 +476,10 @@ class RerankCompressor(BaseDocumentCompressor):
         arbitrary_types_allowed = True
 
     def compress_documents(
-        self,
-        documents: Sequence[Document],
-        query: str,
-        callbacks: Optional[Callbacks] = None,
+            self,
+            documents: Sequence[Document],
+            query: str,
+            callbacks: Optional[Callbacks] = None,
     ) -> Sequence[Document]:
         reranking = self.reranking_function is not None
 

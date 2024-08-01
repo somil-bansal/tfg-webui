@@ -154,7 +154,18 @@ class UsersTable:
         except:
             return None
 
-    def update_groups(self, id: str, groups:[str]):
+    def update_user_by_id(self, id: str, updated: dict) -> Optional[UserModel]:
+        try:
+            query = User.update(**updated).where(User.id == id)
+            query.execute()
+
+            user = User.get(User.id == id)
+            user = User.from_db(user)
+            return UserModel(**model_to_dict(user))
+        except:
+            return None
+
+    def update_groups(self, id: str, groups: [str]):
         try:
             query = User.update(groups=json.dumps(groups)).where(User.id == id)
             query.execute()
