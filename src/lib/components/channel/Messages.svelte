@@ -18,7 +18,7 @@
 	import Spinner from '../common/Spinner.svelte';
 	import { addReaction, deleteMessage, removeReaction, updateMessage } from '$lib/apis/channels';
 
-	const i18n = getContext('i18n');
+	
 
 	export let id = null;
 	export let channel = null;
@@ -73,13 +73,7 @@
 						<div class="text-2xl font-medium capitalize">{channel.name}</div>
 
 						<div class=" text-gray-500">
-							{$i18n.t(
-								'This channel was created on {{createdAt}}. This is the very beginning of the {{channelName}} channel.',
-								{
-									createdAt: dayjs(channel.created_at / 1000000).format('MMMM D, YYYY'),
-									channelName: channel.name
-								}
-							)}
+							This channel was created on {dayjs(channel.created_at / 1000000).format('MMMM D, YYYY')}. This is the very beginning of the {channel.name} channel.
 						</div>
 					</div>
 				{:else}

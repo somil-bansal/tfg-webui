@@ -1,7 +1,7 @@
 <script>
 	import { onMount, getContext, createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
-	const i18n = getContext('i18n');
+	
 
 	import Switch from './Switch.svelte';
 
@@ -36,13 +36,13 @@
 					{#if (valves[property] ?? null) === null}
 						<span class="ml-2 self-center">
 							{#if (valvesSpec?.required ?? []).includes(property)}
-								{$i18n.t('None')}
+								None
 							{:else}
-								{$i18n.t('Default')}
+								Default
 							{/if}
 						</span>
 					{:else}
-						<span class="ml-2 self-center"> {$i18n.t('Custom')} </span>
+						<span class="ml-2 self-center"> Custom </span>
 					{/if}
 				</button>
 			</div>

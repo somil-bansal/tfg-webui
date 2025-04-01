@@ -18,7 +18,7 @@
 	import PhotoSolid from '$lib/components/icons/PhotoSolid.svelte';
 	import CommandLineSolid from '$lib/components/icons/CommandLineSolid.svelte';
 
-	const i18n = getContext('i18n');
+	
 
 	export let screenCaptureHandler: Function;
 	export let uploadFilesHandler: Function;
@@ -88,7 +88,7 @@
 		}
 	}}
 >
-	<Tooltip content={$i18n.t('More')}>
+	<Tooltip content={'More'}>
 		<slot />
 	</Tooltip>
 
@@ -146,7 +146,7 @@
 			{/if}
 
 			<Tooltip
-				content={!fileUploadEnabled ? $i18n.t('You do not have permission to upload files') : ''}
+				content={!fileUploadEnabled ? 'You do not have permission to upload files' : ''}
 				className="w-full"
 			>
 				<DropdownMenu.Item
@@ -168,12 +168,12 @@
 					}}
 				>
 					<CameraSolid />
-					<div class=" line-clamp-1">{$i18n.t('Capture')}</div>
+					<div class=" line-clamp-1">{'Capture'}</div>
 				</DropdownMenu.Item>
 			</Tooltip>
 
 			<Tooltip
-				content={!fileUploadEnabled ? $i18n.t('You do not have permission to upload files') : ''}
+				content={!fileUploadEnabled ? 'You do not have permission to upload files' : ''}
 				className="w-full"
 			>
 				<DropdownMenu.Item
@@ -187,7 +187,7 @@
 					}}
 				>
 					<DocumentArrowUpSolid />
-					<div class="line-clamp-1">{$i18n.t('Upload Files')}</div>
+					<div class="line-clamp-1">{'Upload Files'}</div>
 				</DropdownMenu.Item>
 			</Tooltip>
 
@@ -224,7 +224,7 @@
 							fill="#ffba00"
 						/>
 					</svg>
-					<div class="line-clamp-1">{$i18n.t('Google Drive')}</div>
+					<div class="line-clamp-1">{'Google Drive'}</div>
 				</DropdownMenu.Item>
 			{/if}
 
@@ -315,7 +315,7 @@
 							</linearGradient>
 						</defs>
 					</svg>
-					<div class="line-clamp-1">{$i18n.t('OneDrive')}</div>
+					<div class="line-clamp-1">{'OneDrive'}</div>
 				</DropdownMenu.Item>
 			{/if}
 		</DropdownMenu.Content>

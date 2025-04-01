@@ -5,7 +5,7 @@
 	import { WEBUI_NAME } from '$lib/stores';
 	import { WEBUI_VERSION } from '$lib/constants';
 
-	const i18n = getContext('i18n');
+	
 	const dispatch = createEventDispatcher();
 
 	export let suggestionPrompts = [];
@@ -67,7 +67,7 @@
 <div class="mb-1 flex gap-1 text-xs font-medium items-center text-gray-400 dark:text-gray-600">
 	{#if filteredPrompts.length > 0}
 		<Bolt />
-		{$i18n.t('Suggested')}
+		{'Suggested'}
 	{:else}
 		<!-- Keine Vorschläge -->
 
@@ -105,7 +105,7 @@
 						>
 							{prompt.content}
 						</div>
-						<div class="text-xs text-gray-500 font-normal line-clamp-1">{$i18n.t('Prompt')}</div>
+						<div class="text-xs text-gray-500 font-normal line-clamp-1">{'Prompt'}</div>
 					{/if}
 				</div>
 			</button>

@@ -11,7 +11,6 @@
 	import About from './Settings/About.svelte';
 	import General from './Settings/General.svelte';
 	import Interface from './Settings/Interface.svelte';
-	import Audio from './Settings/Audio.svelte';
 	import Chats from './Settings/Chats.svelte';
 	import User from '../icons/User.svelte';
 	import Personalization from './Settings/Personalization.svelte';
@@ -19,7 +18,7 @@
 	import Connections from './Settings/Connections.svelte';
 	import Tools from './Settings/Tools.svelte';
 
-	const i18n = getContext('i18n');
+	
 
 	export let show = false;
 
@@ -111,10 +110,6 @@
 				'haptic',
 				'hapticfeedback',
 				'vibration',
-				'voice',
-				'voicecontrol',
-				'voiceinterruption',
-				'call',
 				'emojis',
 				'displayemoji',
 				'save',
@@ -148,51 +143,7 @@
 				'accountpreferences'
 			]
 		},
-		{
-			id: 'audio',
-			title: 'Audio',
-			keywords: [
-				'audio',
-				'sound',
-				'soundsettings',
-				'audiocontrol',
-				'volume',
-				'speech',
-				'speechrecognition',
-				'stt',
-				'speechtotext',
-				'tts',
-				'texttospeech',
-				'playback',
-				'playbackspeed',
-				'voiceplayback',
-				'speechplayback',
-				'audiooutput',
-				'speechengine',
-				'voicecontrol',
-				'audioplayback',
-				'transcription',
-				'autotranscribe',
-				'autosend',
-				'speechsettings',
-				'audiovoice',
-				'voiceoptions',
-				'setvoice',
-				'nonlocalvoices',
-				'savesettings',
-				'audioconfig',
-				'speechconfig',
-				'voicerecognition',
-				'speechsynthesis',
-				'speechmode',
-				'voicespeed',
-				'speechrate',
-				'speechspeed',
-				'audioinput',
-				'audiofeatures',
-				'voicemodes'
-			]
-		},
+		
 		{
 			id: 'chats',
 			title: 'Chats',
@@ -250,13 +201,9 @@
 				'admincontrols',
 				'adminfeatures',
 				'usercontrol',
-				'arenamodel',
-				'evaluations',
 				'websearch',
 				'database',
 				'pipelines',
-				'images',
-				'audio',
 				'documents',
 				'rag',
 				'models',
@@ -370,7 +317,7 @@
 <Modal size="xl" bind:show>
 	<div class="text-gray-700 dark:text-gray-100">
 		<div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-1">
-			<div class=" text-lg font-medium self-center">{$i18n.t('Settings')}</div>
+			<div class=" text-lg font-medium self-center">{'Settings'}</div>
 			<button
 				class="self-center"
 				on:click={() => {
@@ -403,7 +350,7 @@
 						class="w-full py-1.5 text-sm bg-transparent dark:text-gray-300 outline-hidden"
 						bind:value={search}
 						on:input={searchDebounceHandler}
-						placeholder={$i18n.t('Search')}
+						placeholder={'Search'}
 					/>
 				</div>
 
@@ -433,7 +380,7 @@
 										/>
 									</svg>
 								</div>
-								<div class=" self-center">{$i18n.t('General')}</div>
+								<div class=" self-center">{'General'}</div>
 							</button>
 						{:else if tabId === 'interface'}
 							<button
@@ -459,7 +406,7 @@
 										/>
 									</svg>
 								</div>
-								<div class=" self-center">{$i18n.t('Interface')}</div>
+								<div class=" self-center">{'Interface'}</div>
 							</button>
 						{:else if tabId === 'connections'}
 							{#if $user.role === 'admin' || ($user.role === 'user' && $config?.features?.enable_direct_connections)}
@@ -484,7 +431,7 @@
 											/>
 										</svg>
 									</div>
-									<div class=" self-center">{$i18n.t('Connections')}</div>
+									<div class=" self-center">{'Connections'}</div>
 								</button>
 							{/if}
 						{:else if tabId === 'tools'}
@@ -512,7 +459,7 @@
 											/>
 										</svg>
 									</div>
-									<div class=" self-center">{$i18n.t('Tools')}</div>
+									<div class=" self-center">{'Tools'}</div>
 								</button>
 							{/if}
 						{:else if tabId === 'personalization'}
@@ -528,34 +475,7 @@
 								<div class=" self-center mr-2">
 									<User />
 								</div>
-								<div class=" self-center">{$i18n.t('Personalization')}</div>
-							</button>
-						{:else if tabId === 'audio'}
-							<button
-								class="px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition {selectedTab ===
-								'audio'
-									? ''
-									: ' text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'}"
-								on:click={() => {
-									selectedTab = 'audio';
-								}}
-							>
-								<div class=" self-center mr-2">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										viewBox="0 0 16 16"
-										fill="currentColor"
-										class="w-4 h-4"
-									>
-										<path
-											d="M7.557 2.066A.75.75 0 0 1 8 2.75v10.5a.75.75 0 0 1-1.248.56L3.59 11H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.59l3.162-2.81a.75.75 0 0 1 .805-.124ZM12.95 3.05a.75.75 0 1 0-1.06 1.06 5.5 5.5 0 0 1 0 7.78.75.75 0 1 0 1.06 1.06 7 7 0 0 0 0-9.9Z"
-										/>
-										<path
-											d="M10.828 5.172a.75.75 0 1 0-1.06 1.06 2.5 2.5 0 0 1 0 3.536.75.75 0 1 0 1.06 1.06 4 4 0 0 0 0-5.656Z"
-										/>
-									</svg>
-								</div>
-								<div class=" self-center">{$i18n.t('Audio')}</div>
+								<div class=" self-center">{'Personalization'}</div>
 							</button>
 						{:else if tabId === 'chats'}
 							<button
@@ -581,7 +501,7 @@
 										/>
 									</svg>
 								</div>
-								<div class=" self-center">{$i18n.t('Chats')}</div>
+								<div class=" self-center">{'Chats'}</div>
 							</button>
 						{:else if tabId === 'account'}
 							<button
@@ -607,7 +527,7 @@
 										/>
 									</svg>
 								</div>
-								<div class=" self-center">{$i18n.t('Account')}</div>
+								<div class=" self-center">{'Account'}</div>
 							</button>
 						{:else if tabId === 'about'}
 							<button
@@ -633,7 +553,7 @@
 										/>
 									</svg>
 								</div>
-								<div class=" self-center">{$i18n.t('About')}</div>
+								<div class=" self-center">{'About'}</div>
 							</button>
 						{:else if tabId === 'admin'}
 							{#if $user.role === 'admin'}
@@ -661,14 +581,14 @@
 											/>
 										</svg>
 									</div>
-									<div class=" self-center">{$i18n.t('Admin Settings')}</div>
+									<div class=" self-center">{'Admin Settings'}</div>
 								</button>
 							{/if}
 						{/if}
 					{/each}
 				{:else}
 					<div class="text-center text-gray-500 mt-4">
-						{$i18n.t('No results found')}
+						{'No results found'}
 					</div>
 				{/if}
 			</div>
@@ -678,42 +598,35 @@
 						{getModels}
 						{saveSettings}
 						on:save={() => {
-							toast.success($i18n.t('Settings saved successfully!'));
+							toast.success('Settings saved successfully!');
 						}}
 					/>
 				{:else if selectedTab === 'interface'}
 					<Interface
 						{saveSettings}
 						on:save={() => {
-							toast.success($i18n.t('Settings saved successfully!'));
+							toast.success('Settings saved successfully!');
 						}}
 					/>
 				{:else if selectedTab === 'connections'}
 					<Connections
 						saveSettings={async (updated) => {
 							await saveSettings(updated);
-							toast.success($i18n.t('Settings saved successfully!'));
+							toast.success('Settings saved successfully!');
 						}}
 					/>
 				{:else if selectedTab === 'tools'}
 					<Tools
 						saveSettings={async (updated) => {
 							await saveSettings(updated);
-							toast.success($i18n.t('Settings saved successfully!'));
+							toast.success('Settings saved successfully!');
 						}}
 					/>
 				{:else if selectedTab === 'personalization'}
 					<Personalization
 						{saveSettings}
 						on:save={() => {
-							toast.success($i18n.t('Settings saved successfully!'));
-						}}
-					/>
-				{:else if selectedTab === 'audio'}
-					<Audio
-						{saveSettings}
-						on:save={() => {
-							toast.success($i18n.t('Settings saved successfully!'));
+							toast.success('Settings saved successfully!');
 						}}
 					/>
 				{:else if selectedTab === 'chats'}
@@ -722,7 +635,7 @@
 					<Account
 						{saveSettings}
 						saveHandler={() => {
-							toast.success($i18n.t('Settings saved successfully!'));
+							toast.success('Settings saved successfully!');
 						}}
 					/>
 				{:else if selectedTab === 'about'}

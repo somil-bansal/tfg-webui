@@ -24,7 +24,6 @@
 	import Tooltip from '../common/Tooltip.svelte';
 	import { capitalizeFirstLetter } from '$lib/utils';
 
-	const i18n = getContext('i18n');
 	let promptsImportInputElement: HTMLInputElement;
 	let loaded = false;
 
@@ -40,7 +39,7 @@
 	$: filteredItems = prompts.filter((p) => query === '' || p.command.includes(query));
 
 	const shareHandler = async (prompt) => {
-		toast.success($i18n.t('Redirecting you to Open WebUI Community'));
+		toast.success("Redirecting you to Open WebUI Community");
 
 		const url = 'https://openwebui.com';
 
@@ -88,27 +87,27 @@
 
 <svelte:head>
 	<title>
-		{$i18n.t('Prompts')} | {$WEBUI_NAME}
+		{"Prompts"} | {$WEBUI_NAME}
 	</title>
 </svelte:head>
 
 {#if loaded}
 	<DeleteConfirmDialog
 		bind:show={showDeleteConfirm}
-		title={$i18n.t('Delete prompt?')}
+		title={"Delete prompt?"}
 		on:confirm={() => {
 			deleteHandler(deletePrompt);
 		}}
 	>
 		<div class=" text-sm text-gray-500">
-			{$i18n.t('This will delete')} <span class="  font-semibold">{deletePrompt.command}</span>.
+			{"This will delete"} <span class="  font-semibold">{deletePrompt.command}</span>.
 		</div>
 	</DeleteConfirmDialog>
 
 	<div class="flex flex-col gap-1 my-1.5">
 		<div class="flex justify-between items-center">
 			<div class="flex md:self-center text-xl font-medium px-0.5 items-center">
-				{$i18n.t('Prompts')}
+				{"Prompts"}
 				<div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-gray-850" />
 				<span class="text-lg font-medium text-gray-500 dark:text-gray-300"
 					>{filteredItems.length}</span
@@ -124,7 +123,7 @@
 				<input
 					class=" w-full text-sm pr-4 py-1 rounded-r-xl outline-hidden bg-transparent"
 					bind:value={query}
-					placeholder={$i18n.t('Search Prompts')}
+					placeholder={"Search Prompts"}
 				/>
 			</div>
 
@@ -155,16 +154,12 @@
 
 						<div class=" text-xs px-0.5">
 							<Tooltip
-								content={prompt?.user?.email ?? $i18n.t('Deleted User')}
+								content={prompt?.user?.email ?? "Deleted User"}
 								className="flex shrink-0"
 								placement="top-start"
 							>
 								<div class="shrink-0 text-gray-500">
-									{$i18n.t('By {{name}}', {
-										name: capitalizeFirstLetter(
-											prompt?.user?.name ?? prompt?.user?.email ?? $i18n.t('Deleted User')
-										)
-									})}
+									{`By ${capitalizeFirstLetter(prompt?.user?.name ?? prompt?.user?.email ?? "Deleted User")}`}
 								</div>
 							</Tooltip>
 						</div>
@@ -267,7 +262,7 @@
 						promptsImportInputElement.click();
 					}}
 				>
-					<div class=" self-center mr-2 font-medium line-clamp-1">{$i18n.t('Import Prompts')}</div>
+					<div class=" self-center mr-2 font-medium line-clamp-1">{"Import Prompts"}</div>
 
 					<div class=" self-center">
 						<svg
@@ -295,7 +290,7 @@
 						saveAs(blob, `prompts-export-${Date.now()}.json`);
 					}}
 				>
-					<div class=" self-center mr-2 font-medium line-clamp-1">{$i18n.t('Export Prompts')}</div>
+					<div class=" self-center mr-2 font-medium line-clamp-1">{"Export Prompts"}</div>
 
 					<div class=" self-center">
 						<svg
@@ -313,33 +308,6 @@
 					</div>
 				</button>
 			</div>
-		</div>
-	{/if}
-
-	{#if $config?.features.enable_community_sharing}
-		<div class=" my-16">
-			<div class=" text-xl font-medium mb-1 line-clamp-1">
-				{$i18n.t('Made by Open WebUI Community')}
-			</div>
-
-			<a
-				class=" flex cursor-pointer items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-850 w-full mb-2 px-3.5 py-1.5 rounded-xl transition"
-				href="https://openwebui.com/#open-webui-community"
-				target="_blank"
-			>
-				<div class=" self-center">
-					<div class=" font-semibold line-clamp-1">{$i18n.t('Discover a prompt')}</div>
-					<div class=" text-sm line-clamp-1">
-						{$i18n.t('Discover, download, and explore custom prompts')}
-					</div>
-				</div>
-
-				<div>
-					<div>
-						<ChevronRight />
-					</div>
-				</div>
-			</a>
 		</div>
 	{/if}
 {:else}

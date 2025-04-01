@@ -13,7 +13,7 @@
 	export let edit = false;
 	export let prompt = null;
 
-	const i18n = getContext('i18n');
+	
 
 	let loading = false;
 
@@ -41,7 +41,7 @@
 			});
 		} else {
 			toast.error(
-				$i18n.t('Only alphanumeric characters and hyphens are allowed in the command string.')
+				'Only alphanumeric characters and hyphens are allowed in the command string.'
 			);
 		}
 
@@ -85,19 +85,14 @@
 	>
 		<div class="my-2">
 			<Tooltip
-				content={`${$i18n.t('Only alphanumeric characters and hyphens are allowed')} - ${$i18n.t(
-					'Activate this command by typing "/{{COMMAND}}" to chat input.',
-					{
-						COMMAND: command
-					}
-				)}`}
+				content={`Only alphanumeric characters and hyphens are allowed - Activate this command by typing "/{{COMMAND}}" to chat input.`}
 				placement="bottom-start"
 			>
 				<div class="flex flex-col w-full">
 					<div class="flex items-center">
 						<input
 							class="text-2xl font-semibold w-full bg-transparent outline-hidden"
-							placeholder={$i18n.t('Title')}
+							placeholder="Title"
 							bind:value={title}
 							required
 						/>
@@ -113,7 +108,7 @@
 								<LockClosed strokeWidth="2.5" className="size-3.5" />
 
 								<div class="text-sm font-medium shrink-0">
-									{$i18n.t('Access')}
+									Access
 								</div>
 							</button>
 						</div>
@@ -123,7 +118,7 @@
 						<div class="">/</div>
 						<input
 							class=" w-full bg-transparent outline-hidden"
-							placeholder={$i18n.t('Command')}
+							placeholder="Command"
 							bind:value={command}
 							required
 							disabled={edit}
@@ -135,14 +130,14 @@
 
 		<div class="my-2">
 			<div class="flex w-full justify-between">
-				<div class=" self-center text-sm font-semibold">{$i18n.t('Prompt Content')}</div>
+				<div class=" self-center text-sm font-semibold">Prompt Content</div>
 			</div>
 
 			<div class="mt-2">
 				<div>
 					<Textarea
 						className="text-sm w-full bg-transparent outline-hidden overflow-y-hidden resize-none"
-						placeholder={$i18n.t('Write a summary in 50 words that summarizes [topic or keyword].')}
+						placeholder="Write a summary in 50 words that summarizes [topic or keyword]."
 						bind:value={content}
 						rows={6}
 						required
@@ -150,21 +145,21 @@
 				</div>
 
 				<div class="text-xs text-gray-400 dark:text-gray-500">
-					ⓘ {$i18n.t('Format your variables using brackets like this:')}&nbsp;<span
+					ⓘ Format your variables using brackets like this:&nbsp;<span
 						class=" text-gray-600 dark:text-gray-300 font-medium"
-						>{'{{'}{$i18n.t('variable')}{'}}'}</span
+						>{'{{'}variable{'}}'}</span
 					>.
-					{$i18n.t('Make sure to enclose them with')}
+					Make sure to enclose them with
 					<span class=" text-gray-600 dark:text-gray-300 font-medium">{'{{'}</span>
-					{$i18n.t('and')}
+					and
 					<span class=" text-gray-600 dark:text-gray-300 font-medium">{'}}'}</span>.
 				</div>
 
 				<div class="text-xs text-gray-400 dark:text-gray-500">
-					{$i18n.t('Utilize')}<span class=" text-gray-600 dark:text-gray-300 font-medium">
+					Utilize<span class=" text-gray-600 dark:text-gray-300 font-medium">
 						{` {{CLIPBOARD}}`}</span
 					>
-					{$i18n.t('variable to have them replaced with clipboard content.')}
+					variable to have them replaced with clipboard content.
 				</div>
 			</div>
 		</div>
@@ -177,7 +172,7 @@
 				type="submit"
 				disabled={loading}
 			>
-				<div class=" self-center font-medium">{$i18n.t('Save & Create')}</div>
+				<div class=" self-center font-medium">Save & Create</div>
 
 				{#if loading}
 					<div class="ml-1.5 self-center">

@@ -8,7 +8,7 @@
 	const dispatch = createEventDispatcher();
 
 	export let show;
-	const i18n = getContext('i18n');
+	
 
 	let loading = false;
 	let content = '';
@@ -24,7 +24,7 @@
 
 		if (res) {
 			console.log(res);
-			toast.success($i18n.t('Memory added successfully'));
+			toast.success('Memory added successfully');
 			content = '';
 			show = false;
 			dispatch('save');
@@ -38,7 +38,7 @@
 	<div>
 		<div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-2">
 			<div class=" text-lg font-medium self-center">
-				{$i18n.t('Add Memory')}
+				Add Memory
 			</div>
 			<button
 				class="self-center"
@@ -72,11 +72,11 @@
 							bind:value={content}
 							class=" bg-transparent w-full text-sm resize-none rounded-xl p-3 outline outline-1 outline-gray-100 dark:outline-gray-800"
 							rows="3"
-							placeholder={$i18n.t('Enter a detail about yourself for your LLMs to recall')}
+							placeholder="Enter a detail about yourself for your LLMs to recall"
 						/>
 
 						<div class="text-xs text-gray-500">
-							ⓘ {$i18n.t('Refer to yourself as "User" (e.g., "User is learning Spanish")')}
+							ⓘ Refer to yourself as "User" (e.g., "User is learning Spanish")
 						</div>
 					</div>
 
@@ -88,7 +88,7 @@
 							type="submit"
 							disabled={loading}
 						>
-							{$i18n.t('Add')}
+							Add
 
 							{#if loading}
 								<div class="ml-2 self-center">

@@ -13,7 +13,7 @@
 
 	let chat = null;
 	let shareUrl = null;
-	const i18n = getContext('i18n');
+	
 
 	const shareLocalChat = async () => {
 		const _chat = chat;
@@ -30,7 +30,7 @@
 		const _chat = chat.chat;
 		console.log('share', _chat);
 
-		toast.success($i18n.t('Redirecting you to Open WebUI Community'));
+		toast.success('Redirecting you to Open WebUI Community');
 		const url = 'https://openwebui.com';
 		// const url = 'http://localhost:5173';
 
@@ -83,7 +83,7 @@
 <Modal bind:show size="md">
 	<div>
 		<div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-0.5">
-			<div class=" text-lg font-medium self-center">{$i18n.t('Share Chat')}</div>
+			<div class=" text-lg font-medium self-center">{'Share Chat'}</div>
 			<button
 				class="self-center"
 				on:click={() => {
@@ -107,45 +107,27 @@
 			<div class="px-5 pt-4 pb-5 w-full flex flex-col justify-center">
 				<div class=" text-sm dark:text-gray-300 mb-1">
 					{#if chat.share_id}
-						<a href="/s/{chat.share_id}" target="_blank"
-							>{$i18n.t('You have shared this chat')}
-							<span class=" underline">{$i18n.t('before')}</span>.</a
-						>
-						{$i18n.t('Click here to')}
+						<a href="/s/{chat.share_id}" target="_blank">{'You have shared this chat'}<span class=" underline">{'before'}</span>.</a>
+						{'Click here to'}
 						<button
 							class="underline"
 							on:click={async () => {
 								const res = await deleteSharedChatById(localStorage.token, chatId);
-
 								if (res) {
 									chat = await getChatById(localStorage.token, chatId);
 								}
 							}}
-							>{$i18n.t('delete this link')}
+							>{'delete this link'}
 						</button>
-						{$i18n.t('and create a new shared link.')}
+						{'and create a new shared link.'}
 					{:else}
-						{$i18n.t(
-							"Messages you send after creating your link won't be shared. Users with the URL will be able to view the shared chat."
-						)}
+						{'Messages you send after creating your link won\'t be shared. Users with the URL will be able to view the shared chat.'}
 					{/if}
 				</div>
 
 				<div class="flex justify-end">
 					<div class="flex flex-col items-end space-x-1 mt-3">
 						<div class="flex gap-1">
-							{#if $config?.features.enable_community_sharing}
-								<button
-									class="self-center flex items-center gap-1 px-3.5 py-2 text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-850 dark:text-white dark:hover:bg-gray-800 transition rounded-full"
-									type="button"
-									on:click={() => {
-										shareChat();
-										show = false;
-									}}
-								>
-									{$i18n.t('Share to Open WebUI Community')}
-								</button>
-							{/if}
 
 							<button
 								class="self-center flex items-center gap-1 px-3.5 py-2 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
@@ -181,16 +163,16 @@
 										copyToClipboard(await shareLocalChat());
 									}
 
-									toast.success($i18n.t('Copied shared chat URL to clipboard!'));
+									toast.success('Copied shared chat URL to clipboard!');
 									show = false;
 								}}
 							>
 								<Link />
 
 								{#if chat.share_id}
-									{$i18n.t('Update and Copy Link')}
+									{'Update and Copy Link'}
 								{:else}
-									{$i18n.t('Copy Link')}
+									{'Copy Link'}
 								{/if}
 							</button>
 						</div>

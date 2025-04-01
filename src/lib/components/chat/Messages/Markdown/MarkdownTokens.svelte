@@ -1,7 +1,7 @@
 <script lang="ts">
 	import DOMPurify from 'dompurify';
 	import { createEventDispatcher, onMount, getContext } from 'svelte';
-	const i18n = getContext('i18n');
+	
 
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
@@ -11,7 +11,6 @@
 
 	import { WEBUI_BASE_URL } from '$lib/constants';
 
-	import CodeBlock from '$lib/components/chat/Messages/CodeBlock.svelte';
 	import MarkdownInlineTokens from '$lib/components/chat/Messages/Markdown/MarkdownInlineTokens.svelte';
 	import KatexRenderer from './KatexRenderer.svelte';
 	import AlertRenderer, { alertComponent } from './AlertRenderer.svelte';
@@ -85,25 +84,11 @@
 		</svelte:element>
 	{:else if token.type === 'code'}
 		{#if token.raw.includes('```')}
-			<CodeBlock
-				id={`${id}-${tokenIdx}`}
-				collapsed={$settings?.collapseCodeBlocks ?? false}
-				{token}
-				lang={token?.lang ?? ''}
-				code={token?.text ?? ''}
-				{attributes}
-				{save}
-				onCode={(value) => {
-					dispatch('code', value);
-				}}
-				onSave={(value) => {
-					dispatch('update', {
-						raw: token.raw,
-						oldContent: token.text,
-						newContent: value
-					});
-				}}
-			/>
+			<div class="relative my-2">
+				<pre class="w-full h-full p-4 font-mono text-sm bg-gray-800 text-white rounded-lg overflow-x-auto">
+					<code class="language-{token.lang ?? ''}">{token.text ?? ''}</code>
+				</pre>
+			</div>
 		{:else}
 			{token.text}
 		{/if}
@@ -160,7 +145,7 @@
 			</div>
 
 			<div class=" absolute top-1 right-1.5 z-20 invisible group-hover:visible">
-				<Tooltip content={$i18n.t('Export to CSV')}>
+				<Tooltip content={'Export to CSV'}>
 					<button
 						class="p-1 rounded-lg bg-transparent transition"
 						on:click={(e) => {

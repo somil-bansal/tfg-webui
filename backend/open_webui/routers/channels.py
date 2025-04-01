@@ -26,7 +26,6 @@ from open_webui.env import SRC_LOG_LEVELS
 
 from open_webui.utils.auth import get_admin_user, get_verified_user
 from open_webui.utils.access_control import has_access, get_users_with_access
-from open_webui.utils.webhook import post_webhook
 
 log = logging.getLogger(__name__)
 log.setLevel(SRC_LOG_LEVELS["MODELS"])
@@ -198,25 +197,6 @@ async def send_notification(name, webui_url, channel, message, active_user_ids):
     for user in users:
         if user.id in active_user_ids:
             continue
-        else:
-            if user.settings:
-                webhook_url = user.settings.ui.get("notifications", {}).get(
-                    "webhook_url", None
-                )
-
-                if webhook_url:
-                    post_webhook(
-                        name,
-                        webhook_url,
-                        f"#{channel.name} - {webui_url}/channels/{channel.id}\n\n{message.content}",
-                        {
-                            "action": "channel",
-                            "message": message.content,
-                            "title": channel.name,
-                            "url": f"{webui_url}/channels/{channel.id}",
-                        },
-                    )
-
 
 @router.post("/{id}/messages/post", response_model=Optional[MessageModel])
 async def post_new_message(

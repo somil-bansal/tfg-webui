@@ -5,7 +5,7 @@
 	import type { Token } from 'marked';
 	import { getContext } from 'svelte';
 
-	const i18n = getContext('i18n');
+	
 
 	import { WEBUI_BASE_URL } from '$lib/constants';
 	import { copyToClipboard, unescapeHtml } from '$lib/utils';
@@ -54,7 +54,7 @@
 			class="codespan cursor-pointer"
 			on:click={() => {
 				copyToClipboard(unescapeHtml(token.text));
-				toast.success($i18n.t('Copied to clipboard'));
+				toast.success('Copied to clipboard');
 			}}>{unescapeHtml(token.text)}</code
 		>
 	{:else if token.type === 'br'}

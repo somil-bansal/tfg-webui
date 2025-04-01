@@ -24,7 +24,6 @@ export default defineConfig({
 			targets: [
 				{
 					src: 'node_modules/onnxruntime-web/dist/*.jsep.*',
-
 					dest: 'wasm'
 				}
 			]
@@ -35,7 +34,20 @@ export default defineConfig({
 		APP_BUILD_HASH: JSON.stringify(process.env.APP_BUILD_HASH || 'dev-build')
 	},
 	build: {
-		sourcemap: true
+		sourcemap: true,
+		rollupOptions: {
+			output: {
+				sourcemapExcludeSources: false
+			}
+		}
+	},
+	server: {
+		hmr: {
+			overlay: true
+		},
+		watch: {
+			usePolling: true
+		}
 	},
 	worker: {
 		format: 'es'

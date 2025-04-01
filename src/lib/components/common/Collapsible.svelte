@@ -2,7 +2,6 @@
 	import { decode } from 'html-entities';
 
 	import { getContext, createEventDispatcher } from 'svelte';
-	const i18n = getContext('i18n');
 
 	import dayjs from '$lib/dayjs';
 	import duration from 'dayjs/plugin/duration';
@@ -11,19 +10,6 @@
 	dayjs.extend(duration);
 	dayjs.extend(relativeTime);
 
-	async function loadLocale(locales) {
-		for (const locale of locales) {
-			try {
-				dayjs.locale(locale);
-				break; // Stop after successfully loading the first available locale
-			} catch (error) {
-				console.error(`Could not load locale '${locale}':`, error);
-			}
-		}
-	}
-
-	// Assuming $i18n.languages is an array of language codes
-	$: loadLocale($i18n.languages);
 
 	const dispatch = createEventDispatcher();
 	$: dispatch('change', open);
@@ -34,7 +20,6 @@
 	import ChevronUp from '../icons/ChevronUp.svelte';
 	import ChevronDown from '../icons/ChevronDown.svelte';
 	import Spinner from './Spinner.svelte';
-	import CodeBlock from '../chat/Messages/CodeBlock.svelte';
 	import Markdown from '../chat/Messages/Markdown.svelte';
 
 	export let open = false;
@@ -99,37 +84,29 @@
 					{#if attributes?.type === 'reasoning'}
 						{#if attributes?.done === 'true' && attributes?.duration}
 							{#if attributes.duration < 60}
-								{$i18n.t('Thought for {{DURATION}} seconds', {
-									DURATION: attributes.duration
-								})}
+								Thought for {attributes.duration} seconds
 							{:else}
-								{$i18n.t('Thought for {{DURATION}}', {
-									DURATION: dayjs.duration(attributes.duration, 'seconds').humanize()
-								})}
+								Thought for {dayjs.duration(attributes.duration, 'seconds').humanize()}
 							{/if}
 						{:else}
-							{$i18n.t('Thinking...')}
+							Thinking...
 						{/if}
 					{:else if attributes?.type === 'code_interpreter'}
 						{#if attributes?.done === 'true'}
-							{$i18n.t('Analyzed')}
+							Analyzed
 						{:else}
-							{$i18n.t('Analyzing...')}
+							Analyzing...
 						{/if}
 					{:else if attributes?.type === 'tool_calls'}
 						{#if attributes?.done === 'true'}
 							<Markdown
 								id={`tool-calls-${attributes?.id}`}
-								content={$i18n.t('View Result from `{{NAME}}`', {
-									NAME: attributes.name
-								})}
+								content={`View Result from \`${attributes.name}\``}
 							/>
 						{:else}
 							<Markdown
 								id={`tool-calls-${attributes?.id}`}
-								content={$i18n.t('Executing `{{NAME}}`...', {
-									NAME: attributes.name
-								})}
+								content={`Executing \`${attributes.name}\`...`}
 							/>
 						{/if}
 					{:else}

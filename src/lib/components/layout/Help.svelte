@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { onMount, tick, getContext } from 'svelte';
-
-	const i18n = getContext('i18n');
+	import { onMount, tick } from 'svelte';
 
 	import ShortcutsModal from '../chat/ShortcutsModal.svelte';
 	import Tooltip from '../common/Tooltip.svelte';
@@ -27,7 +25,7 @@
 			showShortcuts = !showShortcuts;
 		}}
 	>
-		<Tooltip content={$i18n.t('Help')} placement="left">
+		<Tooltip content="Help" placement="left">
 			<button
 				class="text-gray-600 dark:text-gray-300 bg-gray-300/20 size-4 flex items-center justify-center text-[0.7rem] rounded-full"
 			>

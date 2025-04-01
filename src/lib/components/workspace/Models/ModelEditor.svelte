@@ -17,7 +17,6 @@
 	import { stringify } from 'postcss';
 	import { toast } from 'svelte-sonner';
 
-	const i18n = getContext('i18n');
 
 	export let onSubmit: Function;
 	export let onBack: null | Function = null;
@@ -435,7 +434,7 @@
 							<div>
 								<input
 									class="text-3xl font-semibold w-full bg-transparent outline-hidden"
-									placeholder={$i18n.t('Model Name')}
+									placeholder="Model Name"
 									bind:value={name}
 									required
 								/>
@@ -446,7 +445,7 @@
 							<div>
 								<input
 									class="text-xs w-full bg-transparent text-gray-500 outline-hidden"
-									placeholder={$i18n.t('Model ID')}
+									placeholder="Model ID"
 									bind:value={id}
 									disabled={edit}
 									required
@@ -457,7 +456,7 @@
 
 					{#if preset}
 						<div class="my-1">
-							<div class=" text-sm font-semibold mb-1">{$i18n.t('Base Model (From)')}</div>
+							<div class=" text-sm font-semibold mb-1">Base Model (From)</div>
 
 							<div>
 								<select
@@ -470,7 +469,7 @@
 									required
 								>
 									<option value={null} class=" text-gray-900"
-										>{$i18n.t('Select a base model')}</option
+										>Select a base model</option
 									>
 									{#each $models.filter((m) => (model ? m.id !== model.id : true) && !m?.preset && m?.owned_by !== 'arena') as model}
 										<option value={model.id} class=" text-gray-900">{model.name}</option>
@@ -482,7 +481,7 @@
 
 					<div class="my-1">
 						<div class="mb-1 flex w-full justify-between items-center">
-							<div class=" self-center text-sm font-semibold">{$i18n.t('Description')}</div>
+							<div class=" self-center text-sm font-semibold">Description</div>
 
 							<button
 								class="p-1 text-xs flex rounded-sm transition"
@@ -492,9 +491,9 @@
 								}}
 							>
 								{#if !enableDescription}
-									<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+									<span class="ml-2 self-center">Default</span>
 								{:else}
-									<span class="ml-2 self-center">{$i18n.t('Custom')}</span>
+									<span class="ml-2 self-center">Custom</span>
 								{/if}
 							</button>
 						</div>
@@ -502,7 +501,7 @@
 						{#if enableDescription}
 							<Textarea
 								className=" text-sm w-full bg-transparent outline-hidden resize-none overflow-y-hidden "
-								placeholder={$i18n.t('Add a short description about what this model does')}
+								placeholder="Add a short description about what this model does"
 								bind:value={info.meta.description}
 							/>
 						{/if}
@@ -542,16 +541,16 @@
 
 					<div class="my-2">
 						<div class="flex w-full justify-between">
-							<div class=" self-center text-sm font-semibold">{$i18n.t('Model Params')}</div>
+							<div class=" self-center text-sm font-semibold">Model Params</div>
 						</div>
 
 						<div class="mt-2">
 							<div class="my-1">
-								<div class=" text-xs font-semibold mb-2">{$i18n.t('System Prompt')}</div>
+								<div class=" text-xs font-semibold mb-2">System Prompt</div>
 								<div>
 									<Textarea
 										className=" text-sm w-full bg-transparent outline-hidden resize-none overflow-y-hidden "
-										placeholder={`Write your model system prompt content here\ne.g.) You are Mario from Super Mario Bros, acting as an assistant.`}
+										placeholder="Write your model system prompt content here\ne.g.) You are Mario from Super Mario Bros, acting as an assistant."
 										rows={4}
 										bind:value={info.params.system}
 									/>
@@ -560,7 +559,7 @@
 
 							<div class="flex w-full justify-between">
 								<div class=" self-center text-xs font-semibold">
-									{$i18n.t('Advanced Params')}
+									Advanced Params
 								</div>
 
 								<button
@@ -571,9 +570,9 @@
 									}}
 								>
 									{#if showAdvanced}
-										<span class="ml-2 self-center">{$i18n.t('Hide')}</span>
+										<span class="ml-2 self-center">Hide</span>
 									{:else}
-										<span class="ml-2 self-center">{$i18n.t('Show')}</span>
+										<span class="ml-2 self-center">Show</span>
 									{/if}
 								</button>
 							</div>
@@ -598,7 +597,7 @@
 						<div class="flex w-full justify-between items-center">
 							<div class="flex w-full justify-between items-center">
 								<div class=" self-center text-sm font-semibold">
-									{$i18n.t('Prompt suggestions')}
+									Prompt suggestions
 								</div>
 
 								<button
@@ -613,9 +612,9 @@
 									}}
 								>
 									{#if (info?.meta?.suggestion_prompts ?? null) === null}
-										<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+										<span class="ml-2 self-center">Default</span>
 									{:else}
-										<span class="ml-2 self-center">{$i18n.t('Custom')}</span>
+										<span class="ml-2 self-center">Custom</span>
 									{/if}
 								</button>
 							</div>
@@ -657,7 +656,7 @@
 										<div class=" flex rounded-lg">
 											<input
 												class=" text-sm w-full bg-transparent outline-hidden border-r border-gray-100 dark:border-gray-850"
-												placeholder={$i18n.t('Write a prompt suggestion (e.g. Who are you?)')}
+												placeholder="Write a prompt suggestion (e.g. Who are you?)"
 												bind:value={prompt.content}
 											/>
 
@@ -719,7 +718,7 @@
 
 					<div class="my-2 text-gray-300 dark:text-gray-700">
 						<div class="flex w-full justify-between mb-2">
-							<div class=" self-center text-sm font-semibold">{$i18n.t('JSON Preview')}</div>
+							<div class=" self-center text-sm font-semibold">JSON Preview</div>
 
 							<button
 								class="p-1 px-3 text-xs flex rounded-sm transition"
@@ -729,9 +728,9 @@
 								}}
 							>
 								{#if showPreview}
-									<span class="ml-2 self-center">{$i18n.t('Hide')}</span>
+									<span class="ml-2 self-center">Hide</span>
 								{:else}
-									<span class="ml-2 self-center">{$i18n.t('Show')}</span>
+									<span class="ml-2 self-center">Show</span>
 								{/if}
 							</button>
 						</div>
@@ -759,9 +758,9 @@
 						>
 							<div class=" self-center font-medium">
 								{#if edit}
-									{$i18n.t('Save & Update')}
+									Save & Update
 								{:else}
-									{$i18n.t('Save & Create')}
+									Save & Create
 								{/if}
 							</div>
 

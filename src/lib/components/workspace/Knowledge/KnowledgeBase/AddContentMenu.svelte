@@ -11,7 +11,7 @@
 	import FolderOpen from '$lib/components/icons/FolderOpen.svelte';
 	import ArrowPath from '$lib/components/icons/ArrowPath.svelte';
 
-	const i18n = getContext('i18n');
+	
 
 	export let onClose: Function = () => {};
 
@@ -27,7 +27,7 @@
 	}}
 	align="end"
 >
-	<Tooltip content={$i18n.t('Add Content')}>
+	<Tooltip content={'Add Content'}>
 		<button
 			class=" p-1.5 rounded-xl hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition font-medium text-sm flex items-center space-x-1"
 			on:click={(e) => {
@@ -63,7 +63,7 @@
 				}}
 			>
 				<ArrowUpCircle strokeWidth="2" />
-				<div class="flex items-center">{$i18n.t('Upload files')}</div>
+				<div class="flex items-center">{'Upload files'}</div>
 			</DropdownMenu.Item>
 
 			<DropdownMenu.Item
@@ -73,13 +73,11 @@
 				}}
 			>
 				<FolderOpen strokeWidth="2" />
-				<div class="flex items-center">{$i18n.t('Upload directory')}</div>
+				<div class="flex items-center">{'Upload directory'}</div>
 			</DropdownMenu.Item>
 
 			<Tooltip
-				content={$i18n.t(
-					'This option will delete all existing files in the collection and replace them with newly uploaded files.'
-				)}
+				content={'This feature is not supported in your browser.'}
 				className="w-full"
 			>
 				<DropdownMenu.Item
@@ -89,7 +87,7 @@
 					}}
 				>
 					<ArrowPath strokeWidth="2" />
-					<div class="flex items-center">{$i18n.t('Sync directory')}</div>
+					<div class="flex items-center">{'Sync directory'}</div>
 				</DropdownMenu.Item>
 			</Tooltip>
 
@@ -100,7 +98,7 @@
 				}}
 			>
 				<BarsArrowUp strokeWidth="2" />
-				<div class="flex items-center">{$i18n.t('Add text content')}</div>
+				<div class="flex items-center">{'Add text content'}</div>
 			</DropdownMenu.Item>
 		</DropdownMenu.Content>
 	</div>

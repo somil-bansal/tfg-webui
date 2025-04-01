@@ -12,7 +12,7 @@
 	import { tick, getContext } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
-	const i18n = getContext('i18n');
+	
 
 	export let files;
 
@@ -43,7 +43,7 @@
 
 		if (command.content.includes('{{CLIPBOARD}}')) {
 			const clipboardText = await navigator.clipboard.readText().catch((err) => {
-				toast.error($i18n.t('Failed to read clipboard contents'));
+				toast.error('Failed to read clipboard contents');
 				return '{{CLIPBOARD}}';
 			});
 
@@ -78,7 +78,7 @@
 			try {
 				location = await getUserPosition();
 			} catch (error) {
-				toast.error($i18n.t('Location access not allowed'));
+				toast.error('Location access not allowed');
 				location = 'LOCATION_UNKNOWN';
 			}
 			text = text.replaceAll('{{USER_LOCATION}}', String(location));
@@ -210,9 +210,7 @@
 					</div>
 
 					<div class="line-clamp-1">
-						{$i18n.t(
-							'Tip: Update multiple variable slots consecutively by pressing the tab key in the chat input after each replacement.'
-						)}
+						{'Tip: Update multiple variable slots consecutively by pressing the tab key in the chat input after each replacement.'}
 					</div>
 				</div>
 			</div>

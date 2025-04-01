@@ -4,7 +4,7 @@
 	import { getContext, createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
 
-	const i18n = getContext('i18n');
+	
 
 	export let tags = [];
 </script>
@@ -18,7 +18,7 @@
 	/>
 
 	<TagInput
-		label={tags.length == 0 ? $i18n.t('Add Tags') : ''}
+		label={tags.length == 0 ? 'Add Tags' : ''}
 		on:add={(e) => {
 			dispatch('add', e.detail);
 		}}

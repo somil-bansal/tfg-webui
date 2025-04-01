@@ -32,7 +32,6 @@
 		tools,
 		functions,
 		tags,
-		banners,
 		showSettings,
 		showChangelog,
 		temporaryChatEnabled,
@@ -46,7 +45,6 @@
 	import UpdateInfoToast from '$lib/components/layout/UpdateInfoToast.svelte';
 	import { get } from 'svelte/store';
 
-	const i18n = getContext('i18n');
 
 	let loaded = false;
 	let DB = null;
@@ -102,9 +100,8 @@
 				)
 			);
 
-			banners.set(await getBanners(localStorage.token));
 			tools.set(await getTools(localStorage.token));
-			toolServers.set(await getToolServersData($i18n, $settings?.toolServers ?? []));
+			toolServers.set(await getToolServersData($settings?.toolServers ?? []));
 
 			document.addEventListener('keydown', async function (event) {
 				const isCtrlPressed = event.ctrlKey || event.metaKey; // metaKey is for Cmd key on Mac
@@ -269,14 +266,10 @@
 								</div>
 
 								<div class=" mt-4 text-center text-sm dark:text-gray-200 w-full">
-									{$i18n.t(
-										"Saving chat logs directly to your browser's storage is no longer supported. Please take a moment to download and delete your chat logs by clicking the button below. Don't worry, you can easily re-import your chat logs to the backend through"
-									)}
+									{"Saving chat logs directly to your browser's storage is no longer supported. Please take a moment to download and delete your chat logs by clicking the button below. Don't worry, you can easily re-import your chat logs to the backend through"}
 									<span class="font-semibold dark:text-white"
-										>{$i18n.t('Settings')} > {$i18n.t('Chats')} > {$i18n.t('Import Chats')}</span
-									>. {$i18n.t(
-										'This ensures that your valuable conversations are securely saved to your backend database. Thank you!'
-									)}
+										>{'Settings'} > {'Chats'} > {'Import Chats'}</span
+									>. {'This ensures that your valuable conversations are securely saved to your backend database. Thank you!'}
 								</div>
 
 								<div class=" mt-6 mx-auto relative group w-fit">
@@ -302,7 +295,7 @@
 										class="text-xs text-center w-full mt-2 text-gray-400 underline"
 										on:click={async () => {
 											localDBChats = [];
-										}}>{$i18n.t('Close')}</button
+										}}>{'Close'}</button
 									>
 								</div>
 							</div>

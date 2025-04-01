@@ -8,7 +8,7 @@
 
 	export let selectedToolIds = [];
 
-	const i18n = getContext('i18n');
+	
 
 	onMount(() => {
 		_tools = tools.reduce((acc, tool) => {
@@ -24,11 +24,11 @@
 
 <div>
 	<div class="flex w-full justify-between mb-1">
-		<div class=" self-center text-sm font-semibold">{$i18n.t('Tools')}</div>
+		<div class=" self-center text-sm font-semibold">{'Tools'}</div>
 	</div>
 
 	<div class=" text-xs dark:text-gray-500">
-		{$i18n.t('To select toolkits here, add them to the "Tools" workspace first.')}
+		{'To select toolkits here, add them to the "Tools" workspace first.'}
 	</div>
 
 	<div class="flex flex-col">

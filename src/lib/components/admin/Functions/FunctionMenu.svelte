@@ -12,7 +12,7 @@
 	import Switch from '$lib/components/common/Switch.svelte';
 	import GlobeAlt from '$lib/components/icons/GlobeAlt.svelte';
 
-	const i18n = getContext('i18n');
+	
 
 	export let func;
 
@@ -36,7 +36,7 @@
 		}
 	}}
 >
-	<Tooltip content={$i18n.t('More')}>
+	<Tooltip content={'More'}>
 		<slot />
 	</Tooltip>
 
@@ -55,7 +55,7 @@
 					<div class="flex gap-2 items-center">
 						<GlobeAlt />
 
-						<div class="flex items-center">{$i18n.t('Global')}</div>
+						<div class="flex items-center">{'Global'}</div>
 					</div>
 
 					<div>
@@ -87,7 +87,7 @@
 					/>
 				</svg>
 
-				<div class="flex items-center">{$i18n.t('Edit')}</div>
+				<div class="flex items-center">{'Edit'}</div>
 			</DropdownMenu.Item>
 
 			<DropdownMenu.Item
@@ -97,7 +97,7 @@
 				}}
 			>
 				<Share />
-				<div class="flex items-center">{$i18n.t('Share')}</div>
+				<div class="flex items-center">{'Share'}</div>
 			</DropdownMenu.Item>
 
 			<DropdownMenu.Item
@@ -108,7 +108,8 @@
 			>
 				<DocumentDuplicate />
 
-				<div class="flex items-center">{$i18n.t('Clone')}</div>
+				<div class="flex items-center">{'Clone'}</div>
+				<div class="flex items-center">{'Clone'}</div>
 			</DropdownMenu.Item>
 
 			<DropdownMenu.Item
@@ -119,7 +120,7 @@
 			>
 				<ArrowDownTray />
 
-				<div class="flex items-center">{$i18n.t('Export')}</div>
+				<div class="flex items-center">{'Export'}</div>
 			</DropdownMenu.Item>
 
 			<hr class="border-gray-100 dark:border-gray-850 my-1" />
@@ -131,7 +132,7 @@
 				}}
 			>
 				<GarbageBin strokeWidth="2" />
-				<div class="flex items-center">{$i18n.t('Delete')}</div>
+				<div class="flex items-center">{'Delete'}</div>
 			</DropdownMenu.Item>
 		</DropdownMenu.Content>
 	</div>

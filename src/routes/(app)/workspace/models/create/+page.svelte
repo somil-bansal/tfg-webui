@@ -10,7 +10,7 @@
 
 	import ModelEditor from '$lib/components/workspace/Models/ModelEditor.svelte';
 
-	const i18n = getContext('i18n');
+	
 
 	const onSubmit = async (modelInfo) => {
 		if ($models.find((m) => m.id === modelInfo.id)) {
@@ -48,7 +48,7 @@
 						$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
 					)
 				);
-				toast.success($i18n.t('Model created successfully!'));
+				toast.success('Model created successfully!');
 				await goto('/workspace/models');
 			}
 		}

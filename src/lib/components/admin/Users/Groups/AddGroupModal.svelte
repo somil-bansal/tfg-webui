@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
 	import { getContext, onMount } from 'svelte';
-	const i18n = getContext('i18n');
+	
 
 	import Modal from '$lib/components/common/Modal.svelte';
 	import Textarea from '$lib/components/common/Textarea.svelte';
@@ -41,7 +41,7 @@
 	<div>
 		<div class=" flex justify-between dark:text-gray-100 px-5 pt-4 mb-1.5">
 			<div class=" text-lg font-medium self-center font-primary">
-				{$i18n.t('Add User Group')}
+				{'Add User Group'}
 			</div>
 			<button
 				class="self-center"
@@ -74,14 +74,14 @@
 					<div class="px-1 flex flex-col w-full">
 						<div class="flex gap-2">
 							<div class="flex flex-col w-full">
-								<div class=" mb-0.5 text-xs text-gray-500">{$i18n.t('Name')}</div>
+								<div class=" mb-0.5 text-xs text-gray-500">{'Name'}</div>
 
 								<div class="flex-1">
 									<input
 										class="w-full text-sm bg-transparent placeholder:text-gray-300 dark:placeholder:text-gray-700 outline-hidden"
 										type="text"
 										bind:value={name}
-										placeholder={$i18n.t('Group Name')}
+										placeholder={'Group Name'}
 										autocomplete="off"
 										required
 									/>
@@ -90,14 +90,14 @@
 						</div>
 
 						<div class="flex flex-col w-full mt-2">
-							<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Description')}</div>
+							<div class=" mb-1 text-xs text-gray-500">{'Description'}</div>
 
 							<div class="flex-1">
 								<Textarea
 									className="w-full text-sm bg-transparent placeholder:text-gray-300 dark:placeholder:text-gray-700 outline-hidden resize-none"
 									rows={2}
 									bind:value={description}
-									placeholder={$i18n.t('Group Description')}
+									placeholder={'Group Description'}
 								/>
 							</div>
 						</div>
@@ -111,7 +111,7 @@
 							type="submit"
 							disabled={loading}
 						>
-							{$i18n.t('Create')}
+							{'Create'}
 
 							{#if loading}
 								<div class="ml-2 self-center">

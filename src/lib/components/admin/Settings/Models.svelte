@@ -4,7 +4,7 @@
 	const { saveAs } = fileSaver;
 
 	import { onMount, getContext, tick } from 'svelte';
-	const i18n = getContext('i18n');
+	
 
 	import { WEBUI_NAME, config, mobile, models as _models, settings, user } from '$lib/stores';
 	import {
@@ -105,7 +105,7 @@
 			});
 
 			if (res) {
-				toast.success($i18n.t('Model updated successfully'));
+				toast.success('Model updated successfully');
 			}
 		} else {
 			const res = await createNewModel(localStorage.token, model).catch((error) => {
@@ -113,7 +113,7 @@
 			});
 
 			if (res) {
-				toast.success($i18n.t('Model updated successfully'));
+				toast.success('Model updated successfully');
 			}
 		}
 
@@ -162,12 +162,8 @@
 
 		toast.success(
 			model.meta.hidden
-				? $i18n.t(`Model {{name}} is now hidden`, {
-						name: model.id
-					})
-				: $i18n.t(`Model {{name}} is now visible`, {
-						name: model.id
-					})
+				? `Model ${model.id} is now hidden`
+				: `Model ${model.id} is now visible`
 		);
 
 		upsertModelHandler(model);
@@ -219,7 +215,7 @@
 		<div class="flex flex-col gap-1 mt-1.5 mb-2">
 			<div class="flex justify-between items-center">
 				<div class="flex items-center md:self-center text-xl font-medium px-0.5">
-					{$i18n.t('Models')}
+					{'Models'}
 					<div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-gray-850" />
 					<span class="text-lg font-medium text-gray-500 dark:text-gray-300"
 						>{filteredModels.length}</span
@@ -227,7 +223,7 @@
 				</div>
 
 				<div class="flex items-center gap-1.5">
-					<Tooltip content={$i18n.t('Manage Models')}>
+					<Tooltip content={'Manage Models'}>
 						<button
 							class=" p-1 rounded-full flex gap-1 items-center"
 							type="button"
@@ -239,7 +235,7 @@
 						</button>
 					</Tooltip>
 
-					<Tooltip content={$i18n.t('Settings')}>
+					<Tooltip content={'Settings'}>
 						<button
 							class=" p-1 rounded-full flex gap-1 items-center"
 							type="button"
@@ -261,7 +257,7 @@
 					<input
 						class=" w-full text-sm py-1 rounded-r-xl outline-hidden bg-transparent"
 						bind:value={searchValue}
-						placeholder={$i18n.t('Search Models')}
+						placeholder={'Search Models'}
 					/>
 				</div>
 			</div>
@@ -325,7 +321,7 @@
 						</button>
 						<div class="flex flex-row gap-0.5 items-center self-center">
 							{#if shiftKey}
-								<Tooltip content={model?.meta?.hidden ? $i18n.t('Show') : $i18n.t('Hide')}>
+								<Tooltip content={model?.meta?.hidden ? 'Show' : 'Hide'}>
 									<button
 										class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
 										type="button"
@@ -385,7 +381,7 @@
 
 								<div class="ml-1">
 									<Tooltip
-										content={(model?.is_active ?? true) ? $i18n.t('Enabled') : $i18n.t('Disabled')}
+										content={(model?.is_active ?? true) ? 'Enabled' : 'Disabled'}
 									>
 										<Switch
 											bind:state={model.is_active}
@@ -402,7 +398,7 @@
 			{:else}
 				<div class="flex flex-col items-center justify-center w-full h-20">
 					<div class="text-gray-500 dark:text-gray-400 text-xs">
-						{$i18n.t('No models found')}
+						{'No models found'}
 					</div>
 				</div>
 			{/if}
@@ -461,7 +457,7 @@
 						}}
 					>
 						<div class=" self-center mr-2 font-medium line-clamp-1">
-							{$i18n.t('Import Presets')}
+							{'Import Presets'}
 						</div>
 
 						<div class=" self-center">
@@ -487,7 +483,7 @@
 						}}
 					>
 						<div class=" self-center mr-2 font-medium line-clamp-1">
-							{$i18n.t('Export Presets')}
+							{'Export Presets'}
 						</div>
 
 						<div class=" self-center">

@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
 	import { getContext, onMount } from 'svelte';
-	const i18n = getContext('i18n');
 
 	import { models } from '$lib/stores';
 	import { verifyOpenAIConnection } from '$lib/apis/openai';
@@ -45,7 +44,7 @@
 		});
 
 		if (res) {
-			toast.success($i18n.t('Server connection verified'));
+			toast.success('Server connection verified');
 		}
 	};
 
@@ -57,7 +56,7 @@
 		);
 
 		if (res) {
-			toast.success($i18n.t('Server connection verified'));
+			toast.success('Server connection verified');
 		}
 	};
 
@@ -137,9 +136,9 @@
 		<div class=" flex justify-between dark:text-gray-100 px-5 pt-4 pb-2">
 			<div class=" text-lg font-medium self-center font-primary">
 				{#if edit}
-					{$i18n.t('Edit Connection')}
+					{'Edit Connection'}
 				{:else}
-					{$i18n.t('Add Connection')}
+					{'Add Connection'}
 				{/if}
 			</div>
 			<button
@@ -173,21 +172,21 @@
 					<div class="px-1">
 						<div class="flex gap-2">
 							<div class="flex flex-col w-full">
-								<div class=" mb-0.5 text-xs text-gray-500">{$i18n.t('URL')}</div>
+								<div class=" mb-0.5 text-xs text-gray-500">{'URL'}</div>
 
 								<div class="flex-1">
 									<input
 										class="w-full text-sm bg-transparent placeholder:text-gray-300 dark:placeholder:text-gray-700 outline-hidden"
 										type="text"
 										bind:value={url}
-										placeholder={$i18n.t('API Base URL')}
+										placeholder={'API Base URL'}
 										autocomplete="off"
 										required
 									/>
 								</div>
 							</div>
 
-							<Tooltip content={$i18n.t('Verify Connection')} className="self-end -mb-1">
+							<Tooltip content={'Verify Connection'} className="self-end -mb-1">
 								<button
 									class="self-center p-1 bg-transparent hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-850 rounded-lg transition"
 									on:click={() => {
@@ -211,7 +210,7 @@
 							</Tooltip>
 
 							<div class="flex flex-col shrink-0 self-end">
-								<Tooltip content={enable ? $i18n.t('Enabled') : $i18n.t('Disabled')}>
+								<Tooltip content={enable ? 'Enabled' : 'Disabled'}>
 									<Switch bind:state={enable} />
 								</Tooltip>
 							</div>
@@ -219,32 +218,30 @@
 
 						<div class="flex gap-2 mt-2">
 							<div class="flex flex-col w-full">
-								<div class=" mb-0.5 text-xs text-gray-500">{$i18n.t('Key')}</div>
+								<div class=" mb-0.5 text-xs text-gray-500">{'Key'}</div>
 
 								<div class="flex-1">
 									<SensitiveInput
 										className="w-full text-sm bg-transparent placeholder:text-gray-300 dark:placeholder:text-gray-700 outline-hidden"
 										bind:value={key}
-										placeholder={$i18n.t('API Key')}
+										placeholder={'API Key'}
 										required={false}
 									/>
 								</div>
 							</div>
 
 							<div class="flex flex-col w-full">
-								<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Prefix ID')}</div>
+								<div class=" mb-1 text-xs text-gray-500">{'Prefix ID'}</div>
 
 								<div class="flex-1">
 									<Tooltip
-										content={$i18n.t(
-											'Prefix ID is used to avoid conflicts with other connections by adding a prefix to the model IDs - leave empty to disable'
-										)}
+										content={'Prefix ID is used to avoid conflicts with other connections by adding a prefix to the model IDs - leave empty to disable'}
 									>
 										<input
 											class="w-full text-sm bg-transparent placeholder:text-gray-300 dark:placeholder:text-gray-700 outline-hidden"
 											type="text"
 											bind:value={prefixId}
-											placeholder={$i18n.t('Prefix ID')}
+											placeholder={'Prefix ID'}
 											autocomplete="off"
 										/>
 									</Tooltip>
@@ -254,7 +251,7 @@
 
 						<div class="flex gap-2 mt-2">
 							<div class="flex flex-col w-full">
-								<div class=" mb-1.5 text-xs text-gray-500">{$i18n.t('Tags')}</div>
+								<div class=" mb-1.5 text-xs text-gray-500">{'Tags'}</div>
 
 								<div class="flex-1">
 									<Tags
@@ -279,7 +276,7 @@
 
 						<div class="flex flex-col w-full">
 							<div class="mb-1 flex justify-between">
-								<div class="text-xs text-gray-500">{$i18n.t('Model IDs')}</div>
+								<div class="text-xs text-gray-500">{'Model IDs'}</div>
 							</div>
 
 							{#if modelIds.length > 0}
@@ -305,13 +302,9 @@
 							{:else}
 								<div class="text-gray-500 text-xs text-center py-2 px-10">
 									{#if ollama}
-										{$i18n.t('Leave empty to include all models from "{{url}}/api/tags" endpoint', {
-											url: url
-										})}
+										{'Leave empty to include all models from "${url}/api/tags" endpoint'}
 									{:else}
-										{$i18n.t('Leave empty to include all models from "{{url}}/models" endpoint', {
-											url: url
-										})}
+										{'Leave empty to include all models from "${url}/models" endpoint'}
 									{/if}
 								</div>
 							{/if}
@@ -325,7 +318,7 @@
 									? ''
 									: 'text-gray-500'} placeholder:text-gray-300 dark:placeholder:text-gray-700 outline-hidden"
 								bind:value={modelId}
-								placeholder={$i18n.t('Add a model ID')}
+								placeholder={'Add a model ID'}
 							/>
 
 							<div>
@@ -351,7 +344,7 @@
 									show = false;
 								}}
 							>
-								{$i18n.t('Delete')}
+								{'Delete'}
 							</button>
 						{/if}
 
@@ -362,7 +355,7 @@
 							type="submit"
 							disabled={loading}
 						>
-							{$i18n.t('Save')}
+							{'Save'}
 
 							{#if loading}
 								<div class="ml-2 self-center">

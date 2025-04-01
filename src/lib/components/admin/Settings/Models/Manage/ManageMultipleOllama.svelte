@@ -1,6 +1,6 @@
 <script>
 	import { getContext, onMount } from 'svelte';
-	const i18n = getContext('i18n');
+	
 
 	import ManageOllama from './ManageOllama.svelte';
 
@@ -14,7 +14,7 @@
 		<select
 			class="w-full py-2 px-4 text-sm outline-hidden bg-transparent"
 			bind:value={selectedUrlIdx}
-			placeholder={$i18n.t('Select an Ollama instance')}
+			placeholder={'Select an Ollama instance'}
 		>
 			{#each ollamaConfig.OLLAMA_BASE_URLS as url, idx}
 				<option value={idx}>{url}</option>

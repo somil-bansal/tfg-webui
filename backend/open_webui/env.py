@@ -79,17 +79,13 @@ if "cuda_error" in locals():
     del cuda_error
 
 log_sources = [
-    "AUDIO",
-    "COMFYUI",
     "CONFIG",
     "DB",
-    "IMAGES",
     "MAIN",
     "MODELS",
     "OLLAMA",
     "OPENAI",
     "RAG",
-    "WEBHOOK",
     "SOCKET",
     "OAUTH",
 ]

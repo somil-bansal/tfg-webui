@@ -4,30 +4,27 @@
 
 	import { tick, getContext, onMount, onDestroy } from 'svelte';
 
-	const i18n = getContext('i18n');
+	
 
 	import { config, mobile, settings, socket } from '$lib/stores';
 	import { blobToFile, compressImage } from '$lib/utils';
 
 	import Tooltip from '../common/Tooltip.svelte';
 	import RichTextInput from '../common/RichTextInput.svelte';
-	import VoiceRecording from '../chat/MessageInput/VoiceRecording.svelte';
 	import InputMenu from './MessageInput/InputMenu.svelte';
 	import { uploadFile } from '$lib/apis/files';
 	import { WEBUI_API_BASE_URL } from '$lib/constants';
 	import FileItem from '../common/FileItem.svelte';
 	import Image from '../common/Image.svelte';
-	import { transcribeAudio } from '$lib/apis/audio';
 	import FilesOverlay from '../chat/MessageInput/FilesOverlay.svelte';
 
-	export let placeholder = $i18n.t('Send a Message');
+	export let placeholder = 'Send a Message';
 	export let transparentBackground = false;
 
 	export let id = null;
 
 	let draggedOver = false;
 
-	let recording = false;
 	let content = '';
 	let files = [];
 
@@ -96,9 +93,7 @@
 					maxSize: ($config?.file?.max_size ?? 0) * 1024 * 1024
 				});
 				toast.error(
-					$i18n.t(`File size should not exceed {{maxSize}} MB.`, {
-						maxSize: $config?.file?.max_size
-					})
+					`File size should not exceed ${$config?.file?.max_size} MB.`
 				);
 				return;
 			}
@@ -152,7 +147,7 @@
 		};
 
 		if (fileItem.size == 0) {
-			toast.error($i18n.t('You cannot upload an empty file.'));
+			toast.error('You cannot upload an empty file.');
 			return null;
 		}
 
@@ -295,7 +290,7 @@
 		if (inputFiles && inputFiles.length > 0) {
 			inputFilesHandler(Array.from(inputFiles));
 		} else {
-			toast.error($i18n.t(`File not found.`));
+			toast.error('File not found.');
 		}
 
 		filesInputElement.value = '';
@@ -345,7 +340,7 @@
 								<span class=" font-normal text-black dark:text-white">
 									{typingUsers.map((user) => user.name).join(', ')}
 								</span>
-								{$i18n.t('is typing...')}
+								{'is typing...'}
 							</div>
 						{/if}
 					</div>
@@ -354,90 +349,71 @@
 		</div>
 
 		<div class="">
-			{#if recording}
-				<VoiceRecording
-					bind:recording
-					on:cancel={async () => {
-						recording = false;
-
-						await tick();
-						document.getElementById(`chat-input-${id}`)?.focus();
-					}}
-					on:confirm={async (e) => {
-						const { text, filename } = e.detail;
-						content = `${content}${text} `;
-						recording = false;
-
-						await tick();
-						document.getElementById(`chat-input-${id}`)?.focus();
-					}}
-				/>
-			{:else}
-				<form
-					class="w-full flex gap-1.5"
-					on:submit|preventDefault={() => {
-						submitHandler();
-					}}
+			<form
+				class="w-full flex gap-1.5"
+				on:submit|preventDefault={() => {
+					submitHandler();
+				}}
+			>
+				<div
+					class="flex-1 flex flex-col relative w-full rounded-3xl px-1 bg-gray-600/5 dark:bg-gray-400/5 dark:text-gray-100"
+					dir={$settings?.chatDirection ?? 'LTR'}
 				>
-					<div
-						class="flex-1 flex flex-col relative w-full rounded-3xl px-1 bg-gray-600/5 dark:bg-gray-400/5 dark:text-gray-100"
-						dir={$settings?.chatDirection ?? 'LTR'}
-					>
-						{#if files.length > 0}
-							<div class="mx-2 mt-2.5 -mb-1 flex flex-wrap gap-2">
-								{#each files as file, fileIdx}
-									{#if file.type === 'image'}
-										<div class=" relative group">
-											<div class="relative">
-												<Image
-													src={file.url}
-													alt="input"
-													imageClassName=" h-16 w-16 rounded-xl object-cover"
-												/>
-											</div>
-											<div class=" absolute -top-1 -right-1">
-												<button
-													class=" bg-white text-black border border-white rounded-full group-hover:visible invisible transition"
-													type="button"
-													on:click={() => {
-														files.splice(fileIdx, 1);
-														files = files;
-													}}
-												>
-													<svg
-														xmlns="http://www.w3.org/2000/svg"
-														viewBox="0 0 20 20"
-														fill="currentColor"
-														class="w-4 h-4"
-													>
-														<path
-															d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
-														/>
-													</svg>
-												</button>
-											</div>
+					{#if files.length > 0}
+						<div class="mx-2 mt-2.5 -mb-1 flex flex-wrap gap-2">
+							{#each files as file, fileIdx}
+								{#if file.type === 'image'}
+									<div class=" relative group">
+										<div class="relative">
+											<Image
+												src={file.url}
+												alt="input"
+												imageClassName=" h-16 w-16 rounded-xl object-cover"
+											/>
 										</div>
-									{:else}
-										<FileItem
-											item={file}
-											name={file.name}
-											type={file.type}
-											size={file?.size}
-											loading={file.status === 'uploading'}
-											dismissible={true}
-											edit={true}
-											on:dismiss={() => {
-												files.splice(fileIdx, 1);
-												files = files;
-											}}
-											on:click={() => {
-												console.log(file);
-											}}
-										/>
-									{/if}
-								{/each}
-							</div>
-						{/if}
+										<div class=" absolute -top-1 -right-1">
+											<button
+												class=" bg-white text-black border border-white rounded-full group-hover:visible invisible transition"
+												type="button"
+												on:click={() => {
+													files.splice(fileIdx, 1);
+													files = files;
+												}}
+											>
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													viewBox="0 0 20 20"
+													fill="currentColor"
+													class="w-4 h-4"
+												>
+													<path
+														d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
+													/>
+												</svg>
+											</button>
+										</div>
+									</div>
+								{:else}
+									<FileItem
+										item={file}
+										name={file.name}
+										type={file.type}
+										size={file?.size}
+										loading={file.status === 'uploading'}
+										dismissible={true}
+										edit={true}
+										on:dismiss={() => {
+											files.splice(fileIdx, 1);
+											files = files;
+										}}
+										on:click={() => {
+											console.log(file);
+										}}
+									/>
+								{/if}
+							{/each}
+						</div>
+					{/if}
 
 						<div class="px-2.5">
 							<div
@@ -517,85 +493,38 @@
 								</InputMenu>
 							</div>
 
-							<div class="self-end flex space-x-1 mr-1">
-								{#if content === ''}
-									<Tooltip content={$i18n.t('Record voice')}>
+						<div class="self-end flex space-x-1 mr-1">
+							<div class=" flex items-center">
+								<div class=" flex items-center">
+									<Tooltip content={'Send message'}>
 										<button
-											id="voice-input-button"
-											class=" text-gray-600 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 transition rounded-full p-1.5 mr-0.5 self-center"
-											type="button"
-											on:click={async () => {
-												try {
-													let stream = await navigator.mediaDevices
-														.getUserMedia({ audio: true })
-														.catch(function (err) {
-															toast.error(
-																$i18n.t(`Permission denied when accessing microphone: {{error}}`, {
-																	error: err
-																})
-															);
-															return null;
-														});
-
-													if (stream) {
-														recording = true;
-														const tracks = stream.getTracks();
-														tracks.forEach((track) => track.stop());
-													}
-													stream = null;
-												} catch {
-													toast.error($i18n.t('Permission denied when accessing microphone'));
-												}
-											}}
-											aria-label="Voice Input"
+											id="send-message-button"
+											class="{content !== '' || files.length !== 0
+												? 'bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 '
+												: 'text-white bg-gray-200 dark:text-gray-900 dark:bg-gray-700 disabled'} transition rounded-full p-1.5 self-center"
+											type="submit"
+											disabled={content === '' && files.length === 0}
 										>
 											<svg
 												xmlns="http://www.w3.org/2000/svg"
-												viewBox="0 0 20 20"
+												viewBox="0 0 16 16"
 												fill="currentColor"
-												class="w-5 h-5 translate-y-[0.5px]"
+												class="size-5"
 											>
-												<path d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4z" />
 												<path
-													d="M5.5 9.643a.75.75 0 00-1.5 0V10c0 3.06 2.29 5.585 5.25 5.954V17.5h-1.5a.75.75 0 000 1.5h4.5a.75.75 0 000-1.5h-1.5v-1.546A6.001 6.001 0 0016 10v-.357a.75.75 0 00-1.5 0V10a4.5 4.5 0 01-9 0v-.357z"
+													fill-rule="evenodd"
+													d="M8 14a.75.75 0 0 1-.75-.75V4.56L4.03 7.78a.75.75 0 0 1-1.06-1.06l4.5-4.5a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1-1.06 1.06L8.75 4.56v8.69A.75.75 0 0 1 8 14Z"
+													clip-rule="evenodd"
 												/>
 											</svg>
 										</button>
 									</Tooltip>
-								{/if}
-
-								<div class=" flex items-center">
-									<div class=" flex items-center">
-										<Tooltip content={$i18n.t('Send message')}>
-											<button
-												id="send-message-button"
-												class="{content !== '' || files.length !== 0
-													? 'bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 '
-													: 'text-white bg-gray-200 dark:text-gray-900 dark:bg-gray-700 disabled'} transition rounded-full p-1.5 self-center"
-												type="submit"
-												disabled={content === '' && files.length === 0}
-											>
-												<svg
-													xmlns="http://www.w3.org/2000/svg"
-													viewBox="0 0 16 16"
-													fill="currentColor"
-													class="size-5"
-												>
-													<path
-														fill-rule="evenodd"
-														d="M8 14a.75.75 0 0 1-.75-.75V4.56L4.03 7.78a.75.75 0 0 1-1.06-1.06l4.5-4.5a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1-1.06 1.06L8.75 4.56v8.69A.75.75 0 0 1 8 14Z"
-														clip-rule="evenodd"
-													/>
-												</svg>
-											</button>
-										</Tooltip>
-									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-				</form>
-			{/if}
+				</div>
+			</form>
 		</div>
 	</div>
 </div>

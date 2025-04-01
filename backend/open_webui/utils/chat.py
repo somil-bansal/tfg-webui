@@ -10,7 +10,7 @@ import inspect
 import uuid
 import asyncio
 
-from fastapi import Request, status
+from fastapi import Request, status, HTTPException
 from starlette.responses import Response, StreamingResponse, JSONResponse
 
 
@@ -162,31 +162,24 @@ async def generate_chat_completion(
     bypass_filter: bool = False,
 ):
     log.debug(f"generate_chat_completion: {form_data}")
-    if BYPASS_MODEL_ACCESS_CONTROL:
-        bypass_filter = True
 
-    if hasattr(request.state, "metadata"):
-        if "metadata" not in form_data:
-            form_data["metadata"] = request.state.metadata
-        else:
-            form_data["metadata"] = {
-                **form_data["metadata"],
-                **request.state.metadata,
-            }
+    # Get the model from the request
+    model_id = form_data.get("model")
+    if not model_id:
+        raise HTTPException(status_code=400, detail="Model is required")
 
-    if getattr(request.state, "direct", False) and hasattr(request.state, "model"):
-        models = {
-            request.state.model["id"]: request.state.model,
-        }
-        log.debug(f"direct connection to model: {models}")
-    else:
-        models = request.app.state.MODELS
+    # Get all models
+    models = await get_all_models(request, user=user)
 
-    model_id = form_data["model"]
-    if model_id not in models:
-        raise Exception("Model not found")
+    # Find the model in the list
+    model = None
+    for m in models:
+        if m["id"] == model_id:
+            model = m
+            break
 
-    model = models[model_id]
+    if not model:
+        raise HTTPException(status_code=404, detail="Model not found")
 
     if getattr(request.state, "direct", False):
         return await generate_direct_chat_completion(
@@ -200,84 +193,17 @@ async def generate_chat_completion(
             except Exception as e:
                 raise e
 
-        if model.get("owned_by") == "arena":
-            model_ids = model.get("info", {}).get("meta", {}).get("model_ids")
-            filter_mode = model.get("info", {}).get("meta", {}).get("filter_mode")
-            if model_ids and filter_mode == "exclude":
-                model_ids = [
-                    model["id"]
-                    for model in list(request.app.state.MODELS.values())
-                    if model.get("owned_by") != "arena" and model["id"] not in model_ids
-                ]
-
-            selected_model_id = None
-            if isinstance(model_ids, list) and model_ids:
-                selected_model_id = random.choice(model_ids)
-            else:
-                model_ids = [
-                    model["id"]
-                    for model in list(request.app.state.MODELS.values())
-                    if model.get("owned_by") != "arena"
-                ]
-                selected_model_id = random.choice(model_ids)
-
-            form_data["model"] = selected_model_id
-
-            if form_data.get("stream") == True:
-
-                async def stream_wrapper(stream):
-                    yield f"data: {json.dumps({'selected_model_id': selected_model_id})}\n\n"
-                    async for chunk in stream:
-                        yield chunk
-
-                response = await generate_chat_completion(
-                    request, form_data, user, bypass_filter=True
-                )
-                return StreamingResponse(
-                    stream_wrapper(response.body_iterator),
-                    media_type="text/event-stream",
-                    background=response.background,
-                )
-            else:
-                return {
-                    **(
-                        await generate_chat_completion(
-                            request, form_data, user, bypass_filter=True
-                        )
-                    ),
-                    "selected_model_id": selected_model_id,
-                }
-
-        if model.get("pipe"):
-            # Below does not require bypass_filter because this is the only route the uses this function and it is already bypassing the filter
-            return await generate_function_chat_completion(
-                request, form_data, user=user, models=models
-            )
-        if model.get("owned_by") == "ollama":
-            # Using /ollama/api/chat endpoint
-            form_data = convert_payload_openai_to_ollama(form_data)
-            response = await generate_ollama_chat_completion(
-                request=request,
-                form_data=form_data,
-                user=user,
-                bypass_filter=bypass_filter,
-            )
-            if form_data.get("stream"):
-                response.headers["content-type"] = "text/event-stream"
-                return StreamingResponse(
-                    convert_streaming_response_ollama_to_openai(response),
-                    headers=dict(response.headers),
-                    background=response.background,
-                )
-            else:
-                return convert_response_ollama_to_openai(response)
-        else:
+        # Generate chat completion based on model type
+        if model.get("owned_by") == "openai":
             return await generate_openai_chat_completion(
-                request=request,
-                form_data=form_data,
-                user=user,
-                bypass_filter=bypass_filter,
+                request, form_data, user=user, bypass_filter=bypass_filter
             )
+        elif model.get("owned_by") == "ollama":
+            return await generate_ollama_chat_completion(
+                request, form_data, user=user, bypass_filter=bypass_filter
+            )
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported model type")
 
 
 chat_completion = generate_chat_completion

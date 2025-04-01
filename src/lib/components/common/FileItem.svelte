@@ -7,7 +7,7 @@
 	import Spinner from './Spinner.svelte';
 	import Tooltip from './Tooltip.svelte';
 
-	const i18n = getContext('i18n');
+	
 	const dispatch = createEventDispatcher();
 
 	export let className = 'w-60';
@@ -87,11 +87,11 @@
 
 			<div class=" flex justify-between text-gray-500 text-xs line-clamp-1">
 				{#if type === 'file'}
-					{$i18n.t('File')}
+					File
 				{:else if type === 'doc'}
-					{$i18n.t('Document')}
+					Document
 				{:else if type === 'collection'}
-					{$i18n.t('Collection')}
+					Collection
 				{:else}
 					<span class=" capitalize line-clamp-1">{type}</span>
 				{/if}

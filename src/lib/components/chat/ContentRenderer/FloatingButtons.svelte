@@ -5,7 +5,7 @@
 	import { marked } from 'marked';
 
 	import { getContext, tick } from 'svelte';
-	const i18n = getContext('i18n');
+	
 
 	import { chatCompletion } from '$lib/apis/openai';
 
@@ -121,7 +121,7 @@
 			toast.error('Model not selected');
 			return;
 		}
-		const explainText = $i18n.t('Explain this section to me in more detail');
+		const explainText = 'Explain this section to me in more detail';
 		prompt = `${explainText}\n\n\`\`\`\n${selectedText}\n\`\`\``;
 
 		responseContent = '';
@@ -247,7 +247,7 @@
 				>
 					<ChatBubble className="size-3 shrink-0" />
 
-					<div class="shrink-0">{$i18n.t('Ask')}</div>
+					<div class="shrink-0">{'Ask'}</div>
 				</button>
 				<button
 					class="px-1 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-sm flex items-center gap-1 min-w-fit"
@@ -258,7 +258,7 @@
 				>
 					<LightBlub className="size-3 shrink-0" />
 
-					<div class="shrink-0">{$i18n.t('Explain')}</div>
+					<div class="shrink-0">{'Explain'}</div>
 				</button>
 			</div>
 		{:else}
@@ -269,7 +269,7 @@
 					type="text"
 					id="floating-message-input"
 					class="ml-5 bg-transparent outline-hidden w-full flex-1 text-sm"
-					placeholder={$i18n.t('Ask a question')}
+					placeholder={'Ask a question'}
 					bind:value={floatingInputValue}
 					on:keydown={(e) => {
 						if (e.key === 'Enter') {
@@ -329,7 +329,7 @@
 								class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
 								on:click={addHandler}
 							>
-								{$i18n.t('Add')}
+								{'Add'}
 							</button>
 						</div>
 					{/if}

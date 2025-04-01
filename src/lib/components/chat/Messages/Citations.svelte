@@ -5,7 +5,7 @@
 	import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
 	import ChevronUp from '$lib/components/icons/ChevronUp.svelte';
 
-	const i18n = getContext('i18n');
+	
 
 	export let id = '';
 	export let sources = [];
@@ -136,7 +136,7 @@
 						class="flex-1 flex items-center gap-1 overflow-auto scrollbar-none w-full max-w-full"
 					>
 						<span class="whitespace-nowrap hidden sm:inline shrink-0"
-							>{$i18n.t('References from')}</span
+							>{'References from'}</span
 						>
 						<div class="flex items-center overflow-auto scrollbar-none w-full max-w-full flex-1">
 							<div class="flex text-xs font-medium items-center">
@@ -164,9 +164,9 @@
 							</div>
 						</div>
 						<div class="flex items-center gap-1 whitespace-nowrap shrink-0">
-							<span class="hidden sm:inline">{$i18n.t('and')}</span>
+							<span class="hidden sm:inline">{'and'}</span>
 							{citations.length - 2}
-							<span>{$i18n.t('more')}</span>
+							<span>{'more'}</span>
 						</div>
 					</div>
 					<div class="shrink-0">

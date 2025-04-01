@@ -30,14 +30,14 @@
 	import ChatBubbleOval from '$lib/components/icons/ChatBubbleOval.svelte';
 	import { goto } from '$app/navigation';
 
-	const i18n = getContext('i18n');
+	
 	const dispatch = createEventDispatcher();
 
 	export let id = '';
 	export let value = '';
 	export let placeholder = 'Select a model';
 	export let searchEnabled = true;
-	export let searchPlaceholder = $i18n.t('Search a model');
+	export let searchPlaceholder = 'Search a model';
 
 	export let showTemporaryChatControl = false;
 
@@ -156,16 +156,12 @@
 		console.log($MODEL_DOWNLOAD_POOL);
 		if ($MODEL_DOWNLOAD_POOL[sanitizedModelTag]) {
 			toast.error(
-				$i18n.t(`Model '{{modelTag}}' is already in queue for downloading.`, {
-					modelTag: sanitizedModelTag
-				})
+				`Model '${sanitizedModelTag}' is already in queue for downloading.`
 			);
 			return;
 		}
 		if (Object.keys($MODEL_DOWNLOAD_POOL).length === 3) {
-			toast.error(
-				$i18n.t('Maximum of 3 models can be downloaded simultaneously. Please try again later.')
-			);
+			toast.error('Maximum of 3 models can be downloaded simultaneously. Please try again later.');
 			return;
 		}
 
@@ -255,9 +251,7 @@
 
 			if ($MODEL_DOWNLOAD_POOL[sanitizedModelTag].done) {
 				toast.success(
-					$i18n.t(`Model '{{modelName}}' has been successfully downloaded.`, {
-						modelName: sanitizedModelTag
-					})
+					`Model '${sanitizedModelTag}' has been successfully downloaded.`
 				);
 
 				models.set(
@@ -267,7 +261,7 @@
 					)
 				);
 			} else {
-				toast.error($i18n.t('Download canceled'));
+				toast.error('Download canceled');
 			}
 
 			delete $MODEL_DOWNLOAD_POOL[sanitizedModelTag];
@@ -398,7 +392,7 @@
 									selectedTag = '';
 								}}
 							>
-								{$i18n.t('All')}
+								{'All'}
 							</button>
 
 							{#if items.find((item) => item.model?.owned_by === 'ollama') && items.find((item) => item.model?.owned_by === 'openai')}
@@ -411,7 +405,7 @@
 										selectedConnectionType = 'ollama';
 									}}
 								>
-									{$i18n.t('Local')}
+									{'Local'}
 								</button>
 								<button
 									class="min-w-fit outline-none p-1.5 {selectedConnectionType === 'openai'
@@ -422,7 +416,7 @@
 										selectedConnectionType = 'openai';
 									}}
 								>
-									{$i18n.t('External')}
+									{'External'}
 								</button>
 							{/if}
 
@@ -436,7 +430,7 @@
 										selectedConnectionType = 'direct';
 									}}
 								>
-									{$i18n.t('Direct')}
+									{'Direct'}
 								</button>
 							{/if}
 
@@ -629,16 +623,16 @@
 				{:else}
 					<div>
 						<div class="block px-3 py-2 text-sm text-gray-700 dark:text-gray-100">
-							{$i18n.t('No results found')}
+							{'No results found'}
 						</div>
 					</div>
 				{/each}
 
 				{#if !(searchValue.trim() in $MODEL_DOWNLOAD_POOL) && searchValue && ollamaVersion && $user.role === 'admin'}
 					<Tooltip
-						content={$i18n.t(`Pull "{{searchValue}}" from Ollama.com`, {
+						content={`Pull "{{searchValue}}" from Ollama.com`, {
 							searchValue: searchValue
-						})}
+						}}
 						placement="top-start"
 					>
 						<button
@@ -648,7 +642,7 @@
 							}}
 						>
 							<div class=" truncate">
-								{$i18n.t(`Pull "{{searchValue}}" from Ollama.com`, { searchValue: searchValue })}
+								{`Pull "{{searchValue}}" from Ollama.com`, { searchValue: searchValue }}
 							</div>
 						</button>
 					</Tooltip>
@@ -707,7 +701,7 @@
 						</div>
 
 						<div class="mr-2 ml-1 translate-y-0.5">
-							<Tooltip content={$i18n.t('Cancel')}>
+							<Tooltip content={'Cancel'}>
 								<button
 									class="text-gray-800 dark:text-gray-100"
 									on:click={() => {
@@ -765,7 +759,7 @@
 						<div class="flex gap-2.5 items-center">
 							<ChatBubbleOval className="size-4" strokeWidth="2.5" />
 
-							{$i18n.t(`Temporary Chat`)}
+							{`Temporary Chat`}
 						</div>
 
 						<div>

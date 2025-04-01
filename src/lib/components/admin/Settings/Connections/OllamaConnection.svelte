@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getContext, tick } from 'svelte';
-	const i18n = getContext('i18n');
+	
 
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
@@ -56,9 +56,9 @@
 <div class="flex gap-1.5">
 	<Tooltip
 		className="w-full relative"
-		content={$i18n.t(`WebUI will make requests to "{{url}}/api/chat"`, {
+		content={`WebUI will make requests to "{{url}}/api/chat"`, {
 			url
-		})}
+		}}
 		placement="top-start"
 	>
 		{#if !(config?.enable ?? true)}
@@ -69,13 +69,13 @@
 
 		<input
 			class="w-full text-sm bg-transparent outline-hidden"
-			placeholder={$i18n.t('Enter URL (e.g. http://localhost:11434)')}
+			placeholder={'Enter URL (e.g. http://localhost:11434)'}
 			bind:value={url}
 		/>
 	</Tooltip>
 
 	<div class="flex gap-1">
-		<Tooltip content={$i18n.t('Manage')} className="self-start">
+		<Tooltip content={'Manage'} className="self-start">
 			<button
 				class="self-center p-1 bg-transparent hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-850 rounded-lg transition"
 				on:click={() => {
@@ -87,7 +87,7 @@
 			</button>
 		</Tooltip>
 
-		<Tooltip content={$i18n.t('Configure')} className="self-start">
+		<Tooltip content={'Configure'} className="self-start">
 			<button
 				class="self-center p-1 bg-transparent hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-850 rounded-lg transition"
 				on:click={() => {

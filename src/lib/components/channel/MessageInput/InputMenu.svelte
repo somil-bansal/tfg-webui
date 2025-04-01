@@ -14,7 +14,7 @@
 	import WrenchSolid from '$lib/components/icons/WrenchSolid.svelte';
 	import CameraSolid from '$lib/components/icons/CameraSolid.svelte';
 
-	const i18n = getContext('i18n');
+	
 
 	export let screenCaptureHandler: Function;
 	export let uploadFilesHandler: Function;
@@ -38,7 +38,7 @@
 		}
 	}}
 >
-	<Tooltip content={$i18n.t('More')}>
+	<Tooltip content={'More'}>
 		<slot />
 	</Tooltip>
 
@@ -59,7 +59,7 @@
 					}}
 				>
 					<CameraSolid />
-					<div class=" line-clamp-1">{$i18n.t('Capture')}</div>
+					<div class=" line-clamp-1">{'Capture'}</div>
 				</DropdownMenu.Item>
 			{/if}
 
@@ -70,7 +70,7 @@
 				}}
 			>
 				<DocumentArrowUpSolid />
-				<div class="line-clamp-1">{$i18n.t('Upload Files')}</div>
+				<div class="line-clamp-1">{'Upload Files'}</div>
 			</DropdownMenu.Item>
 		</DropdownMenu.Content>
 	</div>

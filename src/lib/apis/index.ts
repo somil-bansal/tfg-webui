@@ -298,7 +298,7 @@ export const getToolServerData = async (token: string, url: string) => {
 	return data;
 };
 
-export const getToolServersData = async (i18n, servers: object[]) => {
+export const getToolServersData = async (servers: ToolServer[]) => {
 	return (
 		await Promise.all(
 			servers
@@ -306,9 +306,7 @@ export const getToolServersData = async (i18n, servers: object[]) => {
 				.map(async (server) => {
 					const data = await getToolServerData(server?.key, server?.url).catch((err) => {
 						toast.error(
-							i18n.t(`Failed to connect to {{URL}} OpenAPI tool server`, {
-								URL: server?.url
-							})
+							`Failed to connect to ${server?.url} OpenAPI tool server`
 						);
 						return null;
 					});

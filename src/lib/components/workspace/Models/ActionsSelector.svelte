@@ -3,7 +3,7 @@
 	import Checkbox from '$lib/components/common/Checkbox.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 
-	const i18n = getContext('i18n');
+	
 
 	export let actions = [];
 	export let selectedActionIds = [];
@@ -24,11 +24,11 @@
 
 <div>
 	<div class="flex w-full justify-between mb-1">
-		<div class=" self-center text-sm font-semibold">{$i18n.t('Actions')}</div>
+		<div class=" self-center text-sm font-semibold">{'Actions'}</div>
 	</div>
 
 	<div class=" text-xs dark:text-gray-500">
-		{$i18n.t('To select actions here, add them to the "Functions" workspace first.')}
+		{'To select actions here, add them to the "Functions" workspace first.'}
 	</div>
 
 	<div class="flex flex-col">

@@ -704,12 +704,6 @@ if CUSTOM_NAME:
 
 
 ####################################
-# LICENSE_KEY
-####################################
-
-LICENSE_KEY = os.environ.get("LICENSE_KEY", "")
-
-####################################
 # STORAGE PROVIDER
 ####################################
 
@@ -726,14 +720,6 @@ S3_USE_ACCELERATE_ENDPOINT = (
 )
 S3_ADDRESSING_STYLE = os.environ.get("S3_ADDRESSING_STYLE", None)
 
-GCS_BUCKET_NAME = os.environ.get("GCS_BUCKET_NAME", None)
-GOOGLE_APPLICATION_CREDENTIALS_JSON = os.environ.get(
-    "GOOGLE_APPLICATION_CREDENTIALS_JSON", None
-)
-
-AZURE_STORAGE_ENDPOINT = os.environ.get("AZURE_STORAGE_ENDPOINT", None)
-AZURE_STORAGE_CONTAINER_NAME = os.environ.get("AZURE_STORAGE_CONTAINER_NAME", None)
-AZURE_STORAGE_KEY = os.environ.get("AZURE_STORAGE_KEY", None)
 
 ####################################
 # File Upload DIR
@@ -1038,15 +1024,11 @@ USER_PERMISSIONS_FEATURES_WEB_SEARCH = (
     os.environ.get("USER_PERMISSIONS_FEATURES_WEB_SEARCH", "True").lower() == "true"
 )
 
-USER_PERMISSIONS_FEATURES_IMAGE_GENERATION = (
-    os.environ.get("USER_PERMISSIONS_FEATURES_IMAGE_GENERATION", "True").lower()
-    == "true"
-)
+USER_PERMISSIONS_FEATURES = {
+    "web_search": USER_PERMISSIONS_FEATURES_WEB_SEARCH,
+}
 
-USER_PERMISSIONS_FEATURES_CODE_INTERPRETER = (
-    os.environ.get("USER_PERMISSIONS_FEATURES_CODE_INTERPRETER", "True").lower()
-    == "true"
-)
+
 
 
 DEFAULT_USER_PERMISSIONS = {
@@ -1072,8 +1054,6 @@ DEFAULT_USER_PERMISSIONS = {
     },
     "features": {
         "web_search": USER_PERMISSIONS_FEATURES_WEB_SEARCH,
-        "image_generation": USER_PERMISSIONS_FEATURES_IMAGE_GENERATION,
-        "code_interpreter": USER_PERMISSIONS_FEATURES_CODE_INTERPRETER,
     },
 }
 
@@ -1090,54 +1070,10 @@ ENABLE_CHANNELS = PersistentConfig(
 )
 
 
-ENABLE_EVALUATION_ARENA_MODELS = PersistentConfig(
-    "ENABLE_EVALUATION_ARENA_MODELS",
-    "evaluation.arena.enable",
-    os.environ.get("ENABLE_EVALUATION_ARENA_MODELS", "True").lower() == "true",
-)
-EVALUATION_ARENA_MODELS = PersistentConfig(
-    "EVALUATION_ARENA_MODELS",
-    "evaluation.arena.models",
-    [],
-)
-
-DEFAULT_ARENA_MODEL = {
-    "id": "arena-model",
-    "name": "Arena Model",
-    "meta": {
-        "profile_image_url": "/favicon.png",
-        "description": "Submit your questions to anonymous AI chatbots and vote on the best response.",
-        "model_ids": None,
-    },
-}
-
-WEBHOOK_URL = PersistentConfig(
-    "WEBHOOK_URL", "webhook_url", os.environ.get("WEBHOOK_URL", "")
-)
-
 ENABLE_ADMIN_EXPORT = os.environ.get("ENABLE_ADMIN_EXPORT", "True").lower() == "true"
 
-ENABLE_ADMIN_CHAT_ACCESS = (
-    os.environ.get("ENABLE_ADMIN_CHAT_ACCESS", "True").lower() == "true"
-)
+ENABLE_ADMIN_CHAT_ACCESS = os.environ.get("ENABLE_ADMIN_CHAT_ACCESS", "False").lower() == "true"
 
-ENABLE_COMMUNITY_SHARING = PersistentConfig(
-    "ENABLE_COMMUNITY_SHARING",
-    "ui.enable_community_sharing",
-    os.environ.get("ENABLE_COMMUNITY_SHARING", "True").lower() == "true",
-)
-
-ENABLE_MESSAGE_RATING = PersistentConfig(
-    "ENABLE_MESSAGE_RATING",
-    "ui.enable_message_rating",
-    os.environ.get("ENABLE_MESSAGE_RATING", "True").lower() == "true",
-)
-
-ENABLE_USER_WEBHOOKS = PersistentConfig(
-    "ENABLE_USER_WEBHOOKS",
-    "ui.enable_user_webhooks",
-    os.environ.get("ENABLE_USER_WEBHOOKS", "True").lower() == "true",
-)
 
 
 def validate_cors_origins(origins):
@@ -1175,23 +1111,6 @@ if "*" in CORS_ALLOW_ORIGIN:
 validate_cors_origins(CORS_ALLOW_ORIGIN)
 
 
-class BannerModel(BaseModel):
-    id: str
-    type: str
-    title: Optional[str] = None
-    content: str
-    dismissible: bool
-    timestamp: int
-
-
-try:
-    banners = json.loads(os.environ.get("WEBUI_BANNERS", "[]"))
-    banners = [BannerModel(**banner) for banner in banners]
-except Exception as e:
-    log.exception(f"Error loading WEBUI_BANNERS: {e}")
-    banners = []
-
-WEBUI_BANNERS = PersistentConfig("WEBUI_BANNERS", "ui.banners", banners)
 
 
 SHOW_ADMIN_DETAILS = PersistentConfig(
@@ -1275,31 +1194,7 @@ JSON format: { "tags": ["tag1", "tag2", "tag3"] }
 {{MESSAGES:END:6}}
 </chat_history>"""
 
-IMAGE_PROMPT_GENERATION_PROMPT_TEMPLATE = PersistentConfig(
-    "IMAGE_PROMPT_GENERATION_PROMPT_TEMPLATE",
-    "task.image.prompt_template",
-    os.environ.get("IMAGE_PROMPT_GENERATION_PROMPT_TEMPLATE", ""),
-)
 
-DEFAULT_IMAGE_PROMPT_GENERATION_PROMPT_TEMPLATE = """### Task:
-Generate a detailed prompt for am image generation task based on the given language and context. Describe the image as if you were explaining it to someone who cannot see it. Include relevant details, colors, shapes, and any other important elements.
-
-### Guidelines:
-- Be descriptive and detailed, focusing on the most important aspects of the image.
-- Avoid making assumptions or adding information not present in the image.
-- Use the chat's primary language; default to English if multilingual.
-- If the image is too complex, focus on the most prominent elements.
-
-### Output:
-Strictly return in JSON format:
-{
-    "prompt": "Your detailed description here."
-}
-
-### Chat History:
-<chat_history>
-{{MESSAGES:END:6}}
-</chat_history>"""
 
 ENABLE_TAGS_GENERATION = PersistentConfig(
     "ENABLE_TAGS_GENERATION",
@@ -1449,145 +1344,12 @@ The format for the JSON response is strictly:
 }"""
 
 
-DEFAULT_EMOJI_GENERATION_PROMPT_TEMPLATE = """Your task is to reflect the speaker's likely facial expression through a fitting emoji. Interpret emotions from the message and reflect their facial expression using fitting, diverse emojis (e.g., 😊, 😢, 😡, 😱).
-
-Message: ```{{prompt}}```"""
 
 DEFAULT_MOA_GENERATION_PROMPT_TEMPLATE = """You have been provided with a set of responses from various models to the latest user query: "{{prompt}}"
 
 Your task is to synthesize these responses into a single, high-quality response. It is crucial to critically evaluate the information provided in these responses, recognizing that some of it may be biased or incorrect. Your response should not simply replicate the given answers but should offer a refined, accurate, and comprehensive reply to the instruction. Ensure your response is well-structured, coherent, and adheres to the highest standards of accuracy and reliability.
 
 Responses from models: {{responses}}"""
-
-
-####################################
-# Code Interpreter
-####################################
-
-ENABLE_CODE_EXECUTION = PersistentConfig(
-    "ENABLE_CODE_EXECUTION",
-    "code_execution.enable",
-    os.environ.get("ENABLE_CODE_EXECUTION", "True").lower() == "true",
-)
-
-CODE_EXECUTION_ENGINE = PersistentConfig(
-    "CODE_EXECUTION_ENGINE",
-    "code_execution.engine",
-    os.environ.get("CODE_EXECUTION_ENGINE", "pyodide"),
-)
-
-CODE_EXECUTION_JUPYTER_URL = PersistentConfig(
-    "CODE_EXECUTION_JUPYTER_URL",
-    "code_execution.jupyter.url",
-    os.environ.get("CODE_EXECUTION_JUPYTER_URL", ""),
-)
-
-CODE_EXECUTION_JUPYTER_AUTH = PersistentConfig(
-    "CODE_EXECUTION_JUPYTER_AUTH",
-    "code_execution.jupyter.auth",
-    os.environ.get("CODE_EXECUTION_JUPYTER_AUTH", ""),
-)
-
-CODE_EXECUTION_JUPYTER_AUTH_TOKEN = PersistentConfig(
-    "CODE_EXECUTION_JUPYTER_AUTH_TOKEN",
-    "code_execution.jupyter.auth_token",
-    os.environ.get("CODE_EXECUTION_JUPYTER_AUTH_TOKEN", ""),
-)
-
-
-CODE_EXECUTION_JUPYTER_AUTH_PASSWORD = PersistentConfig(
-    "CODE_EXECUTION_JUPYTER_AUTH_PASSWORD",
-    "code_execution.jupyter.auth_password",
-    os.environ.get("CODE_EXECUTION_JUPYTER_AUTH_PASSWORD", ""),
-)
-
-CODE_EXECUTION_JUPYTER_TIMEOUT = PersistentConfig(
-    "CODE_EXECUTION_JUPYTER_TIMEOUT",
-    "code_execution.jupyter.timeout",
-    int(os.environ.get("CODE_EXECUTION_JUPYTER_TIMEOUT", "60")),
-)
-
-ENABLE_CODE_INTERPRETER = PersistentConfig(
-    "ENABLE_CODE_INTERPRETER",
-    "code_interpreter.enable",
-    os.environ.get("ENABLE_CODE_INTERPRETER", "True").lower() == "true",
-)
-
-CODE_INTERPRETER_ENGINE = PersistentConfig(
-    "CODE_INTERPRETER_ENGINE",
-    "code_interpreter.engine",
-    os.environ.get("CODE_INTERPRETER_ENGINE", "pyodide"),
-)
-
-CODE_INTERPRETER_PROMPT_TEMPLATE = PersistentConfig(
-    "CODE_INTERPRETER_PROMPT_TEMPLATE",
-    "code_interpreter.prompt_template",
-    os.environ.get("CODE_INTERPRETER_PROMPT_TEMPLATE", ""),
-)
-
-CODE_INTERPRETER_JUPYTER_URL = PersistentConfig(
-    "CODE_INTERPRETER_JUPYTER_URL",
-    "code_interpreter.jupyter.url",
-    os.environ.get(
-        "CODE_INTERPRETER_JUPYTER_URL", os.environ.get("CODE_EXECUTION_JUPYTER_URL", "")
-    ),
-)
-
-CODE_INTERPRETER_JUPYTER_AUTH = PersistentConfig(
-    "CODE_INTERPRETER_JUPYTER_AUTH",
-    "code_interpreter.jupyter.auth",
-    os.environ.get(
-        "CODE_INTERPRETER_JUPYTER_AUTH",
-        os.environ.get("CODE_EXECUTION_JUPYTER_AUTH", ""),
-    ),
-)
-
-CODE_INTERPRETER_JUPYTER_AUTH_TOKEN = PersistentConfig(
-    "CODE_INTERPRETER_JUPYTER_AUTH_TOKEN",
-    "code_interpreter.jupyter.auth_token",
-    os.environ.get(
-        "CODE_INTERPRETER_JUPYTER_AUTH_TOKEN",
-        os.environ.get("CODE_EXECUTION_JUPYTER_AUTH_TOKEN", ""),
-    ),
-)
-
-
-CODE_INTERPRETER_JUPYTER_AUTH_PASSWORD = PersistentConfig(
-    "CODE_INTERPRETER_JUPYTER_AUTH_PASSWORD",
-    "code_interpreter.jupyter.auth_password",
-    os.environ.get(
-        "CODE_INTERPRETER_JUPYTER_AUTH_PASSWORD",
-        os.environ.get("CODE_EXECUTION_JUPYTER_AUTH_PASSWORD", ""),
-    ),
-)
-
-CODE_INTERPRETER_JUPYTER_TIMEOUT = PersistentConfig(
-    "CODE_INTERPRETER_JUPYTER_TIMEOUT",
-    "code_interpreter.jupyter.timeout",
-    int(
-        os.environ.get(
-            "CODE_INTERPRETER_JUPYTER_TIMEOUT",
-            os.environ.get("CODE_EXECUTION_JUPYTER_TIMEOUT", "60"),
-        )
-    ),
-)
-
-
-DEFAULT_CODE_INTERPRETER_PROMPT = """
-#### Tools Available
-
-1. **Code Interpreter**: `<code_interpreter type="code" lang="python"></code_interpreter>`
-   - You have access to a Python shell that runs directly in the user's browser, enabling fast execution of code for analysis, calculations, or problem-solving.  Use it in this response.
-   - The Python code you write can incorporate a wide array of libraries, handle data manipulation or visualization, perform API calls for web-related tasks, or tackle virtually any computational challenge. Use this flexibility to **think outside the box, craft elegant solutions, and harness Python's full potential**.
-   - To use it, **you must enclose your code within `<code_interpreter type="code" lang="python">` XML tags** and stop right away. If you don't, the code won't execute. Do NOT use triple backticks.
-   - When coding, **always aim to print meaningful outputs** (e.g., results, tables, summaries, or visuals) to better interpret and verify the findings. Avoid relying on implicit outputs; prioritize explicit and clear print statements so the results are effectively communicated to the user.  
-   - After obtaining the printed output, **always provide a concise analysis, interpretation, or next steps to help the user understand the findings or refine the outcome further.**  
-   - If the results are unclear, unexpected, or require validation, refine the code and execute it again as needed. Always aim to deliver meaningful insights from the results, iterating if necessary.  
-   - **If a link to an image, audio, or any file is provided in markdown format in the output, ALWAYS regurgitate word for word, explicitly display it as part of the response to ensure the user can access it easily, do NOT change the link.**
-   - All responses should be communicated in the chat's primary language, ensuring seamless understanding. If the chat is multilingual, default to English for clarity.
-
-Ensure that the tools are effectively utilized to achieve the highest-quality analysis for the user."""
-
 
 ####################################
 # Vector Database
@@ -2163,345 +1925,6 @@ FIRECRAWL_API_BASE_URL = PersistentConfig(
     "FIRECRAWL_API_BASE_URL",
     "firecrawl.api_url",
     os.environ.get("FIRECRAWL_API_BASE_URL", "https://api.firecrawl.dev"),
-)
-
-####################################
-# Images
-####################################
-
-IMAGE_GENERATION_ENGINE = PersistentConfig(
-    "IMAGE_GENERATION_ENGINE",
-    "image_generation.engine",
-    os.getenv("IMAGE_GENERATION_ENGINE", "openai"),
-)
-
-ENABLE_IMAGE_GENERATION = PersistentConfig(
-    "ENABLE_IMAGE_GENERATION",
-    "image_generation.enable",
-    os.environ.get("ENABLE_IMAGE_GENERATION", "").lower() == "true",
-)
-
-ENABLE_IMAGE_PROMPT_GENERATION = PersistentConfig(
-    "ENABLE_IMAGE_PROMPT_GENERATION",
-    "image_generation.prompt.enable",
-    os.environ.get("ENABLE_IMAGE_PROMPT_GENERATION", "true").lower() == "true",
-)
-
-AUTOMATIC1111_BASE_URL = PersistentConfig(
-    "AUTOMATIC1111_BASE_URL",
-    "image_generation.automatic1111.base_url",
-    os.getenv("AUTOMATIC1111_BASE_URL", ""),
-)
-AUTOMATIC1111_API_AUTH = PersistentConfig(
-    "AUTOMATIC1111_API_AUTH",
-    "image_generation.automatic1111.api_auth",
-    os.getenv("AUTOMATIC1111_API_AUTH", ""),
-)
-
-AUTOMATIC1111_CFG_SCALE = PersistentConfig(
-    "AUTOMATIC1111_CFG_SCALE",
-    "image_generation.automatic1111.cfg_scale",
-    (
-        float(os.environ.get("AUTOMATIC1111_CFG_SCALE"))
-        if os.environ.get("AUTOMATIC1111_CFG_SCALE")
-        else None
-    ),
-)
-
-
-AUTOMATIC1111_SAMPLER = PersistentConfig(
-    "AUTOMATIC1111_SAMPLER",
-    "image_generation.automatic1111.sampler",
-    (
-        os.environ.get("AUTOMATIC1111_SAMPLER")
-        if os.environ.get("AUTOMATIC1111_SAMPLER")
-        else None
-    ),
-)
-
-AUTOMATIC1111_SCHEDULER = PersistentConfig(
-    "AUTOMATIC1111_SCHEDULER",
-    "image_generation.automatic1111.scheduler",
-    (
-        os.environ.get("AUTOMATIC1111_SCHEDULER")
-        if os.environ.get("AUTOMATIC1111_SCHEDULER")
-        else None
-    ),
-)
-
-COMFYUI_BASE_URL = PersistentConfig(
-    "COMFYUI_BASE_URL",
-    "image_generation.comfyui.base_url",
-    os.getenv("COMFYUI_BASE_URL", ""),
-)
-
-COMFYUI_API_KEY = PersistentConfig(
-    "COMFYUI_API_KEY",
-    "image_generation.comfyui.api_key",
-    os.getenv("COMFYUI_API_KEY", ""),
-)
-
-COMFYUI_DEFAULT_WORKFLOW = """
-{
-  "3": {
-    "inputs": {
-      "seed": 0,
-      "steps": 20,
-      "cfg": 8,
-      "sampler_name": "euler",
-      "scheduler": "normal",
-      "denoise": 1,
-      "model": [
-        "4",
-        0
-      ],
-      "positive": [
-        "6",
-        0
-      ],
-      "negative": [
-        "7",
-        0
-      ],
-      "latent_image": [
-        "5",
-        0
-      ]
-    },
-    "class_type": "KSampler",
-    "_meta": {
-      "title": "KSampler"
-    }
-  },
-  "4": {
-    "inputs": {
-      "ckpt_name": "model.safetensors"
-    },
-    "class_type": "CheckpointLoaderSimple",
-    "_meta": {
-      "title": "Load Checkpoint"
-    }
-  },
-  "5": {
-    "inputs": {
-      "width": 512,
-      "height": 512,
-      "batch_size": 1
-    },
-    "class_type": "EmptyLatentImage",
-    "_meta": {
-      "title": "Empty Latent Image"
-    }
-  },
-  "6": {
-    "inputs": {
-      "text": "Prompt",
-      "clip": [
-        "4",
-        1
-      ]
-    },
-    "class_type": "CLIPTextEncode",
-    "_meta": {
-      "title": "CLIP Text Encode (Prompt)"
-    }
-  },
-  "7": {
-    "inputs": {
-      "text": "",
-      "clip": [
-        "4",
-        1
-      ]
-    },
-    "class_type": "CLIPTextEncode",
-    "_meta": {
-      "title": "CLIP Text Encode (Prompt)"
-    }
-  },
-  "8": {
-    "inputs": {
-      "samples": [
-        "3",
-        0
-      ],
-      "vae": [
-        "4",
-        2
-      ]
-    },
-    "class_type": "VAEDecode",
-    "_meta": {
-      "title": "VAE Decode"
-    }
-  },
-  "9": {
-    "inputs": {
-      "filename_prefix": "ComfyUI",
-      "images": [
-        "8",
-        0
-      ]
-    },
-    "class_type": "SaveImage",
-    "_meta": {
-      "title": "Save Image"
-    }
-  }
-}
-"""
-
-
-COMFYUI_WORKFLOW = PersistentConfig(
-    "COMFYUI_WORKFLOW",
-    "image_generation.comfyui.workflow",
-    os.getenv("COMFYUI_WORKFLOW", COMFYUI_DEFAULT_WORKFLOW),
-)
-
-COMFYUI_WORKFLOW_NODES = PersistentConfig(
-    "COMFYUI_WORKFLOW",
-    "image_generation.comfyui.nodes",
-    [],
-)
-
-IMAGES_OPENAI_API_BASE_URL = PersistentConfig(
-    "IMAGES_OPENAI_API_BASE_URL",
-    "image_generation.openai.api_base_url",
-    os.getenv("IMAGES_OPENAI_API_BASE_URL", OPENAI_API_BASE_URL),
-)
-IMAGES_OPENAI_API_KEY = PersistentConfig(
-    "IMAGES_OPENAI_API_KEY",
-    "image_generation.openai.api_key",
-    os.getenv("IMAGES_OPENAI_API_KEY", OPENAI_API_KEY),
-)
-
-IMAGES_GEMINI_API_BASE_URL = PersistentConfig(
-    "IMAGES_GEMINI_API_BASE_URL",
-    "image_generation.gemini.api_base_url",
-    os.getenv("IMAGES_GEMINI_API_BASE_URL", GEMINI_API_BASE_URL),
-)
-IMAGES_GEMINI_API_KEY = PersistentConfig(
-    "IMAGES_GEMINI_API_KEY",
-    "image_generation.gemini.api_key",
-    os.getenv("IMAGES_GEMINI_API_KEY", GEMINI_API_KEY),
-)
-
-IMAGE_SIZE = PersistentConfig(
-    "IMAGE_SIZE", "image_generation.size", os.getenv("IMAGE_SIZE", "512x512")
-)
-
-IMAGE_STEPS = PersistentConfig(
-    "IMAGE_STEPS", "image_generation.steps", int(os.getenv("IMAGE_STEPS", 50))
-)
-
-IMAGE_GENERATION_MODEL = PersistentConfig(
-    "IMAGE_GENERATION_MODEL",
-    "image_generation.model",
-    os.getenv("IMAGE_GENERATION_MODEL", ""),
-)
-
-####################################
-# Audio
-####################################
-
-# Transcription
-WHISPER_MODEL = PersistentConfig(
-    "WHISPER_MODEL",
-    "audio.stt.whisper_model",
-    os.getenv("WHISPER_MODEL", "base"),
-)
-
-WHISPER_MODEL_DIR = os.getenv("WHISPER_MODEL_DIR", f"{CACHE_DIR}/whisper/models")
-WHISPER_MODEL_AUTO_UPDATE = (
-    not OFFLINE_MODE
-    and os.environ.get("WHISPER_MODEL_AUTO_UPDATE", "").lower() == "true"
-)
-
-# Add Deepgram configuration
-DEEPGRAM_API_KEY = PersistentConfig(
-    "DEEPGRAM_API_KEY",
-    "audio.stt.deepgram.api_key",
-    os.getenv("DEEPGRAM_API_KEY", ""),
-)
-
-AUDIO_STT_OPENAI_API_BASE_URL = PersistentConfig(
-    "AUDIO_STT_OPENAI_API_BASE_URL",
-    "audio.stt.openai.api_base_url",
-    os.getenv("AUDIO_STT_OPENAI_API_BASE_URL", OPENAI_API_BASE_URL),
-)
-
-AUDIO_STT_OPENAI_API_KEY = PersistentConfig(
-    "AUDIO_STT_OPENAI_API_KEY",
-    "audio.stt.openai.api_key",
-    os.getenv("AUDIO_STT_OPENAI_API_KEY", OPENAI_API_KEY),
-)
-
-AUDIO_STT_ENGINE = PersistentConfig(
-    "AUDIO_STT_ENGINE",
-    "audio.stt.engine",
-    os.getenv("AUDIO_STT_ENGINE", ""),
-)
-
-AUDIO_STT_MODEL = PersistentConfig(
-    "AUDIO_STT_MODEL",
-    "audio.stt.model",
-    os.getenv("AUDIO_STT_MODEL", ""),
-)
-
-AUDIO_TTS_OPENAI_API_BASE_URL = PersistentConfig(
-    "AUDIO_TTS_OPENAI_API_BASE_URL",
-    "audio.tts.openai.api_base_url",
-    os.getenv("AUDIO_TTS_OPENAI_API_BASE_URL", OPENAI_API_BASE_URL),
-)
-AUDIO_TTS_OPENAI_API_KEY = PersistentConfig(
-    "AUDIO_TTS_OPENAI_API_KEY",
-    "audio.tts.openai.api_key",
-    os.getenv("AUDIO_TTS_OPENAI_API_KEY", OPENAI_API_KEY),
-)
-
-AUDIO_TTS_API_KEY = PersistentConfig(
-    "AUDIO_TTS_API_KEY",
-    "audio.tts.api_key",
-    os.getenv("AUDIO_TTS_API_KEY", ""),
-)
-
-AUDIO_TTS_ENGINE = PersistentConfig(
-    "AUDIO_TTS_ENGINE",
-    "audio.tts.engine",
-    os.getenv("AUDIO_TTS_ENGINE", ""),
-)
-
-
-AUDIO_TTS_MODEL = PersistentConfig(
-    "AUDIO_TTS_MODEL",
-    "audio.tts.model",
-    os.getenv("AUDIO_TTS_MODEL", "tts-1"),  # OpenAI default model
-)
-
-AUDIO_TTS_VOICE = PersistentConfig(
-    "AUDIO_TTS_VOICE",
-    "audio.tts.voice",
-    os.getenv("AUDIO_TTS_VOICE", "alloy"),  # OpenAI default voice
-)
-
-AUDIO_TTS_SPLIT_ON = PersistentConfig(
-    "AUDIO_TTS_SPLIT_ON",
-    "audio.tts.split_on",
-    os.getenv("AUDIO_TTS_SPLIT_ON", "punctuation"),
-)
-
-AUDIO_TTS_AZURE_SPEECH_REGION = PersistentConfig(
-    "AUDIO_TTS_AZURE_SPEECH_REGION",
-    "audio.tts.azure.speech_region",
-    os.getenv("AUDIO_TTS_AZURE_SPEECH_REGION", "eastus"),
-)
-
-AUDIO_TTS_AZURE_SPEECH_OUTPUT_FORMAT = PersistentConfig(
-    "AUDIO_TTS_AZURE_SPEECH_OUTPUT_FORMAT",
-    "audio.tts.azure.speech_output_format",
-    os.getenv(
-        "AUDIO_TTS_AZURE_SPEECH_OUTPUT_FORMAT", "audio-24khz-160kbitrate-mono-mp3"
-    ),
 )
 
 

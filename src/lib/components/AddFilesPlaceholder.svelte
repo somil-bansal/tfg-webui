@@ -3,7 +3,7 @@
 
 	export let title = '';
 	export let content = '';
-	const i18n = getContext('i18n');
+	
 </script>
 
 <div class="px-3">
@@ -12,7 +12,7 @@
 		{#if title}
 			{title}
 		{:else}
-			{$i18n.t('Add Files')}
+			{'Add Files'}
 		{/if}
 	</div>
 
@@ -21,7 +21,7 @@
 			{#if content}
 				{content}
 			{:else}
-				{$i18n.t('Drop any files here to add to the conversation')}
+				{'Drop any files here to add to the conversation'}
 			{/if}
 		</div>
 	</slot>

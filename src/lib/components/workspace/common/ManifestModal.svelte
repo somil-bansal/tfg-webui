@@ -5,7 +5,7 @@
 
 	import Modal from '../../common/Modal.svelte';
 
-	const i18n = getContext('i18n');
+	
 	const dispatch = createEventDispatcher();
 
 	export let show = false;
@@ -15,7 +15,7 @@
 <Modal size="sm" bind:show>
 	<div>
 		<div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-2">
-			<div class=" text-lg font-medium self-center">{$i18n.t('Show your support!')}</div>
+			<div class=" text-lg font-medium self-center">{'Show your support!'}</div>
 			<button
 				class="self-center"
 				on:click={() => {
@@ -45,20 +45,20 @@
 				>
 					<div class="px-1 text-sm">
 						<div class="my-2">
-							{$i18n.t(
+							{
 								'The developers behind this plugin are passionate volunteers from the community. If you find this plugin helpful, please consider contributing to its development.'
-							)}
+							}
 						</div>
 
 						<div class="my-2">
-							{$i18n.t(
+							{
 								'Your entire contribution will go directly to the plugin developer; Open WebUI does not take any percentage. However, the chosen funding platform might have its own fees.'
-							)}
+							}
 						</div>
 
 						<hr class="dark:border-gray-800 my-3" />
 						<div class="my-2">
-							{$i18n.t('Support this plugin:')}
+							{'Support this plugin:'}
 							<a
 								href={manifest.funding_url}
 								target="_blank"
@@ -72,7 +72,7 @@
 							class=" px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-gray-100 transition rounded-lg flex flex-row space-x-1 items-center"
 							type="submit"
 						>
-							{$i18n.t('Done')}
+							{'Done'}
 						</button>
 					</div>
 				</form>

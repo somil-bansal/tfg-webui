@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
 	import { getContext, onMount } from 'svelte';
-	const i18n = getContext('i18n');
+	
 
 	import { WEBUI_NAME, models, MODEL_DOWNLOAD_POOL, user, config, settings } from '$lib/stores';
 	import { splitStream } from '$lib/utils';
@@ -130,15 +130,13 @@
 		console.log($MODEL_DOWNLOAD_POOL);
 		if ($MODEL_DOWNLOAD_POOL[sanitizedModelTag]) {
 			toast.error(
-				$i18n.t(`Model '{{modelTag}}' is already in queue for downloading.`, {
-					modelTag: sanitizedModelTag
-				})
+				`Model '${sanitizedModelTag}' is already in queue for downloading.`
 			);
 			return;
 		}
 		if (Object.keys($MODEL_DOWNLOAD_POOL).length === MAX_PARALLEL_DOWNLOADS) {
 			toast.error(
-				$i18n.t('Maximum of 3 models can be downloaded simultaneously. Please try again later.')
+				'Maximum of 3 models can be downloaded simultaneously. Please try again later.'
 			);
 			return;
 		}
@@ -230,9 +228,7 @@
 
 			if ($MODEL_DOWNLOAD_POOL[sanitizedModelTag].done) {
 				toast.success(
-					$i18n.t(`Model '{{modelName}}' has been successfully downloaded.`, {
-						modelName: sanitizedModelTag
-					})
+					`Model '${sanitizedModelTag}' has been successfully downloaded.`
 				);
 
 				models.set(
@@ -242,7 +238,7 @@
 					)
 				);
 			} else {
-				toast.error($i18n.t('Download canceled'));
+				toast.error('Download canceled');
 			}
 
 			delete $MODEL_DOWNLOAD_POOL[sanitizedModelTag];
@@ -413,7 +409,7 @@
 		});
 
 		if (res) {
-			toast.success($i18n.t(`Deleted {{deleteModelTag}}`, { deleteModelTag }));
+			toast.success(`Deleted ${deleteModelTag}`);
 		}
 
 		deleteModelTag = '';
@@ -567,7 +563,7 @@
 				<div>
 					<div class=" mb-2 text-sm font-medium flex items-center gap-1.5">
 						<div>
-							{$i18n.t('Pull a model from Ollama.com')}
+							{'Pull a model from Ollama.com'}
 						</div>
 
 						<div>
@@ -599,9 +595,7 @@
 						<div class="flex-1 mr-2">
 							<input
 								class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-								placeholder={$i18n.t('Enter model tag (e.g. {{modelTag}})', {
-									modelTag: 'mistral:7b'
-								})}
+								placeholder={`Enter model tag (e.g. ${modelTag})`}
 								bind:value={modelTag}
 							/>
 						</div>
@@ -661,11 +655,11 @@
 					</div>
 
 					<div class="mt-2 mb-1 text-xs text-gray-400 dark:text-gray-500">
-						{$i18n.t('To access the available model names for downloading,')}
+						{'To access the available model names for downloading,'}
 						<a
 							class=" text-gray-500 dark:text-gray-300 font-medium underline"
 							href="https://ollama.com/library"
-							target="_blank">{$i18n.t('click here.')}</a
+							target="_blank">{'click here.'}</a
 						>
 					</div>
 
@@ -694,7 +688,7 @@
 												</div>
 											</div>
 
-											<Tooltip content={$i18n.t('Cancel')}>
+											<Tooltip content={'Cancel'}>
 												<button
 													class="text-gray-800 dark:text-gray-100"
 													on:click={() => {
@@ -734,7 +728,7 @@
 				</div>
 
 				<div>
-					<div class=" mb-2 text-sm font-medium">{$i18n.t('Delete a model')}</div>
+					<div class=" mb-2 text-sm font-medium">{'Delete a model'}</div>
 					<div class="flex w-full">
 						<div
 							class="flex-1 mr-2 pr-1.5 rounded-lg bg-gray-50 dark:text-gray-300 dark:bg-gray-850"
@@ -742,10 +736,10 @@
 							<select
 								class="w-full py-2 px-4 text-sm outline-hidden bg-transparent"
 								bind:value={deleteModelTag}
-								placeholder={$i18n.t('Select a model')}
+								placeholder={'Select a model'}
 							>
 								{#if !deleteModelTag}
-									<option value="" disabled selected>{$i18n.t('Select a model')}</option>
+									<option value="" disabled selected>{'Select a model'}</option>
 								{/if}
 								{#each ollamaModels as model}
 									<option value={model.id} class="bg-gray-50 dark:bg-gray-700"
@@ -777,14 +771,12 @@
 				</div>
 
 				<div>
-					<div class=" mb-2 text-sm font-medium">{$i18n.t('Create a model')}</div>
+					<div class=" mb-2 text-sm font-medium">{'Create a model'}</div>
 					<div class="flex w-full">
 						<div class="flex-1 mr-2 flex flex-col gap-2">
 							<input
 								class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-								placeholder={$i18n.t('Enter model tag (e.g. {{modelTag}})', {
-									modelTag: 'my-modelfile'
-								})}
+								placeholder={`Enter model tag (e.g. ${modelTag})`}
 								bind:value={createModelName}
 								disabled={createModelLoading}
 							/>
@@ -849,13 +841,13 @@
 
 				<div class="pt-1">
 					<div class="flex justify-between items-center text-xs">
-						<div class=" text-sm font-medium">{$i18n.t('Experimental')}</div>
+						<div class=" text-sm font-medium">{'Experimental'}</div>
 						<button
 							class=" text-xs font-medium text-gray-500"
 							type="button"
 							on:click={() => {
 								showExperimentalOllama = !showExperimentalOllama;
-							}}>{showExperimentalOllama ? $i18n.t('Hide') : $i18n.t('Show')}</button
+							}}>{showExperimentalOllama ? 'Hide' : 'Show'}</button
 						>
 					</div>
 				</div>
@@ -867,7 +859,7 @@
 						}}
 					>
 						<div class=" mb-2 flex w-full justify-between">
-							<div class="  text-sm font-medium">{$i18n.t('Upload a GGUF model')}</div>
+							<div class="  text-sm font-medium">{'Upload a GGUF model'}</div>
 
 							<button
 								class="p-1 px-3 text-xs flex rounded-sm transition"
@@ -881,9 +873,9 @@
 								type="button"
 							>
 								{#if modelUploadMode === 'file'}
-									<span class="ml-2 self-center">{$i18n.t('File Mode')}</span>
+									<span class="ml-2 self-center">{'File Mode'}</span>
 								{:else}
-									<span class="ml-2 self-center">{$i18n.t('URL Mode')}</span>
+									<span class="ml-2 self-center">{'URL Mode'}</span>
 								{/if}
 							</button>
 						</div>
@@ -915,7 +907,7 @@
 											{#if modelInputFile && modelInputFile.length > 0}
 												{modelInputFile[0].name}
 											{:else}
-												{$i18n.t('Click here to select')}
+												{'Click here to select'}
 											{/if}
 										</button>
 									</div>
@@ -929,7 +921,7 @@
 											type="url"
 											required
 											bind:value={modelFileUrl}
-											placeholder={$i18n.t('Type Hugging Face Resolve (Download) URL')}
+											placeholder={'Type Hugging Face Resolve (Download) URL'}
 										/>
 									</div>
 								{/if}
@@ -994,7 +986,7 @@
 							<div>
 								<div>
 									<div class=" my-2.5 text-sm font-medium">
-										{$i18n.t('Modelfile Content')}
+										{'Modelfile Content'}
 									</div>
 									<textarea
 										bind:value={modelFileContent}
@@ -1005,17 +997,17 @@
 							</div>
 						{/if}
 						<div class=" mt-1 text-xs text-gray-400 dark:text-gray-500">
-							{$i18n.t('To access the GGUF models available for downloading,')}
+							{'To access the GGUF models available for downloading,'}
 							<a
 								class=" text-gray-500 dark:text-gray-300 font-medium underline"
 								href="https://huggingface.co/models?search=gguf"
-								target="_blank">{$i18n.t('click here.')}</a
+								target="_blank">{'click here.'}</a
 							>
 						</div>
 
 						{#if uploadMessage}
 							<div class="mt-2">
-								<div class=" mb-2 text-xs">{$i18n.t('Upload Progress')}</div>
+								<div class=" mb-2 text-xs">{'Upload Progress'}</div>
 
 								<div class="w-full rounded-full dark:bg-gray-800">
 									<div
@@ -1031,7 +1023,7 @@
 							</div>
 						{:else if uploadProgress !== null}
 							<div class="mt-2">
-								<div class=" mb-2 text-xs">{$i18n.t('Upload Progress')}</div>
+								<div class=" mb-2 text-xs">{'Upload Progress'}</div>
 
 								<div class="w-full rounded-full dark:bg-gray-800">
 									<div
@@ -1053,7 +1045,7 @@
 	</div>
 {:else if ollamaModels === null}
 	<div class="flex justify-center items-center w-full h-full text-xs py-3">
-		{$i18n.t('Failed to fetch models')}
+		{'Failed to fetch models'}
 	</div>
 {:else}
 	<div class="flex justify-center items-center w-full h-full py-3">

@@ -2,7 +2,7 @@
 	import { getAdminDetails } from '$lib/apis/auths';
 	import { onMount, tick, getContext } from 'svelte';
 
-	const i18n = getContext('i18n');
+	
 
 	let adminDetails = null;
 
@@ -21,20 +21,18 @@
 		<div class="m-auto pb-10 flex flex-col justify-center">
 			<div class="max-w-md">
 				<div class="text-center dark:text-white text-2xl font-medium z-50">
-					{$i18n.t('Account Activation Pending')}<br />
-					{$i18n.t('Contact Admin for WebUI Access')}
+					{'Account Activation Pending'}<br />
+					{'Contact Admin for WebUI Access'}
 				</div>
 
 				<div class=" mt-4 text-center text-sm dark:text-gray-200 w-full">
-					{$i18n.t('Your account status is currently pending activation.')}<br />
-					{$i18n.t(
-						'To access the WebUI, please reach out to the administrator. Admins can manage user statuses from the Admin Panel.'
-					)}
+					{'Your account status is currently pending activation.'}<br />
+					{'Please contact the administrator to activate your account.'}
 				</div>
 
 				{#if adminDetails}
 					<div class="mt-4 text-sm font-medium text-center">
-						<div>{$i18n.t('Admin')}: {adminDetails.name} ({adminDetails.email})</div>
+						<div>{'Admin'}: {adminDetails.name} ({adminDetails.email})</div>
 					</div>
 				{/if}
 
@@ -45,7 +43,7 @@
 							location.href = '/';
 						}}
 					>
-						{$i18n.t('Check Again')}
+						{'Check Again'}
 					</button>
 
 					<button
@@ -53,7 +51,7 @@
 						on:click={async () => {
 							localStorage.removeItem('token');
 							location.href = '/auth';
-						}}>{$i18n.t('Sign Out')}</button
+						}}>{'Sign Out'}</button
 					>
 				</div>
 			</div>

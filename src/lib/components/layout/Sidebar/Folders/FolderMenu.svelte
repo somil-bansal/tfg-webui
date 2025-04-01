@@ -3,7 +3,7 @@
 	import { flyAndScale } from '$lib/utils/transitions';
 	import { getContext, createEventDispatcher } from 'svelte';
 
-	const i18n = getContext('i18n');
+	
 	const dispatch = createEventDispatcher();
 
 	import Dropdown from '$lib/components/common/Dropdown.svelte';
@@ -23,7 +23,7 @@
 		}
 	}}
 >
-	<Tooltip content={$i18n.t('More')}>
+	<Tooltip content={'More'}>
 		<slot />
 	</Tooltip>
 
@@ -42,7 +42,7 @@
 				}}
 			>
 				<Pencil strokeWidth="2" />
-				<div class="flex items-center">{$i18n.t('Rename')}</div>
+				<div class="flex items-center">{'Rename'}</div>
 			</DropdownMenu.Item>
 
 			<DropdownMenu.Item
@@ -53,7 +53,7 @@
 			>
 				<Download strokeWidth="2" />
 
-				<div class="flex items-center">{$i18n.t('Export')}</div>
+				<div class="flex items-center">{'Export'}</div>
 			</DropdownMenu.Item>
 
 			<DropdownMenu.Item
@@ -63,7 +63,7 @@
 				}}
 			>
 				<GarbageBin strokeWidth="2" />
-				<div class="flex items-center">{$i18n.t('Delete')}</div>
+				<div class="flex items-center">{'Delete'}</div>
 			</DropdownMenu.Item>
 		</DropdownMenu.Content>
 	</div>

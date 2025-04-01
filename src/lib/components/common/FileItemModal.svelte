@@ -3,7 +3,7 @@
 	import { formatFileSize, getLineCount } from '$lib/utils';
 	import { WEBUI_API_BASE_URL } from '$lib/constants';
 
-	const i18n = getContext('i18n');
+	
 
 	import Modal from './Modal.svelte';
 	import XMark from '../icons/XMark.svelte';
@@ -87,12 +87,8 @@
 						<div>
 							<Tooltip
 								content={enableFullContent
-									? $i18n.t(
-											'Inject the entire content as context for comprehensive processing, this is recommended for complex queries.'
-										)
-									: $i18n.t(
-											'Default to segmented retrieval for focused and relevant content extraction, this is recommended for most cases.'
-										)}
+									? 'Inject the entire content as context for comprehensive processing, this is recommended for complex queries.'
+									: 'Default to segmented retrieval for focused and relevant content extraction, this is recommended for most cases.'}
 							>
 								<div class="flex items-center gap-1.5 text-xs">
 									{#if enableFullContent}

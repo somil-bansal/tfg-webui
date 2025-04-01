@@ -8,7 +8,7 @@
 
 	import Modal from '$lib/components/common/Modal.svelte';
 
-	const i18n = getContext('i18n');
+	
 	const dispatch = createEventDispatcher();
 
 	export let show = false;
@@ -111,7 +111,7 @@
 
 				reader.readAsText(file);
 			} else {
-				toast.error($i18n.t('File not found.'));
+				toast.error('File not found.');
 			}
 		}
 
@@ -122,7 +122,7 @@
 <Modal size="sm" bind:show>
 	<div>
 		<div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-2">
-			<div class=" text-lg font-medium self-center">{$i18n.t('Add User')}</div>
+			<div class=" text-lg font-medium self-center">{'Add User'}</div>
 			<button
 				class="self-center"
 				on:click={() => {
@@ -160,7 +160,7 @@
 							type="button"
 							on:click={() => {
 								tab = '';
-							}}>{$i18n.t('Form')}</button
+							}}>{'Form'}</button
 						>
 
 						<button
@@ -170,38 +170,38 @@
 							type="button"
 							on:click={() => {
 								tab = 'import';
-							}}>{$i18n.t('CSV Import')}</button
+							}}>{'CSV Import'}</button
 						>
 					</div>
 
 					<div class="px-1">
 						{#if tab === ''}
 							<div class="flex flex-col w-full mb-3">
-								<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Role')}</div>
+								<div class=" mb-1 text-xs text-gray-500">{'Role'}</div>
 
 								<div class="flex-1">
 									<select
 										class="w-full capitalize rounded-lg text-sm bg-transparent dark:disabled:text-gray-500 outline-hidden"
 										bind:value={_user.role}
-										placeholder={$i18n.t('Enter Your Role')}
+										placeholder={'Enter Your Role'}
 										required
 									>
-										<option value="pending"> {$i18n.t('pending')} </option>
-										<option value="user"> {$i18n.t('user')} </option>
-										<option value="admin"> {$i18n.t('admin')} </option>
+										<option value="pending"> {'pending'} </option>
+										<option value="user"> {'user'} </option>
+										<option value="admin"> {'admin'} </option>
 									</select>
 								</div>
 							</div>
 
 							<div class="flex flex-col w-full mt-1">
-								<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Name')}</div>
+								<div class=" mb-1 text-xs text-gray-500">{'Name'}</div>
 
 								<div class="flex-1">
 									<input
 										class="w-full text-sm bg-transparent disabled:text-gray-500 dark:disabled:text-gray-500 outline-hidden"
 										type="text"
 										bind:value={_user.name}
-										placeholder={$i18n.t('Enter Your Full Name')}
+										placeholder={'Enter Your Full Name'}
 										autocomplete="off"
 										required
 									/>
@@ -211,28 +211,28 @@
 							<hr class=" border-gray-100 dark:border-gray-850 my-2.5 w-full" />
 
 							<div class="flex flex-col w-full">
-								<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Email')}</div>
+								<div class=" mb-1 text-xs text-gray-500">{'Email'}</div>
 
 								<div class="flex-1">
 									<input
 										class="w-full text-sm bg-transparent disabled:text-gray-500 dark:disabled:text-gray-500 outline-hidden"
 										type="email"
 										bind:value={_user.email}
-										placeholder={$i18n.t('Enter Your Email')}
+										placeholder={'Enter Your Email'}
 										required
 									/>
 								</div>
 							</div>
 
 							<div class="flex flex-col w-full mt-1">
-								<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Password')}</div>
+								<div class=" mb-1 text-xs text-gray-500">{'Password'}</div>
 
 								<div class="flex-1">
 									<input
 										class="w-full text-sm bg-transparent disabled:text-gray-500 dark:disabled:text-gray-500 outline-hidden"
 										type="password"
 										bind:value={_user.password}
-										placeholder={$i18n.t('Enter Your Password')}
+										placeholder={'Enter Your Password'}
 										autocomplete="off"
 									/>
 								</div>
@@ -258,20 +258,18 @@
 										{#if inputFiles}
 											{inputFiles.length > 0 ? `${inputFiles.length}` : ''} document(s) selected.
 										{:else}
-											{$i18n.t('Click here to select a csv file.')}
+											{'Click here to select a csv file.'}
 										{/if}
 									</button>
 								</div>
 
 								<div class=" text-xs text-gray-500">
-									ⓘ {$i18n.t(
-										'Ensure your CSV file includes 4 columns in this order: Name, Email, Password, Role.'
-									)}
+									ⓘ {'Ensure your CSV file includes 4 columns in this order: Name, Email, Password, Role.'}
 									<a
 										class="underline dark:text-gray-200"
 										href="{WEBUI_BASE_URL}/static/user-import.csv"
 									>
-										{$i18n.t('Click here to download user import template file.')}
+										{'Click here to download user import template file.'}
 									</a>
 								</div>
 							</div>
@@ -286,7 +284,7 @@
 							type="submit"
 							disabled={loading}
 						>
-							{$i18n.t('Save')}
+							{'Save'}
 
 							{#if loading}
 								<div class="ml-2 self-center">

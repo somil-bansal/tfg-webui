@@ -20,7 +20,7 @@
 	import Modal from '$lib/components/common/Modal.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import UnarchiveAllConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
-	const i18n = getContext('i18n');
+	
 
 	export let show = false;
 
@@ -51,7 +51,7 @@
 		let blob = new Blob([JSON.stringify(chats)], {
 			type: 'application/json'
 		});
-		saveAs(blob, `${$i18n.t('archived-chat-export')}-${Date.now()}.json`);
+		saveAs(blob, `archived-chat-export-${Date.now()}.json`);
 	};
 
 	const unarchiveAllHandler = async () => {
@@ -70,8 +70,8 @@
 
 <UnarchiveAllConfirmDialog
 	bind:show={showUnarchiveAllConfirmDialog}
-	message={$i18n.t('Are you sure you want to unarchive all archived chats?')}
-	confirmLabel={$i18n.t('Unarchive All')}
+	message={'Are you sure you want to unarchive all archived chats?'}
+	confirmLabel={'Unarchive All'}
 	on:confirm={() => {
 		unarchiveAllHandler();
 	}}
@@ -80,7 +80,7 @@
 <Modal size="lg" bind:show>
 	<div>
 		<div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-1">
-			<div class=" text-lg font-medium self-center">{$i18n.t('Archived Chats')}</div>
+			<div class=" text-lg font-medium self-center">{'Archived Chats'}</div>
 			<button
 				class="self-center"
 				on:click={() => {
@@ -122,7 +122,7 @@
 					<input
 						class=" w-full text-sm pr-4 py-1 rounded-r-xl outline-hidden bg-transparent"
 						bind:value={searchValue}
-						placeholder={$i18n.t('Search Chats')}
+						placeholder={'Search Chats'}
 					/>
 				</div>
 			</div>
@@ -137,9 +137,9 @@
 										class="text-xs text-gray-700 uppercase bg-transparent dark:text-gray-200 border-b-2 dark:border-gray-850"
 									>
 										<tr>
-											<th scope="col" class="px-3 py-2"> {$i18n.t('Name')} </th>
+											<th scope="col" class="px-3 py-2"> {'Name'} </th>
 											<th scope="col" class="px-3 py-2 hidden md:flex">
-												{$i18n.t('Created At')}
+												{'Created At'}
 											</th>
 											<th scope="col" class="px-3 py-2 text-right" />
 										</tr>
@@ -168,7 +168,7 @@
 
 												<td class="px-3 py-1 text-right">
 													<div class="flex justify-end w-full">
-														<Tooltip content={$i18n.t('Unarchive Chat')}>
+														<Tooltip content={'Unarchive Chat'}>
 															<button
 																class="self-center w-fit text-sm px-2 py-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
 																on:click={async () => {
@@ -192,7 +192,7 @@
 															</button>
 														</Tooltip>
 
-														<Tooltip content={$i18n.t('Delete Chat')}>
+														<Tooltip content={'Delete Chat'}>
 															<button
 																class="self-center w-fit text-sm px-2 py-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
 																on:click={async () => {
@@ -231,7 +231,7 @@
 									showUnarchiveAllConfirmDialog = true;
 								}}
 							>
-								{$i18n.t('Unarchive All Archived Chats')}
+								{'Unarchive All Archived Chats'}
 							</button>
 
 							<button
@@ -240,13 +240,13 @@
 									exportChatsHandler();
 								}}
 							>
-								{$i18n.t('Export All Archived Chats')}
+								{'Export All Archived Chats'}
 							</button>
 						</div>
 					</div>
 				{:else}
 					<div class="text-left text-sm w-full mb-8">
-						{$i18n.t('You have no archived conversations.')}
+						{'You have no archived conversations.'}
 					</div>
 				{/if}
 			</div>

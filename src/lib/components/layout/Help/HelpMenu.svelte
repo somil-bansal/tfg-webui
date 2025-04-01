@@ -9,7 +9,6 @@
 	import QuestionMarkCircle from '$lib/components/icons/QuestionMarkCircle.svelte';
 	import Lifebuoy from '$lib/components/icons/Lifebuoy.svelte';
 	import Keyboard from '$lib/components/icons/Keyboard.svelte';
-	const i18n = getContext('i18n');
 
 	export let showDocsHandler: Function;
 	export let showShortcutsHandler: Function;
@@ -42,7 +41,7 @@
 				}}
 			>
 				<QuestionMarkCircle className="size-5" />
-				<div class="flex items-center">{$i18n.t('Documentation')}</div>
+				<div class="flex items-center">Documentation</div>
 			</DropdownMenu.Item>
 
 			<DropdownMenu.Item
@@ -53,7 +52,7 @@
 				}}
 			>
 				<Keyboard className="size-5" />
-				<div class="flex items-center">{$i18n.t('Keyboard shortcuts')}</div>
+				<div class="flex items-center">Keyboard shortcuts</div>
 			</DropdownMenu.Item>
 		</DropdownMenu.Content>
 	</div>

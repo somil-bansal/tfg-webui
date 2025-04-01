@@ -4,7 +4,7 @@
 	import { prompts } from '$lib/stores';
 	import { onMount, tick, getContext } from 'svelte';
 
-	const i18n = getContext('i18n');
+	
 
 	import { createNewPrompt, getPrompts } from '$lib/apis/prompts';
 	import PromptEditor from '$lib/components/workspace/Prompts/PromptEditor.svelte';
@@ -17,7 +17,7 @@
 		});
 
 		if (prompt) {
-			toast.success($i18n.t('Prompt created successfully'));
+			toast.success('Prompt created successfully');
 
 			await prompts.set(await getPrompts(localStorage.token));
 			await goto('/workspace/prompts');

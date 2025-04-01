@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
 	import { getContext, onMount } from 'svelte';
-	const i18n = getContext('i18n');
+	
 
 	import Modal from '$lib/components/common/Modal.svelte';
 	import ManageOllama from '../Models/Manage/ManageOllama.svelte';
@@ -17,7 +17,7 @@
 				class="flex w-full justify-between items-center text-lg font-medium self-center font-primary"
 			>
 				<div class=" shrink-0">
-					{$i18n.t('Manage Ollama')}
+					{'Manage Ollama'}
 				</div>
 			</div>
 			<button

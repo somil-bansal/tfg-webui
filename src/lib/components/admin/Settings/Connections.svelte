@@ -20,7 +20,7 @@
 	import AddConnectionModal from '$lib/components/AddConnectionModal.svelte';
 	import OllamaConnection from './Connections/OllamaConnection.svelte';
 
-	const i18n = getContext('i18n');
+	
 
 	const getModels = async () => {
 		const models = await _getModels(
@@ -78,7 +78,7 @@
 			});
 
 			if (res) {
-				toast.success($i18n.t('OpenAI API settings updated'));
+				toast.success('OpenAI API settings updated');
 				await models.set(await getModels());
 			}
 		}
@@ -98,7 +98,7 @@
 			});
 
 			if (res) {
-				toast.success($i18n.t('Ollama API settings updated'));
+				toast.success('Ollama API settings updated');
 				await models.set(await getModels());
 			}
 		}
@@ -112,7 +112,7 @@
 		);
 
 		if (res) {
-			toast.success($i18n.t('Direct Connections settings updated'));
+			toast.success('Direct Connections settings updated');
 			await models.set(await getModels());
 		}
 	};
@@ -219,7 +219,7 @@
 			<div class="my-2">
 				<div class="mt-2 space-y-2 pr-1.5">
 					<div class="flex justify-between items-center text-sm">
-						<div class="  font-medium">{$i18n.t('OpenAI API')}</div>
+						<div class="  font-medium">{'OpenAI API'}</div>
 
 						<div class="flex items-center">
 							<div class="">
@@ -238,9 +238,9 @@
 
 						<div class="">
 							<div class="flex justify-between items-center">
-								<div class="font-medium">{$i18n.t('Manage OpenAI API Connections')}</div>
+								<div class="font-medium">{'Manage OpenAI API Connections'}</div>
 
-								<Tooltip content={$i18n.t(`Add Connection`)}>
+								<Tooltip content={`Add Connection`}>
 									<button
 										class="px-1"
 										on:click={() => {
@@ -288,7 +288,7 @@
 
 			<div class="pr-1.5 my-2">
 				<div class="flex justify-between items-center text-sm mb-2">
-					<div class="  font-medium">{$i18n.t('Ollama API')}</div>
+					<div class="  font-medium">{'Ollama API'}</div>
 
 					<div class="mt-1">
 						<Switch
@@ -305,9 +305,9 @@
 
 					<div class="">
 						<div class="flex justify-between items-center">
-							<div class="font-medium">{$i18n.t('Manage Ollama API Connections')}</div>
+							<div class="font-medium">{'Manage Ollama API Connections'}</div>
 
-							<Tooltip content={$i18n.t(`Add Connection`)}>
+							<Tooltip content={`Add Connection`}>
 								<button
 									class="px-1"
 									on:click={() => {
@@ -345,13 +345,13 @@
 						</div>
 
 						<div class="mt-1 text-xs text-gray-400 dark:text-gray-500">
-							{$i18n.t('Trouble accessing Ollama?')}
+							{'Trouble accessing Ollama?'}
 							<a
 								class=" text-gray-300 font-medium underline"
 								href="https://github.com/open-webui/open-webui#troubleshooting"
 								target="_blank"
 							>
-								{$i18n.t('Click here for help.')}
+								{'Click here for help.'}
 							</a>
 						</div>
 					</div>
@@ -362,7 +362,7 @@
 
 			<div class="pr-1.5 my-2">
 				<div class="flex justify-between items-center text-sm">
-					<div class="  font-medium">{$i18n.t('Direct Connections')}</div>
+					<div class="  font-medium">{'Direct Connections'}</div>
 
 					<div class="flex items-center">
 						<div class="">
@@ -378,9 +378,9 @@
 
 				<div class="mt-1.5">
 					<div class="text-xs text-gray-500">
-						{$i18n.t(
+						{
 							'Direct Connections allow users to connect to their own OpenAI compatible API endpoints.'
-						)}
+						}
 					</div>
 				</div>
 			</div>
@@ -398,7 +398,7 @@
 			class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
 			type="submit"
 		>
-			{$i18n.t('Save')}
+			{'Save'}
 		</button>
 	</div>
 </form>

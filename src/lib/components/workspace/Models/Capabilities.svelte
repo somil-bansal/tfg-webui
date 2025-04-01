@@ -4,14 +4,14 @@
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import { marked } from 'marked';
 
-	const i18n = getContext('i18n');
+	
 
 	const helpText = {
-		vision: $i18n.t('Model accepts image inputs'),
-		usage: $i18n.t(
+		vision: 'Model accepts image inputs',
+		usage: 
 			'Sends `stream_options: { include_usage: true }` in the request.\nSupported providers will return token usage information in the response when set.'
-		),
-		citations: $i18n.t('Displays citations in the response')
+		,
+		citations: 'Displays citations in the response'
 	};
 
 	export let capabilities: {
@@ -23,7 +23,7 @@
 
 <div>
 	<div class="flex w-full justify-between mb-1">
-		<div class=" self-center text-sm font-semibold">{$i18n.t('Capabilities')}</div>
+		<div class=" self-center text-sm font-semibold">{'Capabilities'}</div>
 	</div>
 	<div class="flex">
 		{#each Object.keys(capabilities) as capability}
@@ -37,7 +37,7 @@
 
 				<div class=" py-0.5 text-sm capitalize">
 					<Tooltip content={marked.parse(helpText[capability])}>
-						{$i18n.t(capability)}
+						{capability}
 					</Tooltip>
 				</div>
 			</div>

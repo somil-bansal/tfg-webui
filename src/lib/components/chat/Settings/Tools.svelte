@@ -4,7 +4,7 @@
 	import { getModels as _getModels, getToolServersData } from '$lib/apis';
 
 	const dispatch = createEventDispatcher();
-	const i18n = getContext('i18n');
+	
 
 	import { models, settings, toolServers, user } from '$lib/stores';
 
@@ -31,7 +31,7 @@
 			toolServers: servers
 		});
 
-		toolServers.set(await getToolServersData($i18n, $settings?.toolServers ?? []));
+		toolServers.set(await getToolServersData($settings?.toolServers ?? []));
 	};
 
 	onMount(async () => {
@@ -51,14 +51,11 @@
 		{#if servers !== null}
 			<div class="">
 				<div class="pr-1.5">
-					<!-- {$i18n.t(`Failed to connect to {{URL}} OpenAPI tool server`, {
-						URL: 'server?.url'
-					})} -->
 					<div class="">
 						<div class="flex justify-between items-center mb-0.5">
-							<div class="font-medium">{$i18n.t('Manage Tool Servers')}</div>
+							<div class="font-medium">Manage Tool Servers</div>
 
-							<Tooltip content={$i18n.t(`Add Connection`)}>
+							<Tooltip content="Add Connection">
 								<button
 									class="px-1"
 									on:click={() => {
@@ -91,11 +88,9 @@
 
 					<div class="my-1.5">
 						<div class="text-xs text-gray-500">
-							{$i18n.t('Connect to your own OpenAPI compatible external tool servers.')}
+							Connect to your own OpenAPI compatible external tool servers.
 							<br />
-							{$i18n.t(
-								'CORS must be properly configured by the provider to allow requests from Open WebUI.'
-							)}
+							CORS must be properly configured by the provider to allow requests from Open WebUI.
 						</div>
 					</div>
 				</div>
@@ -114,7 +109,7 @@
 			class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
 			type="submit"
 		>
-			{$i18n.t('Save')}
+			Save
 		</button>
 	</div>
 </form>

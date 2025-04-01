@@ -29,7 +29,7 @@
 	import Switch from '$lib/components/common/Switch.svelte';
 	import Textarea from '$lib/components/common/Textarea.svelte';
 
-	const i18n = getContext('i18n');
+	
 
 	let scanDirLoading = false;
 	let updateEmbeddingModelLoading = false;
@@ -83,32 +83,32 @@
 	const embeddingModelUpdateHandler = async () => {
 		if (embeddingEngine === '' && embeddingModel.split('/').length - 1 > 1) {
 			toast.error(
-				$i18n.t(
+				
 					'Model filesystem path detected. Model shortname is required for update, cannot continue.'
-				)
+				
 			);
 			return;
 		}
 		if (embeddingEngine === 'ollama' && embeddingModel === '') {
 			toast.error(
-				$i18n.t(
+				
 					'Model filesystem path detected. Model shortname is required for update, cannot continue.'
-				)
+				
 			);
 			return;
 		}
 
 		if (embeddingEngine === 'openai' && embeddingModel === '') {
 			toast.error(
-				$i18n.t(
+				
 					'Model filesystem path detected. Model shortname is required for update, cannot continue.'
 				)
-			);
+			;
 			return;
 		}
 
 		if ((embeddingEngine === 'openai' && OpenAIKey === '') || OpenAIUrl === '') {
-			toast.error($i18n.t('OpenAI URL/Key required.'));
+			toast.error('OpenAI URL/Key required.');
 			return;
 		}
 
@@ -137,9 +137,9 @@
 		if (res) {
 			console.log('embeddingModelUpdateHandler:', res);
 			if (res.status === true) {
-				toast.success($i18n.t('Embedding model set to "{{embedding_model}}"', res), {
+				toast.success('Embedding model set to "{{embedding_model}}"', res), {
 					duration: 1000 * 10
-				});
+				};
 			}
 		}
 	};
@@ -161,13 +161,13 @@
 			console.log('rerankingModelUpdateHandler:', res);
 			if (res.status === true) {
 				if (rerankingModel === '') {
-					toast.success($i18n.t('Reranking model disabled', res), {
+					toast.success('Reranking model disabled', res), {
 						duration: 1000 * 10
-					});
+					};
 				} else {
-					toast.success($i18n.t('Reranking model set to "{{reranking_model}}"', res), {
+					toast.success('Reranking model set to "{{reranking_model}}"', res), {
 						duration: 1000 * 10
-					});
+					};
 				}
 			}
 		}
@@ -175,18 +175,18 @@
 
 	const submitHandler = async () => {
 		if (contentExtractionEngine === 'tika' && tikaServerUrl === '') {
-			toast.error($i18n.t('Tika Server URL required.'));
+			toast.error('Tika Server URL required.');
 			return;
 		}
 		if (contentExtractionEngine === 'docling' && doclingServerUrl === '') {
-			toast.error($i18n.t('Docling Server URL required.'));
+			toast.error('Docling Server URL required.');
 			return;
 		}
 		if (
 			contentExtractionEngine === 'document_intelligence' &&
 			(documentIntelligenceEndpoint === '' || documentIntelligenceKey === '')
 		) {
-			toast.error($i18n.t('Document Intelligence endpoint and key required.'));
+			toast.error('Document Intelligence endpoint and key required.');
 			return;
 		}
 
@@ -303,7 +303,7 @@
 		});
 
 		if (res) {
-			toast.success($i18n.t('Success'));
+			toast.success('Success');
 		}
 	}}
 />
@@ -317,7 +317,7 @@
 		});
 
 		if (res) {
-			toast.success($i18n.t('Success'));
+			toast.success('Success');
 		}
 	}}
 />
@@ -331,14 +331,14 @@
 	<div class=" space-y-2.5 overflow-y-scroll scrollbar-hidden h-full pr-1.5">
 		<div class="">
 			<div class="mb-3">
-				<div class=" mb-2.5 text-base font-medium">{$i18n.t('General')}</div>
+				<div class=" mb-2.5 text-base font-medium">{'General'}</div>
 
 				<hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
 				<div class="  mb-2.5 flex flex-col w-full justify-between">
 					<div class="flex w-full justify-between">
 						<div class=" self-center text-xs font-medium">
-							{$i18n.t('Content Extraction Engine')}
+							{'Content Extraction Engine'}
 						</div>
 
 						<div class="">
@@ -346,10 +346,10 @@
 								class="dark:bg-gray-900 w-fit pr-8 rounded-sm px-2 text-xs bg-transparent outline-hidden text-right"
 								bind:value={contentExtractionEngine}
 							>
-								<option value="">{$i18n.t('Default')} </option>
-								<option value="tika">{$i18n.t('Tika')}</option>
-								<option value="docling">{$i18n.t('Docling')}</option>
-								<option value="document_intelligence">{$i18n.t('Document Intelligence')}</option>
+								<option value="">{'Default'} </option>
+								<option value="tika">{'Tika'}</option>
+								<option value="docling">{'Docling'}</option>
+								<option value="document_intelligence">{'Document Intelligence'}</option>
 							</select>
 						</div>
 					</div>
@@ -358,7 +358,7 @@
 							<div class="flex-1 mr-2">
 								<input
 									class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
-									placeholder={$i18n.t('Enter Tika Server URL')}
+									placeholder={'Enter Tika Server URL'}
 									bind:value={tikaServerUrl}
 								/>
 							</div>
@@ -367,7 +367,7 @@
 						<div class="flex w-full mt-1">
 							<input
 								class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
-								placeholder={$i18n.t('Enter Docling Server URL')}
+								placeholder={'Enter Docling Server URL'}
 								bind:value={doclingServerUrl}
 							/>
 						</div>
@@ -375,12 +375,12 @@
 						<div class="my-0.5 flex gap-2 pr-2">
 							<input
 								class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
-								placeholder={$i18n.t('Enter Document Intelligence Endpoint')}
+								placeholder={'Enter Document Intelligence Endpoint'}
 								bind:value={documentIntelligenceEndpoint}
 							/>
 
 							<SensitiveInput
-								placeholder={$i18n.t('Enter Document Intelligence Key')}
+								placeholder={'Enter Document Intelligence Key'}
 								bind:value={documentIntelligenceKey}
 							/>
 						</div>
@@ -390,7 +390,7 @@
 				{#if contentExtractionEngine === ''}
 					<div class="  mb-2.5 flex w-full justify-between">
 						<div class=" self-center text-xs font-medium">
-							{$i18n.t('PDF Extract Images (OCR)')}
+							{'PDF Extract Images (OCR)'}
 						</div>
 						<div class="flex items-center relative">
 							<Switch bind:state={pdfExtractImages} />
@@ -400,19 +400,19 @@
 
 				<div class="  mb-2.5 flex w-full justify-between">
 					<div class=" self-center text-xs font-medium">
-						<Tooltip content={$i18n.t('Full Context Mode')} placement="top-start">
-							{$i18n.t('Bypass Embedding and Retrieval')}
+						<Tooltip content={'Full Context Mode'} placement="top-start">
+							{'Bypass Embedding and Retrieval'}
 						</Tooltip>
 					</div>
 					<div class="flex items-center relative">
 						<Tooltip
 							content={BYPASS_EMBEDDING_AND_RETRIEVAL
-								? $i18n.t(
+								? 
 										'Inject the entire content as context for comprehensive processing, this is recommended for complex queries.'
-									)
-								: $i18n.t(
+									
+								: 
 										'Default to segmented retrieval for focused and relevant content extraction, this is recommended for most cases.'
-									)}
+									}
 						>
 							<Switch bind:state={BYPASS_EMBEDDING_AND_RETRIEVAL} />
 						</Tooltip>
@@ -421,14 +421,14 @@
 
 				{#if !BYPASS_EMBEDDING_AND_RETRIEVAL}
 					<div class="  mb-2.5 flex w-full justify-between">
-						<div class=" self-center text-xs font-medium">{$i18n.t('Text Splitter')}</div>
+						<div class=" self-center text-xs font-medium">{'Text Splitter'}</div>
 						<div class="flex items-center relative">
 							<select
 								class="dark:bg-gray-900 w-fit pr-8 rounded-sm px-2 text-xs bg-transparent outline-hidden text-right"
 								bind:value={textSplitter}
 							>
-								<option value="">{$i18n.t('Default')} ({$i18n.t('Character')})</option>
-								<option value="token">{$i18n.t('Token')} ({$i18n.t('Tiktoken')})</option>
+								<option value="">{'Default'} ({'Character'})</option>
+								<option value="token">{'Token'} ({'Tiktoken'})</option>
 							</select>
 						</div>
 					</div>
@@ -437,13 +437,13 @@
 						<div class=" flex gap-1.5 w-full">
 							<div class="  w-full justify-between">
 								<div class="self-center text-xs font-medium min-w-fit mb-1">
-									{$i18n.t('Chunk Size')}
+									{'Chunk Size'}
 								</div>
 								<div class="self-center">
 									<input
 										class=" w-full rounded-lg py-1.5 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
 										type="number"
-										placeholder={$i18n.t('Enter Chunk Size')}
+										placeholder={'Enter Chunk Size'}
 										bind:value={chunkSize}
 										autocomplete="off"
 										min="0"
@@ -453,14 +453,14 @@
 
 							<div class="w-full">
 								<div class=" self-center text-xs font-medium min-w-fit mb-1">
-									{$i18n.t('Chunk Overlap')}
+									{'Chunk Overlap'}
 								</div>
 
 								<div class="self-center">
 									<input
 										class="w-full rounded-lg py-1.5 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
 										type="number"
-										placeholder={$i18n.t('Enter Chunk Overlap')}
+										placeholder={'Enter Chunk Overlap'}
 										bind:value={chunkOverlap}
 										autocomplete="off"
 										min="0"
@@ -474,14 +474,14 @@
 
 			{#if !BYPASS_EMBEDDING_AND_RETRIEVAL}
 				<div class="mb-3">
-					<div class=" mb-2.5 text-base font-medium">{$i18n.t('Embedding')}</div>
+					<div class=" mb-2.5 text-base font-medium">{'Embedding'}</div>
 
 					<hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
 					<div class="  mb-2.5 flex flex-col w-full justify-between">
 						<div class="flex w-full justify-between">
 							<div class=" self-center text-xs font-medium">
-								{$i18n.t('Embedding Model Engine')}
+								{'Embedding Model Engine'}
 							</div>
 							<div class="flex items-center relative">
 								<select
@@ -498,9 +498,9 @@
 										}
 									}}
 								>
-									<option value="">{$i18n.t('Default (SentenceTransformers)')}</option>
-									<option value="ollama">{$i18n.t('Ollama')}</option>
-									<option value="openai">{$i18n.t('OpenAI')}</option>
+									<option value="">{'Default (SentenceTransformers)'}</option>
+									<option value="ollama">{'Ollama'}</option>
+									<option value="openai">{'OpenAI'}</option>
 								</select>
 							</div>
 						</div>
@@ -509,24 +509,24 @@
 							<div class="my-0.5 flex gap-2 pr-2">
 								<input
 									class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
-									placeholder={$i18n.t('API Base URL')}
+									placeholder={'API Base URL'}
 									bind:value={OpenAIUrl}
 									required
 								/>
 
-								<SensitiveInput placeholder={$i18n.t('API Key')} bind:value={OpenAIKey} />
+								<SensitiveInput placeholder={'API Key'} bind:value={OpenAIKey} />
 							</div>
 						{:else if embeddingEngine === 'ollama'}
 							<div class="my-0.5 flex gap-2 pr-2">
 								<input
 									class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
-									placeholder={$i18n.t('API Base URL')}
+									placeholder={'API Base URL'}
 									bind:value={OllamaUrl}
 									required
 								/>
 
 								<SensitiveInput
-									placeholder={$i18n.t('API Key')}
+									placeholder={'API Key'}
 									bind:value={OllamaKey}
 									required={false}
 								/>
@@ -535,7 +535,7 @@
 					</div>
 
 					<div class="  mb-2.5 flex flex-col w-full">
-						<div class=" mb-1 text-xs font-medium">{$i18n.t('Embedding Model')}</div>
+						<div class=" mb-1 text-xs font-medium">{'Embedding Model'}</div>
 
 						<div class="">
 							{#if embeddingEngine === 'ollama'}
@@ -544,7 +544,7 @@
 										<input
 											class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
 											bind:value={embeddingModel}
-											placeholder={$i18n.t('Set embedding model')}
+											placeholder={'Set embedding model'}
 											required
 										/>
 									</div>
@@ -554,9 +554,7 @@
 									<div class="flex-1 mr-2">
 										<input
 											class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
-											placeholder={$i18n.t('Set embedding model (e.g. {{model}})', {
-												model: embeddingModel.slice(-40)
-											})}
+											placeholder={'Set embedding model (e.g. sentence-transformers/all-MiniLM-L6-v2)'}
 											bind:value={embeddingModel}
 										/>
 									</div>
@@ -621,15 +619,15 @@
 						</div>
 
 						<div class="mt-1 mb-1 text-xs text-gray-400 dark:text-gray-500">
-							{$i18n.t(
+							{
 								'Warning: If you update or change your embedding model, you will need to re-import all documents.'
-							)}
+							}
 						</div>
 					</div>
 
 					{#if embeddingEngine === 'ollama' || embeddingEngine === 'openai'}
 						<div class="  mb-2.5 flex w-full justify-between">
-							<div class=" self-center text-xs font-medium">{$i18n.t('Embedding Batch Size')}</div>
+							<div class=" self-center text-xs font-medium">{'Embedding Batch Size'}</div>
 
 							<div class="">
 								<input
@@ -646,21 +644,21 @@
 				</div>
 
 				<div class="mb-3">
-					<div class=" mb-2.5 text-base font-medium">{$i18n.t('Retrieval')}</div>
+					<div class=" mb-2.5 text-base font-medium">{'Retrieval'}</div>
 
 					<hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
 					<div class="  mb-2.5 flex w-full justify-between">
-						<div class=" self-center text-xs font-medium">{$i18n.t('Full Context Mode')}</div>
+						<div class=" self-center text-xs font-medium">{'Full Context Mode'}</div>
 						<div class="flex items-center relative">
 							<Tooltip
 								content={RAG_FULL_CONTEXT
-									? $i18n.t(
+									? 
 											'Inject the entire content as context for comprehensive processing, this is recommended for complex queries.'
-										)
-									: $i18n.t(
+										
+									: 
 											'Default to segmented retrieval for focused and relevant content extraction, this is recommended for most cases.'
-										)}
+										}
 							>
 								<Switch bind:state={RAG_FULL_CONTEXT} />
 							</Tooltip>
@@ -669,7 +667,7 @@
 
 					{#if !RAG_FULL_CONTEXT}
 						<div class="  mb-2.5 flex w-full justify-between">
-							<div class=" self-center text-xs font-medium">{$i18n.t('Hybrid Search')}</div>
+							<div class=" self-center text-xs font-medium">{'Hybrid Search'}</div>
 							<div class="flex items-center relative">
 								<Switch
 									bind:state={querySettings.hybrid}
@@ -682,16 +680,14 @@
 
 						{#if querySettings.hybrid === true}
 							<div class="  mb-2.5 flex flex-col w-full">
-								<div class=" mb-1 text-xs font-medium">{$i18n.t('Reranking Model')}</div>
+								<div class=" mb-1 text-xs font-medium">{'Reranking Model'}</div>
 
 								<div class="">
 									<div class="flex w-full">
 										<div class="flex-1 mr-2">
 											<input
 												class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
-												placeholder={$i18n.t('Set reranking model (e.g. {{model}})', {
-													model: 'BAAI/bge-reranker-v2-m3'
-												})}
+												placeholder={'Set reranking model (e.g. BAAI/bge-reranker-v2-m3)'}
 												bind:value={rerankingModel}
 											/>
 										</div>
@@ -754,12 +750,12 @@
 						{/if}
 
 						<div class="  mb-2.5 flex w-full justify-between">
-							<div class=" self-center text-xs font-medium">{$i18n.t('Top K')}</div>
+							<div class=" self-center text-xs font-medium">{'Top K'}</div>
 							<div class="flex items-center relative">
 								<input
 									class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
 									type="number"
-									placeholder={$i18n.t('Enter Top K')}
+									placeholder={'Enter Top K'}
 									bind:value={querySettings.k}
 									autocomplete="off"
 									min="0"
@@ -769,12 +765,12 @@
 
 						{#if querySettings.hybrid === true}
 							<div class="mb-2.5 flex w-full justify-between">
-								<div class="self-center text-xs font-medium">{$i18n.t('Top K Reranker')}</div>
+								<div class="self-center text-xs font-medium">{'Top K Reranker'}</div>
 								<div class="flex items-center relative">
 									<input
 										class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
 										type="number"
-										placeholder={$i18n.t('Enter Top K Reranker')}
+										placeholder={'Enter Top K Reranker'}
 										bind:value={querySettings.k_reranker}
 										autocomplete="off"
 										min="0"
@@ -786,44 +782,44 @@
 						{#if querySettings.hybrid === true}
 							<div class="  mb-2.5 flex flex-col w-full justify-between">
 								<div class=" flex w-full justify-between">
-									<div class=" self-center text-xs font-medium">{$i18n.t('Minimum Score')}</div>
+									<div class=" self-center text-xs font-medium">{'Minimum Score'}</div>
 									<div class="flex items-center relative">
 										<input
 											class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
 											type="number"
 											step="0.01"
-											placeholder={$i18n.t('Enter Score')}
+											placeholder={'Enter Score'}
 											bind:value={querySettings.r}
 											autocomplete="off"
 											min="0.0"
-											title={$i18n.t(
+											title={
 												'The score should be a value between 0.0 (0%) and 1.0 (100%).'
-											)}
+											}
 										/>
 									</div>
 								</div>
 								<div class="mt-1 text-xs text-gray-400 dark:text-gray-500">
-									{$i18n.t(
+									{
 										'Note: If you set a minimum score, the search will only return documents with a score greater than or equal to the minimum score.'
-									)}
+									}
 								</div>
 							</div>
 						{/if}
 					{/if}
 
 					<div class="  mb-2.5 flex flex-col w-full justify-between">
-						<div class=" mb-1 text-xs font-medium">{$i18n.t('RAG Template')}</div>
+						<div class=" mb-1 text-xs font-medium">{'RAG Template'}</div>
 						<div class="flex w-full items-center relative">
 							<Tooltip
-								content={$i18n.t('Leave empty to use the default prompt, or enter a custom prompt')}
+								content={'Leave empty to use the default prompt, or enter a custom prompt'}
 								placement="top-start"
 								className="w-full"
 							>
 								<Textarea
 									bind:value={querySettings.template}
-									placeholder={$i18n.t(
+									placeholder={
 										'Leave empty to use the default prompt, or enter a custom prompt'
-									)}
+									}
 								/>
 							</Tooltip>
 						</div>
@@ -832,23 +828,23 @@
 			{/if}
 
 			<div class="mb-3">
-				<div class=" mb-2.5 text-base font-medium">{$i18n.t('Files')}</div>
+				<div class=" mb-2.5 text-base font-medium">{'Files'}</div>
 
 				<hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
 				<div class="  mb-2.5 flex w-full justify-between">
-					<div class=" self-center text-xs font-medium">{$i18n.t('Max Upload Size')}</div>
+					<div class=" self-center text-xs font-medium">{'Max Upload Size'}</div>
 					<div class="flex items-center relative">
 						<Tooltip
-							content={$i18n.t(
+							content={
 								'The maximum file size in MB. If the file size exceeds this limit, the file will not be uploaded.'
-							)}
+							}
 							placement="top-start"
 						>
 							<input
 								class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
 								type="number"
-								placeholder={$i18n.t('Leave empty for unlimited')}
+								placeholder={'Leave empty for unlimited'}
 								bind:value={fileMaxSize}
 								autocomplete="off"
 								min="0"
@@ -858,18 +854,18 @@
 				</div>
 
 				<div class="  mb-2.5 flex w-full justify-between">
-					<div class=" self-center text-xs font-medium">{$i18n.t('Max Upload Count')}</div>
+					<div class=" self-center text-xs font-medium">{'Max Upload Count'}</div>
 					<div class="flex items-center relative">
 						<Tooltip
-							content={$i18n.t(
+							content={
 								'The maximum number of files that can be used at once in chat. If the number of files exceeds this limit, the files will not be uploaded.'
-							)}
+							}
 							placement="top-start"
 						>
 							<input
 								class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
 								type="number"
-								placeholder={$i18n.t('Leave empty for unlimited')}
+								placeholder={'Leave empty for unlimited'}
 								bind:value={fileMaxCount}
 								autocomplete="off"
 								min="0"
@@ -880,19 +876,19 @@
 			</div>
 
 			<div class="mb-3">
-				<div class=" mb-2.5 text-base font-medium">{$i18n.t('Integration')}</div>
+				<div class=" mb-2.5 text-base font-medium">{'Integration'}</div>
 
 				<hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
 				<div class="  mb-2.5 flex w-full justify-between">
-					<div class=" self-center text-xs font-medium">{$i18n.t('Google Drive')}</div>
+					<div class=" self-center text-xs font-medium">{'Google Drive'}</div>
 					<div class="flex items-center relative">
 						<Switch bind:state={enableGoogleDriveIntegration} />
 					</div>
 				</div>
 
 				<div class="  mb-2.5 flex w-full justify-between">
-					<div class=" self-center text-xs font-medium">{$i18n.t('OneDrive')}</div>
+					<div class=" self-center text-xs font-medium">{'OneDrive'}</div>
 					<div class="flex items-center relative">
 						<Switch bind:state={enableOneDriveIntegration} />
 					</div>
@@ -900,12 +896,12 @@
 			</div>
 
 			<div class="mb-3">
-				<div class=" mb-2.5 text-base font-medium">{$i18n.t('Danger Zone')}</div>
+				<div class=" mb-2.5 text-base font-medium">{'Danger Zone'}</div>
 
 				<hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
 				<div class="  mb-2.5 flex w-full justify-between">
-					<div class=" self-center text-xs font-medium">{$i18n.t('Reset Upload Directory')}</div>
+					<div class=" self-center text-xs font-medium">{'Reset Upload Directory'}</div>
 					<div class="flex items-center relative">
 						<button
 							class="text-xs"
@@ -913,14 +909,14 @@
 								showResetUploadDirConfirm = true;
 							}}
 						>
-							{$i18n.t('Reset')}
+							{'Reset'}
 						</button>
 					</div>
 				</div>
 
 				<div class="  mb-2.5 flex w-full justify-between">
 					<div class=" self-center text-xs font-medium">
-						{$i18n.t('Reset Vector Storage/Knowledge')}
+						{'Reset Vector Storage/Knowledge'}
 					</div>
 					<div class="flex items-center relative">
 						<button
@@ -929,7 +925,7 @@
 								showResetConfirm = true;
 							}}
 						>
-							{$i18n.t('Reset')}
+							{'Reset'}
 						</button>
 					</div>
 				</div>
@@ -941,7 +937,7 @@
 			class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
 			type="submit"
 		>
-			{$i18n.t('Save')}
+			{'Save'}
 		</button>
 	</div>
 </form>

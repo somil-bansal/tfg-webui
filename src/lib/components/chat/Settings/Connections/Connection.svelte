@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getContext, tick } from 'svelte';
-	const i18n = getContext('i18n');
+	
 
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
@@ -52,9 +52,7 @@
 <div class="flex w-full gap-2 items-center">
 	<Tooltip
 		className="w-full relative"
-		content={$i18n.t(`WebUI will make requests to "{{url}}/chat/completions"`, {
-			url
-		})}
+		content={`WebUI will make requests to "${url}/chat/completions"`}
 		placement="top-start"
 	>
 		{#if !(config?.enable ?? true)}
@@ -66,7 +64,7 @@
 			<div class="flex-1 relative">
 				<input
 					class=" outline-hidden w-full bg-transparent {pipeline ? 'pr-8' : ''}"
-					placeholder={$i18n.t('API Base URL')}
+					placeholder="API Base URL"
 					bind:value={url}
 					autocomplete="off"
 				/>
@@ -74,14 +72,14 @@
 
 			<SensitiveInput
 				inputClassName=" outline-hidden bg-transparent w-full"
-				placeholder={$i18n.t('API Key')}
+				placeholder="API Key"
 				bind:value={key}
 			/>
 		</div>
 	</Tooltip>
 
 	<div class="flex gap-1">
-		<Tooltip content={$i18n.t('Configure')} className="self-start">
+		<Tooltip content="Configure" className="self-start">
 			<button
 				class="self-center p-1 bg-transparent hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-850 rounded-lg transition"
 				on:click={() => {

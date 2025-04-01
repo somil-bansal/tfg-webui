@@ -17,7 +17,7 @@
 
 	import localizedFormat from 'dayjs/plugin/localizedFormat';
 
-	const i18n = getContext('i18n');
+	
 	dayjs.extend(localizedFormat);
 
 	export let user;
@@ -55,7 +55,7 @@
 	const copyToClipboard = async (text) => {
 		const res = await _copyToClipboard(text);
 		if (res) {
-			toast.success($i18n.t('Copying to clipboard was successful!'));
+			toast.success('Copying to clipboard was successful!');
 		}
 	};
 
@@ -94,7 +94,7 @@
 
 <DeleteConfirmDialog
 	bind:show={showDeleteConfirm}
-	title={$i18n.t('Delete message?')}
+	title={'Delete message?'}
 	on:confirm={() => {
 		deleteMessageHandler();
 	}}
@@ -117,12 +117,12 @@
 			<div>
 				<Name>
 					{#if message.user}
-						{$i18n.t('You')}
+						{'You'}
 						<span class=" text-gray-500 text-sm font-medium">{message?.user ?? ''}</span>
 					{:else if $settings.showUsername || $_user.name !== user.name}
 						{user.name}
 					{:else}
-						{$i18n.t('You')}
+						{'You'}
 					{/if}
 
 					{#if message.timestamp}
@@ -197,7 +197,7 @@
 										editMessageConfirmHandler(false);
 									}}
 								>
-									{$i18n.t('Save')}
+									{'Save'}
 								</button>
 							</div>
 
@@ -209,7 +209,7 @@
 										cancelEditMessage();
 									}}
 								>
-									{$i18n.t('Cancel')}
+									{'Cancel'}
 								</button>
 
 								<button
@@ -219,7 +219,7 @@
 										editMessageConfirmHandler();
 									}}
 								>
-									{$i18n.t('Send')}
+									{'Send'}
 								</button>
 							</div>
 						</div>
@@ -342,7 +342,7 @@
 								{/if}
 							{/if}
 							{#if !readOnly}
-								<Tooltip content={$i18n.t('Edit')} placement="bottom">
+								<Tooltip content={'Edit'} placement="bottom">
 									<button
 										class="invisible group-hover:visible p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition edit-user-message-button"
 										on:click={() => {
@@ -367,7 +367,7 @@
 								</Tooltip>
 							{/if}
 
-							<Tooltip content={$i18n.t('Copy')} placement="bottom">
+							<Tooltip content={'Copy'} placement="bottom">
 								<button
 									class="invisible group-hover:visible p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition"
 									on:click={() => {
@@ -386,13 +386,13 @@
 											stroke-linecap="round"
 											stroke-linejoin="round"
 											d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"
-										/>
+									/>
 									</svg>
 								</button>
 							</Tooltip>
 
 							{#if !readOnly && (!isFirstMessage || siblings.length > 1)}
-								<Tooltip content={$i18n.t('Delete')} placement="bottom">
+								<Tooltip content={'Delete'} placement="bottom">
 									<button
 										class="invisible group-hover:visible p-1 rounded-sm dark:hover:text-white hover:text-black transition"
 										on:click={() => {

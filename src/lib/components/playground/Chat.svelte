@@ -25,7 +25,7 @@
 	import Sidebar from '../common/Sidebar.svelte';
 	import ArrowRight from '../icons/ArrowRight.svelte';
 
-	const i18n = getContext('i18n');
+	
 
 	let loaded = false;
 
@@ -73,7 +73,7 @@
 
 	const chatCompletionHandler = async () => {
 		if (selectedModelId === '') {
-			toast.error($i18n.t('Please select a model.'));
+			toast.error('Please select a model.');
 			return;
 		}
 
@@ -257,7 +257,7 @@
 				>
 					<div class="flex gap-2 justify-between items-center">
 						<div class=" shrink-0 font-medium ml-1.5">
-							{$i18n.t('System Instructions')}
+							{'System Instructions'}
 						</div>
 
 						{#if !showSystem}
@@ -283,7 +283,7 @@
 								bind:this={systemTextareaElement}
 								class="w-full h-full bg-transparent resize-none outline-hidden text-sm"
 								bind:value={system}
-								placeholder={$i18n.t("You're a helpful assistant.")}
+								placeholder={"You're a helpful assistant."}
 								on:input={() => {
 									resizeSystemTextarea();
 								}}
@@ -323,14 +323,12 @@
 				</div>
 				<div class="border border-gray-100 dark:border-gray-850 w-full px-3 py-2.5 rounded-xl">
 					<div class="py-0.5">
-						<!-- $i18n.t('a user') -->
-						<!-- $i18n.t('an assistant') -->
+						<!-- 'a user' -->
+						<!-- 'an assistant' -->
 						<textarea
 							bind:value={message}
 							class=" w-full h-full bg-transparent resize-none outline-hidden text-sm"
-							placeholder={$i18n.t(`Enter {{role}} message here`, {
-								role: role === 'user' ? $i18n.t('a user') : $i18n.t('an assistant')
-							})}
+							placeholder={role === 'user' ? 'Enter user message here' : 'Enter assistant message here'}
 							on:input={(e) => {
 								e.target.style.height = '';
 								e.target.style.height = Math.min(e.target.scrollHeight, 150) + 'px';
@@ -352,9 +350,9 @@
 								}}
 							>
 								{#if role === 'user'}
-									{$i18n.t('User')}
+									{'User'}
 								{:else}
-									{$i18n.t('Assistant')}
+									{'Assistant'}
 								{/if}
 							</button>
 						</div>
@@ -369,7 +367,7 @@
 										role = role === 'user' ? 'assistant' : 'user';
 									}}
 								>
-									{$i18n.t('Add')}
+									{'Add'}
 								</button>
 
 								<button
@@ -378,7 +376,7 @@
 										submitHandler();
 									}}
 								>
-									{$i18n.t('Run')}
+									{'Run'}
 								</button>
 							{:else}
 								<button
@@ -387,7 +385,7 @@
 										stopResponse();
 									}}
 								>
-									{$i18n.t('Cancel')}
+									{'Cancel'}
 								</button>
 							{/if}
 						</div>

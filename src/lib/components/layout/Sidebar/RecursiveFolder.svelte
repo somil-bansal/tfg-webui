@@ -1,7 +1,7 @@
 <script>
 	import { getContext, createEventDispatcher, onMount, onDestroy, tick } from 'svelte';
 
-	const i18n = getContext('i18n');
+	
 	const dispatch = createEventDispatcher();
 
 	import DOMPurify from 'dompurify';
@@ -245,14 +245,14 @@
 		});
 
 		if (res) {
-			toast.success($i18n.t('Folder deleted successfully'));
+			toast.success('Folder deleted successfully');
 			dispatch('update');
 		}
 	};
 
 	const nameUpdateHandler = async () => {
 		if (name === '') {
-			toast.error($i18n.t('Folder name cannot be empty'));
+			toast.error('Folder name cannot be empty');
 			return;
 		}
 
@@ -275,7 +275,7 @@
 
 		if (res) {
 			folders[folderId].name = name;
-			toast.success($i18n.t('Folder name updated successfully'));
+			toast.success('Folder name updated successfully');
 			dispatch('update');
 		}
 	};
@@ -334,16 +334,14 @@
 
 <DeleteConfirmDialog
 	bind:show={showDeleteConfirm}
-	title={$i18n.t('Delete folder?')}
+	title={'Delete folder?'}
 	on:confirm={() => {
 		deleteHandler();
 	}}
 >
 	<div class=" text-sm text-gray-700 dark:text-gray-300 flex-1 line-clamp-3">
 		{@html DOMPurify.sanitize(
-			$i18n.t('This will delete <strong>{{NAME}}</strong> and <strong>all its contents</strong>.', {
-				NAME: folders[folderId].name
-			})
+			'This will delete <strong>{{NAME}}</strong> and <strong>all its contents</strong>.'
 		)}
 	</div>
 </DeleteConfirmDialog>

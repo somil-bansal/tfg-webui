@@ -32,7 +32,7 @@
 	import Spinner from '../common/Spinner.svelte';
 	import { capitalizeFirstLetter } from '$lib/utils';
 
-	const i18n = getContext('i18n');
+	
 
 	let shiftKey = false;
 	let loaded = false;
@@ -65,7 +65,7 @@
 			return null;
 		});
 
-		toast.success($i18n.t('Redirecting you to Open WebUI Community'));
+		toast.success('Redirecting you to Open WebUI Community');
 
 		const url = 'https://openwebui.com';
 
@@ -123,7 +123,7 @@
 		});
 
 		if (res) {
-			toast.success($i18n.t('Tool deleted successfully'));
+			toast.success('Tool deleted successfully');
 
 			init();
 		}
@@ -168,7 +168,7 @@
 
 <svelte:head>
 	<title>
-		{$i18n.t('Tools')} | {$WEBUI_NAME}
+		Tools | {$WEBUI_NAME}
 	</title>
 </svelte:head>
 
@@ -176,7 +176,7 @@
 	<div class="flex flex-col gap-1 my-1.5">
 		<div class="flex justify-between items-center">
 			<div class="flex md:self-center text-xl font-medium px-0.5 items-center">
-				{$i18n.t('Tools')}
+				Tools
 				<div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-gray-850" />
 				<span class="text-lg font-medium text-gray-500 dark:text-gray-300"
 					>{filteredItems.length}</span
@@ -192,7 +192,7 @@
 				<input
 					class=" w-full text-sm pr-4 py-1 rounded-r-xl outline-hidden bg-transparent"
 					bind:value={query}
-					placeholder={$i18n.t('Search Tools')}
+					placeholder="Search Tools"
 				/>
 			</div>
 
@@ -251,15 +251,13 @@
 
 								<div class="text-xs text-gray-500 shrink-0">
 									<Tooltip
-										content={tool?.user?.email ?? $i18n.t('Deleted User')}
+										content={tool?.user?.email ?? 'Deleted User'}
 										className="flex shrink-0"
 										placement="top-start"
 									>
-										{$i18n.t('By {{name}}', {
-											name: capitalizeFirstLetter(
-												tool?.user?.name ?? tool?.user?.email ?? $i18n.t('Deleted User')
-											)
-										})}
+										By {capitalizeFirstLetter(
+											tool?.user?.name ?? tool?.user?.email ?? 'Deleted User'
+										)}
 									</Tooltip>
 								</div>
 							</div>
@@ -268,7 +266,7 @@
 				</a>
 				<div class="flex flex-row gap-0.5 self-center">
 					{#if shiftKey}
-						<Tooltip content={$i18n.t('Delete')}>
+						<Tooltip content="Delete">
 							<button
 								class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
 								type="button"
@@ -295,7 +293,7 @@
 							</Tooltip>
 						{/if}
 
-						<Tooltip content={$i18n.t('Valves')}>
+						<Tooltip content="Valves">
 							<button
 								class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
 								type="button"
@@ -380,7 +378,7 @@
 						toolsImportInputElement.click();
 					}}
 				>
-					<div class=" self-center mr-2 font-medium line-clamp-1">{$i18n.t('Import Tools')}</div>
+					<div class=" self-center mr-2 font-medium line-clamp-1">Import Tools</div>
 
 					<div class=" self-center">
 						<svg
@@ -414,7 +412,7 @@
 						}
 					}}
 				>
-					<div class=" self-center mr-2 font-medium line-clamp-1">{$i18n.t('Export Tools')}</div>
+					<div class=" self-center mr-2 font-medium line-clamp-1">Export Tools</div>
 
 					<div class=" self-center">
 						<svg
@@ -438,7 +436,7 @@
 	{#if $config?.features.enable_community_sharing}
 		<div class=" my-16">
 			<div class=" text-xl font-medium mb-1 line-clamp-1">
-				{$i18n.t('Made by Open WebUI Community')}
+				Made by Open WebUI Community
 			</div>
 
 			<a
@@ -447,9 +445,9 @@
 				target="_blank"
 			>
 				<div class=" self-center">
-					<div class=" font-semibold line-clamp-1">{$i18n.t('Discover a tool')}</div>
+					<div class=" font-semibold line-clamp-1">Discover a tool</div>
 					<div class=" text-sm line-clamp-1">
-						{$i18n.t('Discover, download, and explore custom tools')}
+						Discover, download, and explore custom tools
 					</div>
 				</div>
 
@@ -464,13 +462,13 @@
 
 	<DeleteConfirmDialog
 		bind:show={showDeleteConfirm}
-		title={$i18n.t('Delete tool?')}
+		title="Delete tool?"
 		on:confirm={() => {
 			deleteHandler(selectedTool);
 		}}
 	>
 		<div class=" text-sm text-gray-500">
-			{$i18n.t('This will delete')} <span class="  font-semibold">{selectedTool.name}</span>.
+			This will delete <span class="  font-semibold">{selectedTool.name}</span>.
 		</div>
 	</DeleteConfirmDialog>
 
@@ -492,7 +490,7 @@
 					});
 				}
 
-				toast.success($i18n.t('Tool imported successfully'));
+				toast.success('Tool imported successfully');
 				tools.set(await getTools(localStorage.token));
 			};
 
@@ -501,21 +499,16 @@
 	>
 		<div class="text-sm text-gray-500">
 			<div class=" bg-yellow-500/20 text-yellow-700 dark:text-yellow-200 rounded-lg px-4 py-3">
-				<div>{$i18n.t('Please carefully review the following warnings:')}</div>
+				<div>Please carefully review the following warnings:</div>
 
 				<ul class=" mt-1 list-disc pl-4 text-xs">
 					<li>
-						{$i18n.t('Tools have a function calling system that allows arbitrary code execution')}.
+						Tools have a function calling system that allows arbitrary code execution.
 					</li>
-					<li>{$i18n.t('Do not install tools from sources you do not fully trust.')}</li>
+					<li>Do not install tools from sources you do not fully trust.</li>
 				</ul>
 			</div>
 
-			<div class="my-3">
-				{$i18n.t(
-					'I acknowledge that I have read and I understand the implications of my action. I am aware of the risks associated with executing arbitrary code and I have verified the trustworthiness of the source.'
-				)}
-			</div>
 		</div>
 	</ConfirmDialog>
 {:else}

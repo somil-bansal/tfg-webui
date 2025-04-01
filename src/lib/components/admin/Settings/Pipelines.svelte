@@ -5,7 +5,6 @@
 	import { config, models, settings } from '$lib/stores';
 	import { getContext, onMount, tick } from 'svelte';
 	import type { Writable } from 'svelte/store';
-	import type { i18n as i18nType } from 'i18next';
 	import {
 		getPipelineValves,
 		getPipelineValvesSpec,
@@ -21,7 +20,6 @@
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import Switch from '$lib/components/common/Switch.svelte';
 
-	const i18n: Writable<i18nType> = getContext('i18n');
 
 	export let saveHandler: Function;
 
@@ -61,7 +59,7 @@
 			});
 
 			if (res) {
-				toast.success($i18n.t('Valves updated successfully'));
+				toast.success('Valves updated successfully');
 				setPipelines();
 				models.set(
 					await getModels(
@@ -72,7 +70,7 @@
 				saveHandler();
 			}
 		} else {
-			toast.error($i18n.t('No valves to update'));
+			toast.error('No valves to update');
 		}
 	};
 
@@ -128,7 +126,7 @@
 		});
 
 		if (res) {
-			toast.success($i18n.t('Pipeline downloaded successfully'));
+			toast.success('Pipeline downloaded successfully');
 			setPipelines();
 			models.set(
 				await getModels(
@@ -158,7 +156,7 @@
 			);
 
 			if (res) {
-				toast.success($i18n.t('Pipeline downloaded successfully'));
+				toast.success('Pipeline downloaded successfully');
 				setPipelines();
 				models.set(
 					await getModels(
@@ -168,7 +166,7 @@
 				);
 			}
 		} else {
-			toast.error($i18n.t('No file selected'));
+			toast.error('No file selected');
 		}
 
 		pipelineFiles = null;
@@ -192,7 +190,7 @@
 		});
 
 		if (res) {
-			toast.success($i18n.t('Pipeline deleted successfully'));
+			toast.success('Pipeline deleted successfully');
 			setPipelines();
 			models.set(
 				await getModels(
@@ -225,7 +223,7 @@
 		{#if PIPELINES_LIST !== null}
 			<div class="flex w-full justify-between mb-2">
 				<div class=" self-center text-sm font-semibold">
-					{$i18n.t('Manage Pipelines')}
+					{'Manage Pipelines'}
 				</div>
 			</div>
 
@@ -236,14 +234,14 @@
 							<select
 								class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
 								bind:value={selectedPipelinesUrlIdx}
-								placeholder={$i18n.t('Select a pipeline url')}
+								placeholder={'Select a pipeline url'}
 								on:change={async () => {
 									await tick();
 									await setPipelines();
 								}}
 							>
 								<option value="" selected disabled class="bg-gray-100 dark:bg-gray-700"
-									>{$i18n.t('Select a pipeline url')}</option
+									>{'Select a pipeline url'}</option
 								>
 
 								{#each PIPELINES_LIST as pipelines, idx}
@@ -258,7 +256,7 @@
 
 				<div class=" my-2">
 					<div class=" mb-2 text-sm font-medium">
-						{$i18n.t('Upload Pipeline')}
+						{'Upload Pipeline'}
 					</div>
 					<div class="flex w-full">
 						<div class="flex-1 mr-2">
@@ -280,7 +278,7 @@
 								{#if pipelineFiles}
 									{pipelineFiles.length > 0 ? `${pipelineFiles.length}` : ''} pipeline(s) selected.
 								{:else}
-									{$i18n.t('Click here to select a py file.')}
+									{'Click here to select a py file.'}
 								{/if}
 							</button>
 						</div>
@@ -343,13 +341,13 @@
 
 				<div class=" my-2">
 					<div class=" mb-2 text-sm font-medium">
-						{$i18n.t('Install from Github URL')}
+						{'Install from Github URL'}
 					</div>
 					<div class="flex w-full">
 						<div class="flex-1 mr-2">
 							<input
 								class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-								placeholder={$i18n.t('Enter Github Raw URL')}
+								placeholder={'Enter Github Raw URL'}
 								bind:value={pipelineDownloadUrl}
 							/>
 						</div>
@@ -424,7 +422,7 @@
 					{#if pipelines.length > 0}
 						<div class="flex w-full justify-between mb-2">
 							<div class=" self-center text-sm font-semibold">
-								{$i18n.t('Pipelines Valves')}
+								{'Pipelines Valves'}
 							</div>
 						</div>
 						<div class="space-y-1">
@@ -434,7 +432,7 @@
 										<select
 											class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
 											bind:value={selectedPipelineIdx}
-											placeholder={$i18n.t('Select a pipeline')}
+											placeholder={'Select a pipeline'}
 											on:change={async () => {
 												await tick();
 												await getValves(selectedPipelineIdx);
@@ -489,9 +487,9 @@
 														}}
 													>
 														{#if (valves[property] ?? null) === null}
-															<span class="ml-2 self-center"> {$i18n.t('None')} </span>
+															<span class="ml-2 self-center"> {'None'} </span>
 														{:else}
-															<span class="ml-2 self-center"> {$i18n.t('Custom')} </span>
+															<span class="ml-2 self-center"> {'Custom'} </span>
 														{/if}
 													</button>
 												</div>
@@ -555,7 +553,7 @@
 					</div>
 				{/if}
 			{:else}
-				<div>{$i18n.t('Pipelines Not Detected')}</div>
+				<div>{'Pipelines Not Detected'}</div>
 			{/if}
 		{:else}
 			<div class="flex justify-center h-full">
@@ -572,7 +570,7 @@
 				class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
 				type="submit"
 			>
-				{$i18n.t('Save')}
+				{'Save'}
 			</button>
 		</div>
 	{/if}

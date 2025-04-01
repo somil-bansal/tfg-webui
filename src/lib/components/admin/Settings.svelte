@@ -8,8 +8,6 @@
 
 	import General from './Settings/General.svelte';
 	import Pipelines from './Settings/Pipelines.svelte';
-	import Audio from './Settings/Audio.svelte';
-	import Images from './Settings/Images.svelte';
 	import Interface from './Settings/Interface.svelte';
 	import Models from './Settings/Models.svelte';
 	import Connections from './Settings/Connections.svelte';
@@ -18,10 +16,7 @@
 
 	import ChartBar from '../icons/ChartBar.svelte';
 	import DocumentChartBar from '../icons/DocumentChartBar.svelte';
-	import Evaluations from './Settings/Evaluations.svelte';
-	import CodeExecution from './Settings/CodeExecution.svelte';
-
-	const i18n = getContext('i18n');
+	
 
 	let selectedTab = 'general';
 
@@ -67,7 +62,7 @@
 					/>
 				</svg>
 			</div>
-			<div class=" self-center">{$i18n.t('General')}</div>
+			<div class=" self-center">{'General'}</div>
 		</button>
 
 		<button
@@ -91,7 +86,7 @@
 					/>
 				</svg>
 			</div>
-			<div class=" self-center">{$i18n.t('Connections')}</div>
+			<div class=" self-center">{'Connections'}</div>
 		</button>
 
 		<button
@@ -117,23 +112,10 @@
 					/>
 				</svg>
 			</div>
-			<div class=" self-center">{$i18n.t('Models')}</div>
+			<div class=" self-center">{'Models'}</div>
 		</button>
 
-		<button
-			class="px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition {selectedTab ===
-			'evaluations'
-				? ''
-				: ' text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'}"
-			on:click={() => {
-				selectedTab = 'evaluations';
-			}}
-		>
-			<div class=" self-center mr-2">
-				<DocumentChartBar />
-			</div>
-			<div class=" self-center">{$i18n.t('Evaluations')}</div>
-		</button>
+
 
 		<button
 			class="px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition {selectedTab ===
@@ -162,7 +144,7 @@
 					/>
 				</svg>
 			</div>
-			<div class=" self-center">{$i18n.t('Documents')}</div>
+			<div class=" self-center">{'Documents'}</div>
 		</button>
 
 		<button
@@ -186,34 +168,9 @@
 					/>
 				</svg>
 			</div>
-			<div class=" self-center">{$i18n.t('Web Search')}</div>
+			<div class=" self-center">{'Web Search'}</div>
 		</button>
 
-		<button
-			class="px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition {selectedTab ===
-			'code-execution'
-				? ''
-				: ' text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'}"
-			on:click={() => {
-				selectedTab = 'code-execution';
-			}}
-		>
-			<div class=" self-center mr-2">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 16 16"
-					fill="currentColor"
-					class="size-4"
-				>
-					<path
-						fill-rule="evenodd"
-						d="M2 4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4Zm2.22 1.97a.75.75 0 0 0 0 1.06l.97.97-.97.97a.75.75 0 1 0 1.06 1.06l1.5-1.5a.75.75 0 0 0 0-1.06l-1.5-1.5a.75.75 0 0 0-1.06 0ZM8.75 8.5a.75.75 0 0 0 0 1.5h2.5a.75.75 0 0 0 0-1.5h-2.5Z"
-						clip-rule="evenodd"
-					/>
-				</svg>
-			</div>
-			<div class=" self-center">{$i18n.t('Code Execution')}</div>
-		</button>
 
 		<button
 			class="px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition {selectedTab ===
@@ -238,61 +195,12 @@
 					/>
 				</svg>
 			</div>
-			<div class=" self-center">{$i18n.t('Interface')}</div>
+			<div class=" self-center">{'Interface'}</div>
 		</button>
 
-		<button
-			class="px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition {selectedTab ===
-			'audio'
-				? ''
-				: ' text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'}"
-			on:click={() => {
-				selectedTab = 'audio';
-			}}
-		>
-			<div class=" self-center mr-2">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 16 16"
-					fill="currentColor"
-					class="w-4 h-4"
-				>
-					<path
-						d="M7.557 2.066A.75.75 0 0 1 8 2.75v10.5a.75.75 0 0 1-1.248.56L3.59 11H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.59l3.162-2.81a.75.75 0 0 1 .805-.124ZM12.95 3.05a.75.75 0 1 0-1.06 1.06 5.5 5.5 0 0 1 0 7.78.75.75 0 1 0 1.06 1.06 7 7 0 0 0 0-9.9Z"
-					/>
-					<path
-						d="M10.828 5.172a.75.75 0 1 0-1.06 1.06 2.5 2.5 0 0 1 0 3.536.75.75 0 1 0 1.06 1.06 4 4 0 0 0 0-5.656Z"
-					/>
-				</svg>
-			</div>
-			<div class=" self-center">{$i18n.t('Audio')}</div>
-		</button>
 
-		<button
-			class="px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition {selectedTab ===
-			'images'
-				? ''
-				: ' text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'}"
-			on:click={() => {
-				selectedTab = 'images';
-			}}
-		>
-			<div class=" self-center mr-2">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 16 16"
-					fill="currentColor"
-					class="w-4 h-4"
-				>
-					<path
-						fill-rule="evenodd"
-						d="M2 4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4Zm10.5 5.707a.5.5 0 0 0-.146-.353l-1-1a.5.5 0 0 0-.708 0L9.354 9.646a.5.5 0 0 1-.708 0L6.354 7.354a.5.5 0 0 0-.708 0l-2 2a.5.5 0 0 0-.146.353V12a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5V9.707ZM12 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"
-						clip-rule="evenodd"
-					/>
-				</svg>
-			</div>
-			<div class=" self-center">{$i18n.t('Images')}</div>
-		</button>
+
+		
 
 		<button
 			class="px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition {selectedTab ===
@@ -321,43 +229,16 @@
 					/>
 				</svg>
 			</div>
-			<div class=" self-center">{$i18n.t('Pipelines')}</div>
+			<div class=" self-center">{'Pipelines'}</div>
 		</button>
 
-		<button
-			class="px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition {selectedTab ===
-			'db'
-				? ''
-				: ' text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'}"
-			on:click={() => {
-				selectedTab = 'db';
-			}}
-		>
-			<div class=" self-center mr-2">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 16 16"
-					fill="currentColor"
-					class="w-4 h-4"
-				>
-					<path d="M8 7c3.314 0 6-1.343 6-3s-2.686-3-6-3-6 1.343-6 3 2.686 3 6 3Z" />
-					<path
-						d="M8 8.5c1.84 0 3.579-.37 4.914-1.037A6.33 6.33 0 0 0 14 6.78V8c0 1.657-2.686 3-6 3S2 9.657 2 8V6.78c.346.273.72.5 1.087.683C4.42 8.131 6.16 8.5 8 8.5Z"
-					/>
-					<path
-						d="M8 12.5c1.84 0 3.579-.37 4.914-1.037.366-.183.74-.41 1.086-.684V12c0 1.657-2.686 3-6 3s-6-1.343-6-3v-1.22c.346.273.72.5 1.087.683C4.42 12.131 6.16 12.5 8 12.5Z"
-					/>
-				</svg>
-			</div>
-			<div class=" self-center">{$i18n.t('Database')}</div>
-		</button>
 	</div>
 
 	<div class="flex-1 mt-3 lg:mt-0 overflow-y-scroll pr-1 scrollbar-hidden">
 		{#if selectedTab === 'general'}
 			<General
 				saveHandler={async () => {
-					toast.success($i18n.t('Settings saved successfully!'));
+					toast.success('Settings saved successfully!');
 
 					await tick();
 					await config.set(await getBackendConfig());
@@ -366,17 +247,15 @@
 		{:else if selectedTab === 'connections'}
 			<Connections
 				on:save={() => {
-					toast.success($i18n.t('Settings saved successfully!'));
+					toast.success('Settings saved successfully!');
 				}}
 			/>
 		{:else if selectedTab === 'models'}
 			<Models />
-		{:else if selectedTab === 'evaluations'}
-			<Evaluations />
 		{:else if selectedTab === 'documents'}
 			<Documents
 				on:save={async () => {
-					toast.success($i18n.t('Settings saved successfully!'));
+					toast.success('Settings saved successfully!');
 
 					await tick();
 					await config.set(await getBackendConfig());
@@ -385,16 +264,7 @@
 		{:else if selectedTab === 'web'}
 			<WebSearch
 				saveHandler={async () => {
-					toast.success($i18n.t('Settings saved successfully!'));
-
-					await tick();
-					await config.set(await getBackendConfig());
-				}}
-			/>
-		{:else if selectedTab === 'code-execution'}
-			<CodeExecution
-				saveHandler={async () => {
-					toast.success($i18n.t('Settings saved successfully!'));
+					toast.success('Settings saved successfully!');
 
 					await tick();
 					await config.set(await getBackendConfig());
@@ -403,31 +273,14 @@
 		{:else if selectedTab === 'interface'}
 			<Interface
 				on:save={() => {
-					toast.success($i18n.t('Settings saved successfully!'));
+					toast.success('Settings saved successfully!');
 				}}
 			/>
-		{:else if selectedTab === 'audio'}
-			<Audio
-				saveHandler={() => {
-					toast.success($i18n.t('Settings saved successfully!'));
-				}}
-			/>
-		{:else if selectedTab === 'images'}
-			<Images
-				on:save={() => {
-					toast.success($i18n.t('Settings saved successfully!'));
-				}}
-			/>
-		{:else if selectedTab === 'db'}
-			<Database
-				saveHandler={() => {
-					toast.success($i18n.t('Settings saved successfully!'));
-				}}
-			/>
+
 		{:else if selectedTab === 'pipelines'}
 			<Pipelines
 				saveHandler={() => {
-					toast.success($i18n.t('Settings saved successfully!'));
+					toast.success('Settings saved successfully!');
 				}}
 			/>
 		{/if}

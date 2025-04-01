@@ -3,7 +3,7 @@
 	import { goto } from '$app/navigation';
 
 	import { onMount, getContext } from 'svelte';
-	const i18n = getContext('i18n');
+	
 
 	import { page } from '$app/stores';
 	import { config, models, settings } from '$lib/stores';
@@ -40,7 +40,7 @@
 					$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
 				)
 			);
-			toast.success($i18n.t('Model updated successfully'));
+			toast.success('Model updated successfully');
 			await goto('/workspace/models');
 		}
 	};

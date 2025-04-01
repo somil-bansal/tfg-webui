@@ -12,7 +12,6 @@ from open_webui.models.users import (
     UserUpdateForm,
 )
 
-
 from open_webui.socket.main import get_active_status_by_user_id
 from open_webui.constants import ERROR_MESSAGES
 from open_webui.env import SRC_LOG_LEVELS
@@ -94,8 +93,6 @@ class ChatPermissions(BaseModel):
 
 class FeaturesPermissions(BaseModel):
     web_search: bool = True
-    image_generation: bool = True
-    code_interpreter: bool = True
 
 
 class UserPermissions(BaseModel):

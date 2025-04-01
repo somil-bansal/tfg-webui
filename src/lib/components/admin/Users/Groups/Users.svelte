@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
-	const i18n = getContext('i18n');
+	
 
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import Plus from '$lib/components/icons/Plus.svelte';
@@ -66,7 +66,7 @@
 			<input
 				class=" w-full text-sm pr-4 rounded-r-xl outline-hidden bg-transparent"
 				bind:value={query}
-				placeholder={$i18n.t('Search')}
+				placeholder={'Search'}
 			/>
 		</div>
 	</div>
@@ -114,7 +114,7 @@
 				{/each}
 			{:else}
 				<div class="text-gray-500 text-xs text-center py-2 px-10">
-					{$i18n.t('No users were found.')}
+					{'No users were found.'}
 				</div>
 			{/if}
 		</div>

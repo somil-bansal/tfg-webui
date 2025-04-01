@@ -30,7 +30,7 @@
 	import Cube from '$lib/components/icons/Cube.svelte';
 	import { getChatById } from '$lib/apis/chats';
 
-	const i18n = getContext('i18n');
+	
 
 	export let shareEnabled: boolean = false;
 	export let shareHandler: Function;
@@ -194,7 +194,7 @@
 						d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
 					/>
 				</svg>
-				<div class="flex items-center">{$i18n.t('Settings')}</div>
+				<div class="flex items-center">{'Settings'}</div>
 			</DropdownMenu.Item> -->
 
 			{#if $mobile}
@@ -208,7 +208,7 @@
 					}}
 				>
 					<AdjustmentsHorizontal className=" size-4" strokeWidth="0.5" />
-					<div class="flex items-center">{$i18n.t('Controls')}</div>
+					<div class="flex items-center">{'Controls'}</div>
 				</DropdownMenu.Item>
 			{/if}
 
@@ -232,7 +232,7 @@
 							clip-rule="evenodd"
 						/>
 					</svg>
-					<div class="flex items-center">{$i18n.t('Share')}</div>
+					<div class="flex items-center">{'Share'}</div>
 				</DropdownMenu.Item>
 			{/if}
 
@@ -246,7 +246,7 @@
 				}}
 			>
 				<Map className=" size-4" strokeWidth="1.5" />
-				<div class="flex items-center">{$i18n.t('Overview')}</div>
+				<div class="flex items-center">{'Overview'}</div>
 			</DropdownMenu.Item>
 
 			<DropdownMenu.Item
@@ -259,7 +259,7 @@
 				}}
 			>
 				<Cube className=" size-4" strokeWidth="1.5" />
-				<div class="flex items-center">{$i18n.t('Artifacts')}</div>
+				<div class="flex items-center">{'Artifacts'}</div>
 			</DropdownMenu.Item>
 
 			<DropdownMenu.Sub>
@@ -281,7 +281,7 @@
 						/>
 					</svg>
 
-					<div class="flex items-center">{$i18n.t('Download')}</div>
+					<div class="flex items-center">{'Download'}</div>
 				</DropdownMenu.SubTrigger>
 				<DropdownMenu.SubContent
 					class="w-full rounded-xl px-1 py-1.5 z-50 bg-white dark:bg-gray-850 dark:text-white shadow-lg"
@@ -294,7 +294,7 @@
 							downloadJSONExport();
 						}}
 					>
-						<div class="flex items-center line-clamp-1">{$i18n.t('Export chat (.json)')}</div>
+						<div class="flex items-center line-clamp-1">{'Export chat (.json)'}</div>
 					</DropdownMenu.Item>
 					<DropdownMenu.Item
 						class="flex gap-2 items-center px-3 py-2 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
@@ -302,7 +302,7 @@
 							downloadTxt();
 						}}
 					>
-						<div class="flex items-center line-clamp-1">{$i18n.t('Plain text (.txt)')}</div>
+						<div class="flex items-center line-clamp-1">{'Plain text (.txt)'}</div>
 					</DropdownMenu.Item>
 
 					<DropdownMenu.Item
@@ -311,7 +311,7 @@
 							downloadPdf();
 						}}
 					>
-						<div class="flex items-center line-clamp-1">{$i18n.t('PDF document (.pdf)')}</div>
+						<div class="flex items-center line-clamp-1">{'PDF document (.pdf)'}</div>
 					</DropdownMenu.Item>
 				</DropdownMenu.SubContent>
 			</DropdownMenu.Sub>
@@ -325,12 +325,12 @@
 					});
 
 					if (res) {
-						toast.success($i18n.t('Copied to clipboard'));
+						toast.success('Copied to clipboard');
 					}
 				}}
 			>
 				<Clipboard className=" size-4" strokeWidth="1.5" />
-				<div class="flex items-center">{$i18n.t('Copy')}</div>
+				<div class="flex items-center">{'Copy'}</div>
 			</DropdownMenu.Item>
 
 			{#if !$temporaryChatEnabled}

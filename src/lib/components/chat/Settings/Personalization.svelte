@@ -9,7 +9,7 @@
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	const dispatch = createEventDispatcher();
 
-	const i18n = getContext('i18n');
+	
 
 	export let saveSettings: Function;
 
@@ -35,14 +35,14 @@
 		<div>
 			<div class="flex items-center justify-between mb-1">
 				<Tooltip
-					content={$i18n.t(
+					content={
 						'This is an experimental feature, it may not function as expected and is subject to change at any time.'
-					)}
+					}
 				>
 					<div class="text-sm font-medium">
-						{$i18n.t('Memory')}
+						{'Memory'}
 
-						<span class=" text-xs text-gray-500">({$i18n.t('Experimental')})</span>
+						<span class=" text-xs text-gray-500">({'Experimental'})</span>
 					</div>
 				</Tooltip>
 
@@ -59,9 +59,9 @@
 
 		<div class="text-xs text-gray-600 dark:text-gray-400">
 			<div>
-				{$i18n.t(
+				{
 					"You can personalize your interactions with LLMs by adding memories through the 'Manage' button below, making them more helpful and tailored to you."
-				)}
+				}
 			</div>
 
 			<!-- <div class="mt-3">
@@ -82,7 +82,7 @@
 					showManageModal = true;
 				}}
 			>
-				{$i18n.t('Manage')}
+				{'Manage'}
 			</button>
 		</div>
 	</div>
@@ -92,7 +92,7 @@
 			class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
 			type="submit"
 		>
-			{$i18n.t('Save')}
+			{'Save'}
 		</button>
 	</div>
 </form>

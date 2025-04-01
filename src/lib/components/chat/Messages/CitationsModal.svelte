@@ -4,7 +4,7 @@
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import { WEBUI_API_BASE_URL } from '$lib/constants';
 
-	const i18n = getContext('i18n');
+	
 
 	export let show = false;
 	export let citation;
@@ -50,7 +50,7 @@
 	<div>
 		<div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-2">
 			<div class=" text-lg font-medium self-center capitalize">
-				{$i18n.t('Citation')}
+				{'Citation'}
 			</div>
 			<button
 				class="self-center"
@@ -78,13 +78,13 @@
 				{#each mergedDocuments as document, documentIdx}
 					<div class="flex flex-col w-full">
 						<div class="text-sm font-medium dark:text-gray-300">
-							{$i18n.t('Source')}
+							{'Source'}
 						</div>
 
 						{#if document.source?.name}
 							<Tooltip
 								className="w-fit"
-								content={$i18n.t('Open file')}
+								content={'Open file'}
 								placement="top-start"
 								tippyOptions={{ duration: [500, 0] }}
 							>
@@ -102,7 +102,7 @@
 									</a>
 									{#if document?.metadata?.page}
 										<span class="text-xs text-gray-500 dark:text-gray-400">
-											({$i18n.t('page')}
+											('page'
 											{document.metadata.page + 1})
 										</span>
 									{/if}
@@ -110,12 +110,12 @@
 							</Tooltip>
 							{#if showRelevance}
 								<div class="text-sm font-medium dark:text-gray-300 mt-2">
-									{$i18n.t('Relevance')}
+									{'Relevance'}
 								</div>
 								{#if document.distance !== undefined}
 									<Tooltip
 										className="w-fit"
-										content={$i18n.t('Semantic distance to query')}
+										content={'Semantic distance to query'}
 										placement="top-start"
 										tippyOptions={{ duration: [500, 0] }}
 									>
@@ -139,26 +139,26 @@
 									</Tooltip>
 								{:else}
 									<div class="text-sm dark:text-gray-400">
-										{$i18n.t('No distance available')}
+										{'No distance available'}
 									</div>
 								{/if}
 							{/if}
 						{:else}
 							<div class="text-sm dark:text-gray-400">
-								{$i18n.t('No source available')}
+								{'No source available'}
 							</div>
 						{/if}
 					</div>
 					<div class="flex flex-col w-full">
 						<div class=" text-sm font-medium dark:text-gray-300 mt-2">
-							{$i18n.t('Content')}
+							{'Content'}
 						</div>
 						{#if document.metadata?.html}
 							<iframe
 								class="w-full border-0 h-auto rounded-none"
 								sandbox="allow-scripts allow-forms allow-same-origin"
 								srcdoc={document.document}
-								title={$i18n.t('Content')}
+								title={'Content'}
 							></iframe>
 						{:else}
 							<pre class="text-sm dark:text-gray-400 whitespace-pre-line">

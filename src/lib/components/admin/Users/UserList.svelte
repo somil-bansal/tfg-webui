@@ -28,9 +28,7 @@
 	import ChevronUp from '$lib/components/icons/ChevronUp.svelte';
 	import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
 	import About from '$lib/components/chat/Settings/About.svelte';
-	import Banner from '$lib/components/common/Banner.svelte';
 
-	const i18n = getContext('i18n');
 
 	export let users = [];
 
@@ -125,25 +123,11 @@
 />
 <UserChatsModal bind:show={showUserChatsModal} user={selectedUser} />
 
-{#if ($config?.license_metadata?.seats ?? null) !== null && users.length > $config?.license_metadata?.seats}
-	<div class=" mt-1 mb-2 text-xs text-red-500">
-		<Banner
-			className="mx-0"
-			banner={{
-				type: 'error',
-				title: 'License Error',
-				content:
-					'Exceeded the number of seats in your license. Please contact support to increase the number of seats.',
-				dismissable: true
-			}}
-		/>
-	</div>
-{/if}
 
 <div class="mt-0.5 mb-2 gap-1 flex flex-col md:flex-row justify-between">
 	<div class="flex md:self-center text-lg font-medium px-0.5">
 		<div class="flex-shrink-0">
-			{$i18n.t('Users')}
+			{'Users'}
 		</div>
 		<div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-gray-850" />
 
@@ -155,12 +139,9 @@
 				>
 			{:else}
 				<span class="text-lg font-medium text-gray-500 dark:text-gray-300"
-					>{users.length} of {$config?.license_metadata?.seats}
-					<span class="text-sm font-normal">available users</span></span
+					>{filteredUsers.length}</span
 				>
 			{/if}
-		{:else}
-			<span class="text-lg font-medium text-gray-500 dark:text-gray-300">{users.length}</span>
 		{/if}
 	</div>
 
@@ -184,12 +165,12 @@
 				<input
 					class=" w-full text-sm pr-4 py-1 rounded-r-xl outline-hidden bg-transparent"
 					bind:value={search}
-					placeholder={$i18n.t('Search')}
+					placeholder={'Search'}
 				/>
 			</div>
 
 			<div>
-				<Tooltip content={$i18n.t('Add User')}>
+				<Tooltip content={'Add User'}>
 					<button
 						class=" p-2 rounded-xl hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-850 transition font-medium text-sm flex items-center space-x-1"
 						on:click={() => {
@@ -220,7 +201,7 @@
 					on:click={() => setSortKey('role')}
 				>
 					<div class="flex gap-1.5 items-center">
-						{$i18n.t('Role')}
+						{'Role'}
 
 						{#if sortKey === 'role'}
 							<span class="font-normal"
@@ -243,7 +224,7 @@
 					on:click={() => setSortKey('name')}
 				>
 					<div class="flex gap-1.5 items-center">
-						{$i18n.t('Name')}
+						{'Name'}
 
 						{#if sortKey === 'name'}
 							<span class="font-normal"
@@ -266,7 +247,7 @@
 					on:click={() => setSortKey('email')}
 				>
 					<div class="flex gap-1.5 items-center">
-						{$i18n.t('Email')}
+						{'Email'}
 
 						{#if sortKey === 'email'}
 							<span class="font-normal"
@@ -290,7 +271,7 @@
 					on:click={() => setSortKey('last_active_at')}
 				>
 					<div class="flex gap-1.5 items-center">
-						{$i18n.t('Last Active')}
+						{'Last Active'}
 
 						{#if sortKey === 'last_active_at'}
 							<span class="font-normal"
@@ -313,7 +294,7 @@
 					on:click={() => setSortKey('created_at')}
 				>
 					<div class="flex gap-1.5 items-center">
-						{$i18n.t('Created at')}
+						{'Created at'}
 						{#if sortKey === 'created_at'}
 							<span class="font-normal"
 								>{#if sortOrder === 'asc'}
@@ -336,7 +317,7 @@
 					on:click={() => setSortKey('oauth_sub')}
 				>
 					<div class="flex gap-1.5 items-center">
-						{$i18n.t('OAuth ID')}
+						{'OAuth ID'}
 
 						{#if sortKey === 'oauth_sub'}
 							<span class="font-normal"
@@ -375,7 +356,7 @@
 						>
 							<Badge
 								type={user.role === 'admin' ? 'info' : user.role === 'user' ? 'success' : 'muted'}
-								content={$i18n.t(user.role)}
+								content={user.role}
 							/>
 						</button>
 					</td>
@@ -409,7 +390,7 @@
 					<td class="px-3 py-1 text-right">
 						<div class="flex justify-end w-full">
 							{#if $config.features.enable_admin_chat_access && user.role !== 'admin'}
-								<Tooltip content={$i18n.t('Chats')}>
+								<Tooltip content={'Chats'}>
 									<button
 										class="self-center w-fit text-sm px-2 py-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
 										on:click={async () => {
@@ -422,7 +403,7 @@
 								</Tooltip>
 							{/if}
 
-							<Tooltip content={$i18n.t('Edit User')}>
+							<Tooltip content={'Edit User'}>
 								<button
 									class="self-center w-fit text-sm px-2 py-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
 									on:click={async () => {
@@ -448,7 +429,7 @@
 							</Tooltip>
 
 							{#if user.role !== 'admin'}
-								<Tooltip content={$i18n.t('Delete User')}>
+								<Tooltip content={'Delete User'}>
 									<button
 										class="self-center w-fit text-sm px-2 py-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
 										on:click={async () => {
@@ -482,7 +463,7 @@
 </div>
 
 <div class=" text-gray-500 text-xs mt-1.5 text-right">
-	ⓘ {$i18n.t("Click on the user role button to change a user's role.")}
+	ⓘ {"Click on the user role button to change a user's role."}
 </div>
 
 <Pagination bind:page count={users.length} />

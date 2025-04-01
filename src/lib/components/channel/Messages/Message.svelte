@@ -11,7 +11,6 @@
 	dayjs.extend(localizedFormat);
 
 	import { getContext, onMount } from 'svelte';
-	const i18n = getContext<Writable<i18nType>>('i18n');
 
 	import { settings, user, shortCodesToEmojis } from '$lib/stores';
 
@@ -52,8 +51,8 @@
 
 <ConfirmDialog
 	bind:show={showDeleteConfirmDialog}
-	title={$i18n.t('Delete Message')}
-	message={$i18n.t('Are you sure you want to delete this message?')}
+	title={'Delete Message'}
+	message={'Are you sure you want to delete this message?'}
 	onConfirm={async () => {
 		await onDelete();
 	}}
@@ -81,7 +80,7 @@
 							onReaction(name);
 						}}
 					>
-						<Tooltip content={$i18n.t('Add Reaction')}>
+						<Tooltip content={'Add Reaction'}>
 							<button
 								class="hover:bg-gray-100 dark:hover:bg-gray-800 transition rounded-lg p-1"
 								on:click={() => {
@@ -94,7 +93,7 @@
 					</ReactionPicker>
 
 					{#if !thread}
-						<Tooltip content={$i18n.t('Reply in Thread')}>
+						<Tooltip content={'Reply in Thread'}>
 							<button
 								class="hover:bg-gray-100 dark:hover:bg-gray-800 transition rounded-lg p-1"
 								on:click={() => {
@@ -107,7 +106,7 @@
 					{/if}
 
 					{#if message.user_id === $user.id || $user.role === 'admin'}
-						<Tooltip content={$i18n.t('Edit')}>
+						<Tooltip content={'Edit'}>
 							<button
 								class="hover:bg-gray-100 dark:hover:bg-gray-800 transition rounded-lg p-1"
 								on:click={() => {
@@ -119,7 +118,7 @@
 							</button>
 						</Tooltip>
 
-						<Tooltip content={$i18n.t('Delete')}>
+						<Tooltip content={'Delete'}>
 							<button
 								class="hover:bg-gray-100 dark:hover:bg-gray-800 transition rounded-lg p-1"
 								on:click={() => (showDeleteConfirmDialog = true)}
@@ -143,8 +142,7 @@
 				{#if showUserProfile}
 					<ProfilePreview user={message.user}>
 						<ProfileImage
-							src={message.user?.profile_image_url ??
-								($i18n.language === 'dg-DG' ? `/doge.png` : `${WEBUI_BASE_URL}/static/favicon.png`)}
+							src={message.user?.profile_image_url ?? `${WEBUI_BASE_URL}/static/favicon.png`}
 							className={'size-8 translate-y-1 ml-0.5'}
 						/>
 					</ProfilePreview>
@@ -231,7 +229,7 @@
 										editedContent = null;
 									}}
 								>
-									{$i18n.t('Cancel')}
+									{'Cancel'}
 								</button>
 
 								<button
@@ -243,7 +241,7 @@
 										editedContent = null;
 									}}
 								>
-									{$i18n.t('Save')}
+									{'Save'}
 								</button>
 							</div>
 						</div>
@@ -273,20 +271,6 @@
 												onReaction(reaction.name);
 											}}
 										>
-											{#if $shortCodesToEmojis[reaction.name]}
-												<img
-													src="/assets/emojis/{$shortCodesToEmojis[
-														reaction.name
-													].toLowerCase()}.svg"
-													alt={reaction.name}
-													class=" size-4"
-													loading="lazy"
-												/>
-											{:else}
-												<div>
-													{reaction.name}
-												</div>
-											{/if}
 
 											{#if reaction.user_ids.length > 0}
 												<div class="text-xs font-medium text-gray-500 dark:text-gray-400">
@@ -302,7 +286,7 @@
 										onReaction(name);
 									}}
 								>
-									<Tooltip content={$i18n.t('Add Reaction')}>
+									<Tooltip content={'Add Reaction'}>
 										<div
 											class="flex items-center gap-1.5 bg-gray-500/10 hover:outline hover:outline-gray-700/30 dark:hover:outline-gray-300/30 hover:outline-1 transition rounded-xl px-1 py-1 cursor-pointer text-gray-500 dark:text-gray-400"
 										>
@@ -323,16 +307,15 @@
 								}}
 							>
 								<span class="font-medium mr-1">
-									{$i18n.t('{{COUNT}} Replies', { COUNT: message.reply_count })}</span
+									{message.reply_count} Replies</span
 								><span>
-									{' - '}{$i18n.t('Last reply')}
+									{' - '}Last reply
 									{dayjs.unix(message.latest_reply_at / 1000000000).fromNow()}</span
 								>
 
 								<span class="ml-1">
 									<ChevronRight className="size-2.5" strokeWidth="3" />
 								</span>
-								<!-- {$i18n.t('View Replies')} -->
 							</button>
 						</div>
 					{/if}

@@ -25,7 +25,7 @@
 	import { createNewGroup, getGroups } from '$lib/apis/groups';
 	import { getUserDefaultPermissions, updateUserDefaultPermissions } from '$lib/apis/users';
 
-	const i18n = getContext('i18n');
+	
 
 	let loaded = false;
 
@@ -68,8 +68,6 @@
 		},
 		features: {
 			web_search: true,
-			image_generation: true,
-			code_interpreter: true
 		}
 	};
 
@@ -87,7 +85,7 @@
 		});
 
 		if (res) {
-			toast.success($i18n.t('Group created successfully'));
+			toast.success('Group created successfully');
 			groups = await getGroups(localStorage.token);
 		}
 	};
@@ -103,7 +101,7 @@
 		);
 
 		if (res) {
-			toast.success($i18n.t('Default permissions updated successfully'));
+			toast.success('Default permissions updated successfully');
 			defaultPermissions = await getUserDefaultPermissions(localStorage.token);
 		}
 	};
@@ -123,7 +121,7 @@
 	<AddGroupModal bind:show={showCreateGroupModal} onSubmit={addGroupHandler} />
 	<div class="mt-0.5 mb-2 gap-1 flex flex-col md:flex-row justify-between">
 		<div class="flex md:self-center text-lg font-medium px-0.5">
-			{$i18n.t('Groups')}
+			{'Groups'}
 			<div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-gray-850" />
 
 			<span class="text-lg font-medium text-gray-500 dark:text-gray-300">{groups.length}</span>
@@ -149,12 +147,12 @@
 					<input
 						class=" w-full text-sm pr-4 py-1 rounded-r-xl outline-hidden bg-transparent"
 						bind:value={search}
-						placeholder={$i18n.t('Search')}
+						placeholder={'Search'}
 					/>
 				</div>
 
 				<div>
-					<Tooltip content={$i18n.t('Create Group')}>
+					<Tooltip content={'Create Group'}>
 						<button
 							class=" p-2 rounded-xl hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-850 transition font-medium text-sm flex items-center space-x-1"
 							on:click={() => {
@@ -173,22 +171,22 @@
 		{#if filteredGroups.length === 0}
 			<div class="flex flex-col items-center justify-center h-40">
 				<div class=" text-xl font-medium">
-					{$i18n.t('Organize your users')}
+					{'Organize your users'}
 				</div>
 
 				<div class="mt-1 text-sm dark:text-gray-300">
-					{$i18n.t('Use groups to group your users and assign permissions.')}
+					{'Use groups to group your users and assign permissions.'}
 				</div>
 
 				<div class="mt-3">
 					<button
 						class=" px-4 py-1.5 text-sm rounded-full bg-black hover:bg-gray-800 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition font-medium flex items-center space-x-1"
-						aria-label={$i18n.t('Create Group')}
+						aria-label={'Create Group'}
 						on:click={() => {
 							showCreateGroupModal = true;
 						}}
 					>
-						{$i18n.t('Create Group')}
+						{'Create Group'}
 					</button>
 				</div>
 			</div>
@@ -234,10 +232,10 @@
 				</div>
 
 				<div class="text-left">
-					<div class=" text-sm font-medium">{$i18n.t('Default permissions')}</div>
+					<div class=" text-sm font-medium">{'Default permissions'}</div>
 
 					<div class="flex text-xs mt-0.5">
-						{$i18n.t('applies to all users with the "user" role')}
+						{'applies to all users with the "user" role'}
 					</div>
 				</div>
 			</div>

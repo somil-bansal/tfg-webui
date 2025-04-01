@@ -14,7 +14,7 @@
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import ConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
 
-	const i18n = getContext('i18n');
+	
 
 	export let show = false;
 	export let user;
@@ -66,7 +66,7 @@
 <Modal size="lg" bind:show>
 	<div class=" flex justify-between dark:text-gray-300 px-5 pt-4">
 		<div class=" text-lg font-medium self-center capitalize">
-			{$i18n.t("{{user}}'s Chats", { user: user.name })}
+			{`${user.name}'s Chats`}
 		</div>
 		<button
 			class="self-center"
@@ -103,7 +103,7 @@
 											class="px-3 py-2 cursor-pointer select-none"
 											on:click={() => setSortKey('title')}
 										>
-											{$i18n.t('Title')}
+											{'Title'}
 											{#if sortKey === 'title'}
 												{sortOrder === 'asc' ? '▲' : '▼'}
 											{:else}
@@ -115,7 +115,7 @@
 											class="px-3 py-2 hidden md:flex cursor-pointer select-none justify-end"
 											on:click={() => setSortKey('updated_at')}
 										>
-											{$i18n.t('Updated at')}
+											{'Updated at'}
 											{#if sortKey === 'updated_at'}
 												{sortOrder === 'asc' ? '▲' : '▼'}
 											{:else}
@@ -151,7 +151,7 @@
 
 											<td class="px-3 py-1 text-right">
 												<div class="flex justify-end w-full">
-													<Tooltip content={$i18n.t('Delete Chat')}>
+													<Tooltip content={'Delete Chat'}>
 														<button
 															class="self-center w-fit text-sm px-2 py-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
 															on:click={async () => {
@@ -191,7 +191,7 @@
 				{:else}
 					<div class="text-left text-sm w-full mb-8">
 						{user.name}
-						{$i18n.t('has no conversations.')}
+						{'has no conversations.'}
 					</div>
 				{/if}
 			{:else}

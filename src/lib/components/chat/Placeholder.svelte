@@ -16,7 +16,7 @@
 	import EyeSlash from '$lib/components/icons/EyeSlash.svelte';
 	import MessageInput from './MessageInput.svelte';
 
-	const i18n = getContext('i18n');
+	
 
 	export let transparentBackground = false;
 
@@ -34,8 +34,6 @@
 	export let files = [];
 
 	export let selectedToolIds = [];
-	export let imageGenerationEnabled = false;
-	export let codeInterpreterEnabled = false;
 	export let webSearchEnabled = false;
 
 	export let toolServers = [];
@@ -47,7 +45,7 @@
 
 		if (p.includes('{{CLIPBOARD}}')) {
 			const clipboardText = await navigator.clipboard.readText().catch((err) => {
-				toast.error($i18n.t('Failed to read clipboard contents'));
+				toast.error('Failed to read clipboard contents');
 				return '{{CLIPBOARD}}';
 			});
 
@@ -124,10 +122,7 @@
 								>
 									<img
 										crossorigin="anonymous"
-										src={model?.info?.meta?.profile_image_url ??
-											($i18n.language === 'dg-DG'
-												? `/doge.png`
-												: `${WEBUI_BASE_URL}/static/favicon.png`)}
+										src={model?.info?.meta?.profile_image_url ?? `${WEBUI_BASE_URL}/static/favicon.png`}
 										class=" size-9 @sm:size-10 rounded-full border-[1px] border-gray-100 dark:border-none"
 										alt="logo"
 										draggable="false"
@@ -142,7 +137,7 @@
 					{#if models[selectedModelIdx]?.name}
 						{models[selectedModelIdx]?.name}
 					{:else}
-						{$i18n.t('Hello, {{name}}', { name: $user.name })}
+						{`Hello, ${$user?.name}`}
 					{/if}
 				</div>
 			</div>
@@ -194,15 +189,13 @@
 					bind:prompt
 					bind:autoScroll
 					bind:selectedToolIds
-					bind:imageGenerationEnabled
-					bind:codeInterpreterEnabled
 					bind:webSearchEnabled
 					bind:atSelectedModel
 					{toolServers}
 					{transparentBackground}
 					{stopResponse}
 					{createMessagePair}
-					placeholder={$i18n.t('How can I help you today?')}
+					placeholder={'How can I help you today?'}
 					on:upload={(e) => {
 						dispatch('upload', e.detail);
 					}}

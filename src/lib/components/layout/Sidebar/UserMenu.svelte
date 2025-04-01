@@ -10,7 +10,7 @@
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import { userSignOut } from '$lib/apis/auths';
 
-	const i18n = getContext('i18n');
+	
 
 	export let show = false;
 	export let role = '';
@@ -69,7 +69,7 @@
 						/>
 					</svg>
 				</div>
-				<div class=" self-center truncate">{$i18n.t('Settings')}</div>
+				<div class=" self-center truncate">{'Settings'}</div>
 			</button>
 
 			<button
@@ -86,7 +86,7 @@
 				<div class=" self-center mr-3">
 					<ArchiveBox className="size-5" strokeWidth="1.5" />
 				</div>
-				<div class=" self-center truncate">{$i18n.t('Archived Chats')}</div>
+				<div class=" self-center truncate">{'Archived Chats'}</div>
 			</button>
 
 			{#if role === 'admin'}
@@ -117,7 +117,7 @@
 							/>
 						</svg>
 					</div>
-					<div class=" self-center truncate">{$i18n.t('Playground')}</div>
+					<div class=" self-center truncate">{'Playground'}</div>
 				</a>
 
 				<a
@@ -147,7 +147,7 @@
 							/>
 						</svg>
 					</div>
-					<div class=" self-center truncate">{$i18n.t('Admin Panel')}</div>
+					<div class=" self-center truncate">{'Admin Panel'}</div>
 				</a>
 			{/if}
 
@@ -184,7 +184,7 @@
 						/>
 					</svg>
 				</div>
-				<div class=" self-center truncate">{$i18n.t('Sign Out')}</div>
+				<div class=" self-center truncate">{'Sign Out'}</div>
 			</button>
 
 			{#if $activeUserIds?.length > 0}
@@ -192,7 +192,7 @@
 
 				<Tooltip
 					content={$USAGE_POOL && $USAGE_POOL.length > 0
-						? `${$i18n.t('Running')}: ${$USAGE_POOL.join(', ')} ✨`
+						? `Running: ${$USAGE_POOL.join(', ')} ✨`
 						: ''}
 				>
 					<div class="flex rounded-md py-1.5 px-3 text-xs gap-2.5 items-center">
@@ -207,7 +207,7 @@
 
 						<div class=" ">
 							<span class="">
-								{$i18n.t('Active Users')}:
+								{'Active Users'}:
 							</span>
 							<span class=" font-semibold">
 								{$activeUserIds?.length}

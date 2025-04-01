@@ -9,7 +9,7 @@
 	import { toast } from 'svelte-sonner';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
-	const i18n = getContext('i18n');
+	
 
 	export let show = false;
 	export let onSubmit: Function = () => {};
@@ -73,9 +73,9 @@
 		<div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-1">
 			<div class=" text-lg font-medium self-center">
 				{#if edit}
-					{$i18n.t('Edit Channel')}
+					{'Edit Channel'}
 				{:else}
-					{$i18n.t('Create Channel')}
+					{'Create Channel'}
 				{/if}
 			</div>
 			<button
@@ -108,14 +108,14 @@
 					}}
 				>
 					<div class="flex flex-col w-full mt-2">
-						<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Channel Name')}</div>
+						<div class=" mb-1 text-xs text-gray-500">{'Channel Name'}</div>
 
 						<div class="flex-1">
 							<input
 								class="w-full text-sm bg-transparent placeholder:text-gray-300 dark:placeholder:text-gray-700 outline-hidden"
 								type="text"
 								bind:value={name}
-								placeholder={$i18n.t('new-channel')}
+								placeholder={'new-channel'}
 								autocomplete="off"
 							/>
 						</div>
@@ -138,7 +138,7 @@
 									showDeleteConfirmDialog = true;
 								}}
 							>
-								{$i18n.t('Delete')}
+								{'Delete'}
 							</button>
 						{/if}
 
@@ -150,9 +150,9 @@
 							disabled={loading}
 						>
 							{#if edit}
-								{$i18n.t('Update')}
+								{'Update'}
 							{:else}
-								{$i18n.t('Create')}
+								{'Create'}
 							{/if}
 
 							{#if loading}
@@ -192,8 +192,8 @@
 
 <DeleteConfirmDialog
 	bind:show={showDeleteConfirmDialog}
-	message={$i18n.t('Are you sure you want to delete this channel?')}
-	confirmLabel={$i18n.t('Delete')}
+	message={'Are you sure you want to delete this channel?'}
+	confirmLabel={'Delete'}
 	on:confirm={() => {
 		deleteHandler();
 	}}

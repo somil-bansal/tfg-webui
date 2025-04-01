@@ -18,7 +18,7 @@
 	import { toast } from 'svelte-sonner';
 	import localizedFormat from 'dayjs/plugin/localizedFormat';
 
-	const i18n = getContext('i18n');
+	
 	dayjs.extend(localizedFormat);
 
 	let loaded = false;
@@ -180,7 +180,7 @@
 						class="px-4 py-2 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
 						on:click={cloneSharedChat}
 					>
-						{$i18n.t('Clone Chat')}
+						Clone Chat
 					</button>
 				</div>
 			</div>

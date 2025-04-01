@@ -2,7 +2,7 @@
 	import { toast } from 'svelte-sonner';
 
 	import { createEventDispatcher, getContext, onMount } from 'svelte';
-	const i18n = getContext('i18n');
+	
 	const dispatch = createEventDispatcher();
 
 	import { models } from '$lib/stores';
@@ -89,11 +89,11 @@
 		});
 
 		if (res) {
-			toast.success($i18n.t('Models configuration saved successfully'));
+			toast.success('Models configuration saved successfully');
 			initHandler();
 			show = false;
 		} else {
-			toast.error($i18n.t('Failed to save models configuration'));
+			toast.error('Failed to save models configuration');
 		}
 
 		loading = false;
@@ -105,13 +105,13 @@
 </script>
 
 <ConfirmDialog
-	title={$i18n.t('Reset All Models')}
-	message={$i18n.t('This will delete all models including custom models and cannot be undone.')}
+	title={'Reset All Models'}
+	message={'This will delete all models including custom models and cannot be undone.'}
 	bind:show={showResetModal}
 	onConfirm={async () => {
 		const res = deleteAllModels(localStorage.token);
 		if (res) {
-			toast.success($i18n.t('All models deleted successfully'));
+			toast.success('All models deleted successfully');
 			initHandler();
 		}
 	}}
@@ -121,7 +121,7 @@
 	<div>
 		<div class=" flex justify-between dark:text-gray-100 px-5 pt-4 pb-2">
 			<div class=" text-lg font-medium self-center font-primary">
-				{$i18n.t('Settings')}
+				{'Settings'}
 			</div>
 			<button
 				class="self-center"
@@ -176,7 +176,7 @@
 											});
 									}}
 								>
-									<div class="text-xs text-gray-500">{$i18n.t('Reorder Models')}</div>
+									<div class="text-xs text-gray-500">{'Reorder Models'}</div>
 
 									{#if sortKey === 'model'}
 										<span class="font-normal self-center">
@@ -202,7 +202,7 @@
 						<div>
 							<div class="flex flex-col w-full">
 								<div class="mb-1 flex justify-between">
-									<div class="text-xs text-gray-500">{$i18n.t('Default Models')}</div>
+									<div class="text-xs text-gray-500">{'Default Models'}</div>
 								</div>
 
 								<div class="flex items-center -mr-1">
@@ -212,7 +212,7 @@
 											: 'text-gray-500'} placeholder:text-gray-300 dark:placeholder:text-gray-700 outline-hidden"
 										bind:value={selectedModelId}
 									>
-										<option value="">{$i18n.t('Select a model')}</option>
+										<option value="">{'Select a model'}</option>
 										{#each $models as model}
 											<option value={model.id} class="bg-gray-50 dark:bg-gray-700"
 												>{model.name}</option
@@ -247,14 +247,14 @@
 									</div>
 								{:else}
 									<div class="text-gray-500 text-xs text-center py-2">
-										{$i18n.t('No models selected')}
+										{'No models selected'}
 									</div>
 								{/if}
 							</div>
 						</div>
 
 						<div class="flex justify-between pt-3 text-sm font-medium gap-1.5">
-							<Tooltip content={$i18n.t('This will delete all models including custom models')}>
+							<Tooltip content={'This will delete all models including custom models'}>
 								<button
 									class="px-3.5 py-1.5 text-sm font-medium dark:bg-black dark:hover:bg-gray-950 dark:text-white bg-white text-black hover:bg-gray-100 transition rounded-full flex flex-row space-x-1 items-center"
 									type="button"
@@ -262,8 +262,8 @@
 										showResetModal = true;
 									}}
 								>
-									<!-- {$i18n.t('Delete All Models')} -->
-									{$i18n.t('Reset All Models')}
+									<!-- {'Delete All Models')} -->
+									{'Reset All Models'}
 								</button>
 							</Tooltip>
 
@@ -274,7 +274,7 @@
 								type="submit"
 								disabled={loading}
 							>
-								{$i18n.t('Save')}
+								{'Save'}
 
 								{#if loading}
 									<div class="ml-2 self-center">

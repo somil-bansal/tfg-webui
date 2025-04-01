@@ -5,13 +5,12 @@
 	import { PaneGroup, Pane, PaneResizer } from 'paneforge';
 
 	import { getContext, onDestroy, onMount, tick } from 'svelte';
-	const i18n: Writable<i18nType> = getContext('i18n');
 
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
 	import { get, type Unsubscriber, type Writable } from 'svelte/store';
-	import type { i18n as i18nType } from 'i18next';
+
 	import { WEBUI_BASE_URL } from '$lib/constants';
 
 	import {
@@ -24,11 +23,9 @@
 		settings,
 		showSidebar,
 		WEBUI_NAME,
-		banners,
 		user,
 		socket,
 		showControls,
-		showCallOverlay,
 		currentChatPage,
 		temporaryChatEnabled,
 		mobile,
@@ -43,7 +40,6 @@
 		copyToClipboard,
 		getMessageContentParts,
 		createMessagesList,
-		extractSentencesForAudio,
 		promptTemplate,
 		splitStream,
 		sleep,
@@ -77,7 +73,6 @@
 	} from '$lib/apis';
 	import { getTools } from '$lib/apis/tools';
 
-	import Banner from '../common/Banner.svelte';
 	import MessageInput from '$lib/components/chat/MessageInput.svelte';
 	import Messages from '$lib/components/chat/Messages.svelte';
 	import Navbar from '$lib/components/chat/Navbar.svelte';
@@ -117,9 +112,7 @@
 	$: selectedModelIds = atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels;
 
 	let selectedToolIds = [];
-	let imageGenerationEnabled = false;
 	let webSearchEnabled = false;
-	let codeInterpreterEnabled = false;
 
 	let chat = null;
 	let tags = [];
@@ -146,7 +139,6 @@
 			files = [];
 			selectedToolIds = [];
 			webSearchEnabled = false;
-			imageGenerationEnabled = false;
 
 			if (chatIdProp && (await loadChat())) {
 				await tick();
@@ -160,7 +152,6 @@
 						files = input.files;
 						selectedToolIds = input.selectedToolIds;
 						webSearchEnabled = input.webSearchEnabled;
-						imageGenerationEnabled = input.imageGenerationEnabled;
 					} catch (e) {}
 				}
 
@@ -267,15 +258,7 @@
 							message.code_executions = [];
 						}
 
-						const existingCodeExecutionIndex = message.code_executions.findIndex(
-							(execution) => execution.id === data.id
-						);
-
-						if (existingCodeExecutionIndex !== -1) {
-							message.code_executions[existingCodeExecutionIndex] = data;
-						} else {
-							message.code_executions.push(data);
-						}
+						message.code_executions.push(data);
 
 						message.code_executions = message.code_executions;
 					} else {
@@ -416,13 +399,11 @@
 				files = input.files;
 				selectedToolIds = input.selectedToolIds;
 				webSearchEnabled = input.webSearchEnabled;
-				imageGenerationEnabled = input.imageGenerationEnabled;
 			} catch (e) {
 				prompt = '';
 				files = [];
 				selectedToolIds = [];
 				webSearchEnabled = false;
-				imageGenerationEnabled = false;
 			}
 		}
 
@@ -440,7 +421,6 @@
 			}
 
 			if (!value) {
-				showCallOverlay.set(false);
 				showOverview.set(false);
 				showArtifacts.set(false);
 			}
@@ -562,14 +542,12 @@
 			fileItem.url = `${WEBUI_API_BASE_URL}/files/${uploadedFile.id}`;
 
 			files = files;
-			toast.success($i18n.t('File uploaded successfully'));
+			toast.success('File uploaded successfully');
 		} catch (e) {
 			console.error('Error uploading file:', e);
 			files = files.filter((f) => f.itemId !== tempItemId);
 			toast.error(
-				$i18n.t('Error uploading file: {{error}}', {
-					error: e.message || 'Unknown error'
-				})
+				'Error uploading file: ' + (e.message || 'Unknown error')
 			);
 		}
 	};
@@ -695,7 +673,6 @@
 		}
 
 		await showControls.set(false);
-		await showCallOverlay.set(false);
 		await showOverview.set(false);
 		await showArtifacts.set(false);
 
@@ -744,7 +721,6 @@
 		}
 
 		if ($page.url.searchParams.get('call') === 'true') {
-			showCallOverlay.set(true);
 			showControls.set(true);
 		}
 
@@ -958,7 +934,7 @@
 	const createMessagePair = async (userPrompt) => {
 		prompt = '';
 		if (selectedModels.length === 0) {
-			toast.error($i18n.t('Model not selected'));
+			toast.error('Model not selected');
 		} else {
 			const modelId = selectedModels[0];
 			const model = $models.filter((m) => m.id === modelId).at(0);
@@ -1108,7 +1084,6 @@
 					// Emit chat event for TTS
 					const messageContentParts = getMessageContentParts(
 						message.content,
-						$config?.audio?.tts?.split_on ?? 'punctuation'
 					);
 					messageContentParts.pop();
 
@@ -1142,7 +1117,6 @@
 			// Emit chat event for TTS
 			const messageContentParts = getMessageContentParts(
 				message.content,
-				$config?.audio?.tts?.split_on ?? 'punctuation'
 			);
 			messageContentParts.pop();
 
@@ -1181,23 +1155,8 @@
 				copyToClipboard(message.content);
 			}
 
-			if ($settings.responseAutoPlayback && !$showCallOverlay) {
-				await tick();
-				document.getElementById(`speak-button-${message.id}`)?.click();
-			}
 
-			// Emit chat event for TTS
-			let lastMessageContentPart =
-				getMessageContentParts(message.content, $config?.audio?.tts?.split_on ?? 'punctuation')?.at(
-					-1
-				) ?? '';
-			if (lastMessageContentPart) {
-				eventTarget.dispatchEvent(
-					new CustomEvent('chat', {
-						detail: { id: message.id, content: lastMessageContentPart }
-					})
-				);
-			}
+
 			eventTarget.dispatchEvent(
 				new CustomEvent('chat:finish', {
 					detail: {
@@ -1238,11 +1197,11 @@
 		}
 
 		if (userPrompt === '' && files.length === 0) {
-			toast.error($i18n.t('Please enter a prompt'));
+			toast.error('Please enter a prompt');
 			return;
 		}
 		if (selectedModels.includes('')) {
-			toast.error($i18n.t('Model not selected'));
+			toast.error('Model not selected');
 			return;
 		}
 
@@ -1252,7 +1211,7 @@
 		}
 		if (messages.length != 0 && messages.at(-1).error && !messages.at(-1).content) {
 			// Error in response
-			toast.error($i18n.t(`Oops! There was an error in the previous response.`));
+			toast.error('Oops! There was an error in the previous response.');
 			return;
 		}
 		if (
@@ -1260,7 +1219,7 @@
 			files.filter((file) => file.type !== 'image' && file.status === 'uploading').length > 0
 		) {
 			toast.error(
-				$i18n.t(`Oops! There are files still uploading. Please wait for the upload to complete.`)
+				'Oops! There are files still uploading. Please wait for the upload to complete.'
 			);
 			return;
 		}
@@ -1269,9 +1228,7 @@
 			files.length + chatFiles.length > $config?.file?.max_count
 		) {
 			toast.error(
-				$i18n.t(`You can only chat with a maximum of {{maxCount}} file(s) at a time.`, {
-					maxCount: $config?.file?.max_count
-				})
+				'You can only chat with a maximum of ' + ($config?.file?.max_count ?? 'unknown') + ' file(s) at a time.'
 			);
 			return;
 		}
@@ -1403,17 +1360,6 @@
 				if (model) {
 					const messages = createMessagesList(_history, parentId);
 					// If there are image files, check if model is vision capable
-					const hasImages = messages.some((message) =>
-						message.files?.some((file) => file.type === 'image')
-					);
-
-					if (hasImages && !(model.info?.meta?.capabilities?.vision ?? true)) {
-						toast.error(
-							$i18n.t('Model {{modelName}} is not vision capable', {
-								modelName: model.name ?? model.id
-							})
-						);
-					}
 
 					let responseMessageId =
 						responseMessageIds[`${modelId}-${modelIdx ? modelIdx : _modelIdx}`];
@@ -1450,7 +1396,7 @@
 
 					if (chatEventEmitter) clearInterval(chatEventEmitter);
 				} else {
-					toast.error($i18n.t(`Model {{modelId}} not found`, { modelId }));
+					toast.error('Model ' + modelId + ' not found');
 				}
 			})
 		);
@@ -1514,7 +1460,7 @@
 				: undefined,
 			...createMessagesList(_history, responseMessageId).map((message) => ({
 				...message,
-				content: removeDetails(message.content, ['reasoning', 'code_interpreter'])
+				content: removeDetails(message.content, ['reasoning'])
 			}))
 		].filter((message) => message);
 
@@ -1570,16 +1516,6 @@
 				tool_servers: $toolServers,
 
 				features: {
-					image_generation:
-						$config?.features?.enable_image_generation &&
-						($user.role === 'admin' || $user?.permissions?.features?.image_generation)
-							? imageGenerationEnabled
-							: false,
-					code_interpreter:
-						$config?.features?.enable_code_interpreter &&
-						($user.role === 'admin' || $user?.permissions?.features?.code_interpreter)
-							? codeInterpreterEnabled
-							: false,
 					web_search:
 						$config?.features?.enable_web_search &&
 						($user.role === 'admin' || $user?.permissions?.features?.web_search)
@@ -1589,12 +1525,6 @@
 				variables: {
 					...getPromptVariables(
 						$user.name,
-						$settings?.userLocation
-							? await getAndUpdateUserLocation(localStorage.token).catch((err) => {
-									console.error(err);
-									return undefined;
-								})
-							: undefined
 					)
 				},
 				model_item: $models.find((m) => m.id === model.id),
@@ -1680,7 +1610,7 @@
 		}
 
 		responseMessage.error = {
-			content: $i18n.t(`Uh-oh! There was an issue with the response.`) + '\n' + errorMessage
+			content: 'Uh-oh! There was an issue with the response.\n' + errorMessage
 		};
 		responseMessage.done = true;
 
@@ -1835,7 +1765,7 @@
 		if (!$temporaryChatEnabled) {
 			chat = await createNewChat(localStorage.token, {
 				id: _chatId,
-				title: $i18n.t('New Chat'),
+				title: 'New Chat',
 				models: selectedModels,
 				system: $settings.system ?? undefined,
 				params: params,
@@ -1886,7 +1816,6 @@
 	</title>
 </svelte:head>
 
-<audio id="audioElement" src="" style="display: none;" />
 
 <EventConfirmDialog
 	bind:show={showEventConfirmation}
@@ -1948,55 +1877,6 @@
 
 		<PaneGroup direction="horizontal" class="w-full h-full">
 			<Pane defaultSize={50} class="h-full flex w-full relative">
-				{#if !history.currentId && !$chatId && selectedModels.length <= 1 && ($banners.length > 0 || ($config?.license_metadata?.type ?? null) === 'trial' || (($config?.license_metadata?.seats ?? null) !== null && $config?.user_count > $config?.license_metadata?.seats))}
-					<div class="absolute top-12 left-0 right-0 w-full z-30">
-						<div class=" flex flex-col gap-1 w-full">
-							{#if ($config?.license_metadata?.type ?? null) === 'trial'}
-								<Banner
-									banner={{
-										type: 'info',
-										title: 'Trial License',
-										content: $i18n.t(
-											'You are currently using a trial license. Please contact support to upgrade your license.'
-										)
-									}}
-								/>
-							{/if}
-
-							{#if ($config?.license_metadata?.seats ?? null) !== null && $config?.user_count > $config?.license_metadata?.seats}
-								<Banner
-									banner={{
-										type: 'error',
-										title: 'License Error',
-										content: $i18n.t(
-											'Exceeded the number of seats in your license. Please contact support to increase the number of seats.'
-										)
-									}}
-								/>
-							{/if}
-
-							{#each $banners.filter( (b) => (b.dismissible ? !JSON.parse(localStorage.getItem('dismissedBannerIds') ?? '[]').includes(b.id) : true) ) as banner}
-								<Banner
-									{banner}
-									on:dismiss={(e) => {
-										const bannerId = e.detail;
-
-										localStorage.setItem(
-											'dismissedBannerIds',
-											JSON.stringify(
-												[
-													bannerId,
-													...JSON.parse(localStorage.getItem('dismissedBannerIds') ?? '[]')
-												].filter((id) => $banners.find((b) => b.id === id))
-											)
-										);
-									}}
-								/>
-							{/each}
-						</div>
-					</div>
-				{/if}
-
 				<div class="flex flex-col flex-auto z-10 w-full @container">
 					{#if $settings?.landingPageMode === 'chat' || createMessagesList(history, history.currentId).length > 0}
 						<div
@@ -2038,8 +1918,6 @@
 								bind:prompt
 								bind:autoScroll
 								bind:selectedToolIds
-								bind:imageGenerationEnabled
-								bind:codeInterpreterEnabled
 								bind:webSearchEnabled
 								bind:atSelectedModel
 								toolServers={$toolServers}
@@ -2079,7 +1957,6 @@
 							<div
 								class="absolute bottom-1 text-xs text-gray-500 text-center line-clamp-1 right-0 left-0"
 							>
-								<!-- {$i18n.t('LLMs can make mistakes. Verify important information.')} -->
 							</div>
 						</div>
 					{:else}
@@ -2091,8 +1968,6 @@
 								bind:prompt
 								bind:autoScroll
 								bind:selectedToolIds
-								bind:imageGenerationEnabled
-								bind:codeInterpreterEnabled
 								bind:webSearchEnabled
 								bind:atSelectedModel
 								transparentBackground={$settings?.backgroundImageUrl ?? false}
@@ -2104,8 +1979,6 @@
 
 									if (type === 'web') {
 										await uploadWeb(data);
-									} else if (type === 'youtube') {
-										await uploadYoutubeTranscription(data);
 									}
 								}}
 								on:submit={async (e) => {

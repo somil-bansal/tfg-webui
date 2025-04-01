@@ -2,7 +2,7 @@
 	import { toast } from 'svelte-sonner';
 	import { getContext } from 'svelte';
 
-	const i18n = getContext('i18n');
+	
 
 	import { deleteGroupById, updateGroupById } from '$lib/apis/groups';
 
@@ -28,7 +28,7 @@
 		});
 
 		if (res) {
-			toast.success($i18n.t('Group updated successfully'));
+			toast.success('Group updated successfully');
 			setGroups();
 		}
 	};
@@ -40,7 +40,7 @@
 		});
 
 		if (res) {
-			toast.success($i18n.t('Group deleted successfully'));
+			toast.success('Group deleted successfully');
 			setGroups();
 		}
 	};

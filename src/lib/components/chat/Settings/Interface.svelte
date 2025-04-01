@@ -9,7 +9,7 @@
 	import { getUserPosition } from '$lib/utils';
 	const dispatch = createEventDispatcher();
 
-	const i18n = getContext('i18n');
+	
 
 	export let saveSettings: Function;
 
@@ -55,8 +55,6 @@
 	let showUpdateToast = true;
 	let showChangelog = true;
 
-	let showEmojiInCall = false;
-	let voiceInterruption = false;
 	let hapticFeedback = false;
 
 	let webSearch = null;
@@ -119,16 +117,7 @@
 	const toggleShowUsername = async () => {
 		showUsername = !showUsername;
 		saveSettings({ showUsername: showUsername });
-	};
-
-	const toggleEmojiInCall = async () => {
-		showEmojiInCall = !showEmojiInCall;
-		saveSettings({ showEmojiInCall: showEmojiInCall });
-	};
-
-	const toggleVoiceInterruption = async () => {
-		voiceInterruption = !voiceInterruption;
-		saveSettings({ voiceInterruption: voiceInterruption });
+	
 	};
 
 	const toggleImageCompression = async () => {
@@ -141,25 +130,6 @@
 		saveSettings({ hapticFeedback: hapticFeedback });
 	};
 
-	const toggleUserLocation = async () => {
-		userLocation = !userLocation;
-
-		if (userLocation) {
-			const position = await getUserPosition().catch((error) => {
-				toast.error(error.message);
-				return null;
-			});
-
-			if (position) {
-				await updateUserInfo(localStorage.token, { location: position });
-				toast.success($i18n.t('User location successfully retrieved.'));
-			} else {
-				userLocation = false;
-			}
-		}
-
-		saveSettings({ userLocation });
-	};
 
 	const toggleTitleAutoGenerate = async () => {
 		titleAutoGenerate = !titleAutoGenerate;
@@ -203,9 +173,7 @@
 			saveSettings({ responseAutoCopy: responseAutoCopy });
 		} else {
 			toast.error(
-				$i18n.t(
-					'Clipboard write permission denied. Please check your browser settings to grant the necessary access.'
-				)
+				'Clipboard write permission denied. Please check your browser settings to grant the necessary access.'
 			);
 		}
 	};
@@ -242,8 +210,6 @@
 		showUpdateToast = $settings.showUpdateToast ?? true;
 		showChangelog = $settings.showChangelog ?? true;
 
-		showEmojiInCall = $settings.showEmojiInCall ?? false;
-		voiceInterruption = $settings.voiceInterruption ?? false;
 
 		richTextInput = $settings.richTextInput ?? true;
 		promptAutocomplete = $settings.promptAutocomplete ?? false;
@@ -315,11 +281,11 @@
 
 	<div class=" space-y-3 overflow-y-scroll max-h-[28rem] lg:max-h-full">
 		<div>
-			<div class=" mb-1.5 text-sm font-medium">{$i18n.t('UI')}</div>
+			<div class=" mb-1.5 text-sm font-medium">{'UI'}</div>
 
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
-					<div class=" self-center text-xs">{$i18n.t('Landing Page Mode')}</div>
+					<div class=" self-center text-xs">{'Landing Page Mode'}</div>
 
 					<button
 						class="p-1 px-3 text-xs flex rounded-sm transition"
@@ -329,9 +295,9 @@
 						type="button"
 					>
 						{#if landingPageMode === ''}
-							<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+							<span class="ml-2 self-center">{'Default'}</span>
 						{:else}
-							<span class="ml-2 self-center">{$i18n.t('Chat')}</span>
+							<span class="ml-2 self-center">{'Chat'}</span>
 						{/if}
 					</button>
 				</div>
@@ -339,7 +305,7 @@
 
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
-					<div class=" self-center text-xs">{$i18n.t('Chat Bubble UI')}</div>
+					<div class=" self-center text-xs">{'Chat Bubble UI'}</div>
 
 					<button
 						class="p-1 px-3 text-xs flex rounded-sm transition"
@@ -349,9 +315,9 @@
 						type="button"
 					>
 						{#if chatBubble === true}
-							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+							<span class="ml-2 self-center">{'On'}</span>
 						{:else}
-							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+							<span class="ml-2 self-center">{'Off'}</span>
 						{/if}
 					</button>
 				</div>
@@ -361,7 +327,7 @@
 				<div>
 					<div class=" py-0.5 flex w-full justify-between">
 						<div class=" self-center text-xs">
-							{$i18n.t('Display the username instead of You in the Chat')}
+							{'Display the username instead of You in the Chat'}
 						</div>
 
 						<button
@@ -372,9 +338,9 @@
 							type="button"
 						>
 							{#if showUsername === true}
-								<span class="ml-2 self-center">{$i18n.t('On')}</span>
+								<span class="ml-2 self-center">{'On'}</span>
 							{:else}
-								<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+								<span class="ml-2 self-center">{'Off'}</span>
 							{/if}
 						</button>
 					</div>
@@ -383,7 +349,7 @@
 
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
-					<div class=" self-center text-xs">{$i18n.t('Widescreen Mode')}</div>
+					<div class=" self-center text-xs">{'Widescreen Mode'}</div>
 
 					<button
 						class="p-1 px-3 text-xs flex rounded-sm transition"
@@ -393,9 +359,9 @@
 						type="button"
 					>
 						{#if widescreenMode === true}
-							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+							<span class="ml-2 self-center">{'On'}</span>
 						{:else}
-							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+							<span class="ml-2 self-center">{'Off'}</span>
 						{/if}
 					</button>
 				</div>
@@ -403,7 +369,7 @@
 
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
-					<div class=" self-center text-xs">{$i18n.t('Chat direction')}</div>
+					<div class=" self-center text-xs">{'Chat direction'}</div>
 
 					<button
 						class="p-1 px-3 text-xs flex rounded-sm transition"
@@ -411,9 +377,9 @@
 						type="button"
 					>
 						{#if chatDirection === 'LTR'}
-							<span class="ml-2 self-center">{$i18n.t('LTR')}</span>
+							<span class="ml-2 self-center">{'LTR'}</span>
 						{:else}
-							<span class="ml-2 self-center">{$i18n.t('RTL')}</span>
+							<span class="ml-2 self-center">{'RTL'}</span>
 						{/if}
 					</button>
 				</div>
@@ -422,7 +388,7 @@
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
 					<div class=" self-center text-xs">
-						{$i18n.t('Notification Sound')}
+						{'Notification Sound'}
 					</div>
 
 					<button
@@ -433,9 +399,9 @@
 						type="button"
 					>
 						{#if notificationSound === true}
-							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+							<span class="ml-2 self-center">{'On'}</span>
 						{:else}
-							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+							<span class="ml-2 self-center">{'Off'}</span>
 						{/if}
 					</button>
 				</div>
@@ -445,7 +411,7 @@
 				<div>
 					<div class=" py-0.5 flex w-full justify-between">
 						<div class=" self-center text-xs">
-							{$i18n.t('Toast notifications for new updates')}
+							{'Toast notifications for new updates'}
 						</div>
 
 						<button
@@ -456,9 +422,9 @@
 							type="button"
 						>
 							{#if showUpdateToast === true}
-								<span class="ml-2 self-center">{$i18n.t('On')}</span>
+								<span class="ml-2 self-center">{'On'}</span>
 							{:else}
-								<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+								<span class="ml-2 self-center">{'Off'}</span>
 							{/if}
 						</button>
 					</div>
@@ -467,7 +433,7 @@
 				<div>
 					<div class=" py-0.5 flex w-full justify-between">
 						<div class=" self-center text-xs">
-							{$i18n.t(`Show "What's New" modal on login`)}
+							{'Show "What\'s New" modal on login'}
 						</div>
 
 						<button
@@ -478,20 +444,20 @@
 							type="button"
 						>
 							{#if showChangelog === true}
-								<span class="ml-2 self-center">{$i18n.t('On')}</span>
+								<span class="ml-2 self-center">{'On'}</span>
 							{:else}
-								<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+								<span class="ml-2 self-center">{'Off'}</span>
 							{/if}
 						</button>
 					</div>
 				</div>
 			{/if}
 
-			<div class=" my-1.5 text-sm font-medium">{$i18n.t('Chat')}</div>
+			<div class=" my-1.5 text-sm font-medium">{'Chat'}</div>
 
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
-					<div class=" self-center text-xs">{$i18n.t('Title Auto-Generation')}</div>
+					<div class=" self-center text-xs">{'Title Auto-Generation'}</div>
 
 					<button
 						class="p-1 px-3 text-xs flex rounded-sm transition"
@@ -501,9 +467,9 @@
 						type="button"
 					>
 						{#if titleAutoGenerate === true}
-							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+							<span class="ml-2 self-center">{'On'}</span>
 						{:else}
-							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+							<span class="ml-2 self-center">{'Off'}</span>
 						{/if}
 					</button>
 				</div>
@@ -511,7 +477,7 @@
 
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
-					<div class=" self-center text-xs">{$i18n.t('Chat Tags Auto-Generation')}</div>
+					<div class=" self-center text-xs">{'Chat Tags Auto-Generation'}</div>
 
 					<button
 						class="p-1 px-3 text-xs flex rounded-sm transition"
@@ -521,9 +487,9 @@
 						type="button"
 					>
 						{#if autoTags === true}
-							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+							<span class="ml-2 self-center">{'On'}</span>
 						{:else}
-							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+							<span class="ml-2 self-center">{'Off'}</span>
 						{/if}
 					</button>
 				</div>
@@ -532,7 +498,7 @@
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
 					<div class=" self-center text-xs">
-						{$i18n.t('Auto-Copy Response to Clipboard')}
+						{'Auto-Copy Response to Clipboard'}
 					</div>
 
 					<button
@@ -543,9 +509,9 @@
 						type="button"
 					>
 						{#if responseAutoCopy === true}
-							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+							<span class="ml-2 self-center">{'On'}</span>
 						{:else}
-							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+							<span class="ml-2 self-center">{'Off'}</span>
 						{/if}
 					</button>
 				</div>
@@ -554,7 +520,7 @@
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
 					<div class=" self-center text-xs">
-						{$i18n.t('Rich Text Input for Chat')}
+						{'Rich Text Input for Chat'}
 					</div>
 
 					<button
@@ -565,9 +531,9 @@
 						type="button"
 					>
 						{#if richTextInput === true}
-							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+							<span class="ml-2 self-center">{'On'}</span>
 						{:else}
-							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+							<span class="ml-2 self-center">{'Off'}</span>
 						{/if}
 					</button>
 				</div>
@@ -577,7 +543,7 @@
 				<div>
 					<div class=" py-0.5 flex w-full justify-between">
 						<div class=" self-center text-xs">
-							{$i18n.t('Prompt Autocompletion')}
+							{'Prompt Autocompletion'}
 						</div>
 
 						<button
@@ -588,9 +554,9 @@
 							type="button"
 						>
 							{#if promptAutocomplete === true}
-								<span class="ml-2 self-center">{$i18n.t('On')}</span>
+								<span class="ml-2 self-center">{'On'}</span>
 							{:else}
-								<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+								<span class="ml-2 self-center">{'Off'}</span>
 							{/if}
 						</button>
 					</div>
@@ -600,7 +566,7 @@
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
 					<div class=" self-center text-xs">
-						{$i18n.t('Paste Large Text as File')}
+						{'Paste Large Text as File'}
 					</div>
 
 					<button
@@ -611,9 +577,9 @@
 						type="button"
 					>
 						{#if largeTextAsFile === true}
-							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+							<span class="ml-2 self-center">{'On'}</span>
 						{:else}
-							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+							<span class="ml-2 self-center">{'Off'}</span>
 						{/if}
 					</button>
 				</div>
@@ -621,7 +587,7 @@
 
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
-					<div class=" self-center text-xs">{$i18n.t('Always Collapse Code Blocks')}</div>
+					<div class=" self-center text-xs">{'Always Collapse Code Blocks'}</div>
 
 					<button
 						class="p-1 px-3 text-xs flex rounded-sm transition"
@@ -631,9 +597,9 @@
 						type="button"
 					>
 						{#if collapseCodeBlocks === true}
-							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+							<span class="ml-2 self-center">{'On'}</span>
 						{:else}
-							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+							<span class="ml-2 self-center">{'Off'}</span>
 						{/if}
 					</button>
 				</div>
@@ -641,7 +607,7 @@
 
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
-					<div class=" self-center text-xs">{$i18n.t('Always Expand Details')}</div>
+					<div class=" self-center text-xs">{'Always Expand Details'}</div>
 
 					<button
 						class="p-1 px-3 text-xs flex rounded-sm transition"
@@ -651,9 +617,9 @@
 						type="button"
 					>
 						{#if expandDetails === true}
-							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+							<span class="ml-2 self-center">{'On'}</span>
 						{:else}
-							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+							<span class="ml-2 self-center">{'Off'}</span>
 						{/if}
 					</button>
 				</div>
@@ -662,7 +628,7 @@
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
 					<div class=" self-center text-xs">
-						{$i18n.t('Chat Background Image')}
+						{'Chat Background Image'}
 					</div>
 
 					<button
@@ -678,9 +644,9 @@
 						type="button"
 					>
 						{#if backgroundImageUrl !== null}
-							<span class="ml-2 self-center">{$i18n.t('Reset')}</span>
+							<span class="ml-2 self-center">{'Reset'}</span>
 						{:else}
-							<span class="ml-2 self-center">{$i18n.t('Upload')}</span>
+							<span class="ml-2 self-center">{'Upload'}</span>
 						{/if}
 					</button>
 				</div>
@@ -688,7 +654,7 @@
 
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
-					<div class=" self-center text-xs">{$i18n.t('Allow User Location')}</div>
+					<div class=" self-center text-xs">{'Allow User Location'}</div>
 
 					<button
 						class="p-1 px-3 text-xs flex rounded-sm transition"
@@ -698,9 +664,9 @@
 						type="button"
 					>
 						{#if userLocation === true}
-							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+							<span class="ml-2 self-center">{'On'}</span>
 						{:else}
-							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+							<span class="ml-2 self-center">{'Off'}</span>
 						{/if}
 					</button>
 				</div>
@@ -708,7 +674,7 @@
 
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
-					<div class=" self-center text-xs">{$i18n.t('Haptic Feedback')}</div>
+					<div class=" self-center text-xs">{'Haptic Feedback'}</div>
 
 					<button
 						class="p-1 px-3 text-xs flex rounded-sm transition"
@@ -718,40 +684,19 @@
 						type="button"
 					>
 						{#if hapticFeedback === true}
-							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+							<span class="ml-2 self-center">{'On'}</span>
 						{:else}
-							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+							<span class="ml-2 self-center">{'Off'}</span>
 						{/if}
 					</button>
 				</div>
 			</div>
 
-			<!-- <div>
-				<div class=" py-0.5 flex w-full justify-between">
-					<div class=" self-center text-xs">
-						{$i18n.t('Fluidly stream large external response chunks')}
-					</div>
-
-					<button
-						class="p-1 px-3 text-xs flex rounded-sm transition"
-						on:click={() => {
-							toggleSplitLargeChunks();
-						}}
-						type="button"
-					>
-						{#if splitLargeChunks === true}
-							<span class="ml-2 self-center">{$i18n.t('On')}</span>
-						{:else}
-							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
-						{/if}
-					</button>
-				</div>
-			</div> -->
 
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
 					<div class=" self-center text-xs">
-						{$i18n.t('Enter Key Behavior')}
+						{'Enter Key Behavior'}
 					</div>
 
 					<button
@@ -762,9 +707,9 @@
 						type="button"
 					>
 						{#if ctrlEnterToSend === true}
-							<span class="ml-2 self-center">{$i18n.t('Ctrl+Enter to Send')}</span>
+							<span class="ml-2 self-center">{'Ctrl+Enter to Send'}</span>
 						{:else}
-							<span class="ml-2 self-center">{$i18n.t('Enter to Send')}</span>
+							<span class="ml-2 self-center">{'Enter to Send'}</span>
 						{/if}
 					</button>
 				</div>
@@ -773,7 +718,7 @@
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
 					<div class=" self-center text-xs">
-						{$i18n.t('Scroll to bottom when switching between branches')}
+						{'Scroll to bottom when switching between branches'}
 					</div>
 
 					<button
@@ -784,9 +729,9 @@
 						type="button"
 					>
 						{#if scrollOnBranchChange === true}
-							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+							<span class="ml-2 self-center">{'On'}</span>
 						{:else}
-							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+							<span class="ml-2 self-center">{'Off'}</span>
 						{/if}
 					</button>
 				</div>
@@ -794,7 +739,7 @@
 
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
-					<div class=" self-center text-xs">{$i18n.t('Web Search in Chat')}</div>
+					<div class=" self-center text-xs">{'Web Search in Chat'}</div>
 
 					<button
 						class="p-1 px-3 text-xs flex rounded-sm transition"
@@ -804,61 +749,20 @@
 						type="button"
 					>
 						{#if webSearch === 'always'}
-							<span class="ml-2 self-center">{$i18n.t('Always')}</span>
+							<span class="ml-2 self-center">{'Always'}</span>
 						{:else}
-							<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+							<span class="ml-2 self-center">{'Default'}</span>
 						{/if}
 					</button>
 				</div>
 			</div>
 
-			<div class=" my-1.5 text-sm font-medium">{$i18n.t('Voice')}</div>
+
+			<div class=" my-1.5 text-sm font-medium">{'File'}</div>
 
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
-					<div class=" self-center text-xs">{$i18n.t('Allow Voice Interruption in Call')}</div>
-
-					<button
-						class="p-1 px-3 text-xs flex rounded-sm transition"
-						on:click={() => {
-							toggleVoiceInterruption();
-						}}
-						type="button"
-					>
-						{#if voiceInterruption === true}
-							<span class="ml-2 self-center">{$i18n.t('On')}</span>
-						{:else}
-							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
-						{/if}
-					</button>
-				</div>
-			</div>
-
-			<div>
-				<div class=" py-0.5 flex w-full justify-between">
-					<div class=" self-center text-xs">{$i18n.t('Display Emoji in Call')}</div>
-
-					<button
-						class="p-1 px-3 text-xs flex rounded-sm transition"
-						on:click={() => {
-							toggleEmojiInCall();
-						}}
-						type="button"
-					>
-						{#if showEmojiInCall === true}
-							<span class="ml-2 self-center">{$i18n.t('On')}</span>
-						{:else}
-							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
-						{/if}
-					</button>
-				</div>
-			</div>
-
-			<div class=" my-1.5 text-sm font-medium">{$i18n.t('File')}</div>
-
-			<div>
-				<div class=" py-0.5 flex w-full justify-between">
-					<div class=" self-center text-xs">{$i18n.t('Image Compression')}</div>
+					<div class=" self-center text-xs">{'Image Compression'}</div>
 
 					<button
 						class="p-1 px-3 text-xs flex rounded-sm transition"
@@ -868,9 +772,9 @@
 						type="button"
 					>
 						{#if imageCompression === true}
-							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+							<span class="ml-2 self-center">{'On'}</span>
 						{:else}
-							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+							<span class="ml-2 self-center">{'Off'}</span>
 						{/if}
 					</button>
 				</div>
@@ -879,7 +783,7 @@
 			{#if imageCompression}
 				<div>
 					<div class=" py-0.5 flex w-full justify-between text-xs">
-						<div class=" self-center text-xs">{$i18n.t('Image Max Compression Size')}</div>
+						<div class=" self-center text-xs">{'Image Max Compression Size'}</div>
 
 						<div>
 							<input
@@ -908,7 +812,7 @@
 			class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
 			type="submit"
 		>
-			{$i18n.t('Save')}
+			{'Save'}
 		</button>
 	</div>
 </form>

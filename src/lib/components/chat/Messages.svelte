@@ -22,7 +22,7 @@
 
 	import ChatPlaceholder from './ChatPlaceholder.svelte';
 
-	const i18n = getContext('i18n');
+	
 
 	export let className = 'h-full flex pt-8';
 
@@ -398,7 +398,7 @@
 
 				if (p.includes('{{CLIPBOARD}}')) {
 					const clipboardText = await navigator.clipboard.readText().catch((err) => {
-						toast.error($i18n.t('Failed to read clipboard contents'));
+						toast.error('Failed to read clipboard contents');
 						return '{{CLIPBOARD}}';
 					});
 

@@ -24,7 +24,6 @@
 	} from '$lib/stores';
 	import { onMount, getContext, tick, onDestroy } from 'svelte';
 
-	const i18n = getContext('i18n');
 
 	import {
 		deleteChatById,
@@ -121,7 +120,7 @@
 
 	const createFolder = async (name = 'Untitled') => {
 		if (name === '') {
-			toast.error($i18n.t('Folder name cannot be empty.'));
+			toast.error('Folder name cannot be empty.');
 			return;
 		}
 
@@ -254,7 +253,7 @@
 					const chatItems = JSON.parse(content);
 					importChatHandler(chatItems);
 				} catch {
-					toast.error($i18n.t(`Invalid file format.`));
+					toast.error(`Invalid file format.`);
 				}
 			};
 
@@ -534,7 +533,7 @@
 						/>
 					</div>
 					<div class=" self-center font-medium text-sm text-gray-850 dark:text-white font-primary">
-						{$i18n.t('New Chat')}
+						{'New Chat'}
 					</div>
 				</div>
 
@@ -544,32 +543,7 @@
 			</a>
 		</div>
 
-		<!-- {#if $user?.role === 'admin'}
-			<div class="px-1.5 flex justify-center text-gray-800 dark:text-gray-200">
-				<a
-					class="grow flex items-center space-x-3 rounded-lg px-2 py-[7px] hover:bg-gray-100 dark:hover:bg-gray-900 transition"
-					href="/home"
-					on:click={() => {
-						selectedChatId = null;
-						chatId.set('');
-
-						if ($mobile) {
-							showSidebar.set(false);
-						}
-					}}
-					draggable="false"
-				>
-					<div class="self-center">
-						<Home strokeWidth="2" className="size-[1.1rem]" />
-					</div>
-
-					<div class="flex self-center translate-y-[0.5px]">
-						<div class=" self-center font-medium text-sm font-primary">{$i18n.t('Home')}</div>
-					</div>
-				</a>
-			</div>
-		{/if} -->
-
+clean up
 		{#if $user?.role === 'admin' || $user?.permissions?.workspace?.models || $user?.permissions?.workspace?.knowledge || $user?.permissions?.workspace?.prompts || $user?.permissions?.workspace?.tools}
 			<div class="px-1.5 flex justify-center text-gray-800 dark:text-gray-200">
 				<a
@@ -603,7 +577,7 @@
 					</div>
 
 					<div class="flex self-center translate-y-[0.5px]">
-						<div class=" self-center font-medium text-sm font-primary">{$i18n.t('Workspace')}</div>
+						<div class=" self-center font-medium text-sm font-primary">{'Workspace'}</div>
 					</div>
 				</a>
 			</div>
@@ -617,7 +591,7 @@
 			<SearchInput
 				bind:value={search}
 				on:input={searchDebounceHandler}
-				placeholder={$i18n.t('Search')}
+				placeholder={'Search'}
 				showClearButton={true}
 			/>
 		</div>
@@ -630,7 +604,7 @@
 			{#if $config?.features?.enable_channels && ($user.role === 'admin' || $channels.length > 0) && !search}
 				<Folder
 					className="px-2 mt-0.5"
-					name={$i18n.t('Channels')}
+					name={'Channels'}
 					dragAndDrop={false}
 					onAdd={async () => {
 						if ($user.role === 'admin') {
@@ -641,7 +615,7 @@
 							}, 0);
 						}
 					}}
-					onAddLabel={$i18n.t('Create Channel')}
+					onAddLabel={'Create Channel'}
 				>
 					{#each $channels as channel}
 						<ChannelItem
@@ -657,11 +631,11 @@
 			<Folder
 				collapsible={!search}
 				className="px-2 mt-0.5"
-				name={$i18n.t('Chats')}
+				name={'Chats'}
 				onAdd={() => {
 					createFolder();
 				}}
-				onAddLabel={$i18n.t('New Folder')}
+				onAddLabel={'New Folder'}
 				on:import={(e) => {
 					importChatHandler(e.detail);
 				}}
@@ -759,7 +733,7 @@
 									}
 								}
 							}}
-							name={$i18n.t('Pinned')}
+							name={'Pinned'}
 						>
 							<div
 								class="ml-3 pl-1 mt-[1px] flex flex-col overflow-y-auto scrollbar-hidden border-s border-gray-100 dark:border-gray-900"
@@ -818,25 +792,8 @@
 											? ''
 											: 'pt-5'} pb-1.5"
 									>
-										{$i18n.t(chat.time_range)}
-										<!-- localisation keys for time_range to be recognized from the i18next parser (so they don't get automatically removed):
-							{$i18n.t('Today')}
-							{$i18n.t('Yesterday')}
-							{$i18n.t('Previous 7 days')}
-							{$i18n.t('Previous 30 days')}
-							{$i18n.t('January')}
-							{$i18n.t('February')}
-							{$i18n.t('March')}
-							{$i18n.t('April')}
-							{$i18n.t('May')}
-							{$i18n.t('June')}
-							{$i18n.t('July')}
-							{$i18n.t('August')}
-							{$i18n.t('September')}
-							{$i18n.t('October')}
-							{$i18n.t('November')}
-							{$i18n.t('December')}
-							-->
+										{chat.time_range}
+							
 									</div>
 								{/if}
 

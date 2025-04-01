@@ -1,6 +1,6 @@
 <script>
 	import { getContext } from 'svelte';
-	const i18n = getContext('i18n');
+	
 
 	import Modal from '$lib/components/common/Modal.svelte';
 	import AccessControl from './AccessControl.svelte';
@@ -17,7 +17,7 @@
 	<div>
 		<div class=" flex justify-between dark:text-gray-100 px-5 pt-3 pb-1">
 			<div class=" text-lg font-medium self-center font-primary">
-				{$i18n.t('Access Control')}
+				{'Access Control'}
 			</div>
 			<button
 				class="self-center"

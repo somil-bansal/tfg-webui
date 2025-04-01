@@ -16,7 +16,7 @@
 
 	import MenuLines from '$lib/components/icons/MenuLines.svelte';
 
-	const i18n = getContext('i18n');
+	
 
 	let loaded = false;
 
@@ -45,7 +45,7 @@
 
 <svelte:head>
 	<title>
-		{$i18n.t('Workspace')} | {$WEBUI_NAME}
+		Workspace | {$WEBUI_NAME}
 	</title>
 </svelte:head>
 
@@ -83,7 +83,7 @@
 								)
 									? ''
 									: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'} transition"
-								href="/workspace/models">{$i18n.t('Models')}</a
+								href="/workspace/models">Models</a
 							>
 						{/if}
 
@@ -96,7 +96,7 @@
 									: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'} transition"
 								href="/workspace/knowledge"
 							>
-								{$i18n.t('Knowledge')}
+								Knowledge
 							</a>
 						{/if}
 
@@ -107,7 +107,7 @@
 								)
 									? ''
 									: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'} transition"
-								href="/workspace/prompts">{$i18n.t('Prompts')}</a
+								href="/workspace/prompts">Prompts</a
 							>
 						{/if}
 
@@ -118,13 +118,12 @@
 									: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'} transition"
 								href="/workspace/tools"
 							>
-								{$i18n.t('Tools')}
+								Tools
 							</a>
 						{/if}
 					</div>
 				</div>
 
-				<!-- <div class="flex items-center text-xl font-semibold">{$i18n.t('Workspace')}</div> -->
 			</div>
 		</nav>
 

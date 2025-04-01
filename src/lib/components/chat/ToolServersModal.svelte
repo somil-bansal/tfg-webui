@@ -12,13 +12,13 @@
 
 	export let show = false;
 
-	const i18n = getContext('i18n');
+	
 </script>
 
 <Modal bind:show size="md">
 	<div>
 		<div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-0.5">
-			<div class=" text-lg font-medium self-center">{$i18n.t('Available Tool Servers')}</div>
+			<div class=" text-lg font-medium self-center">{'Available Tool Servers'}</div>
 			<button
 				class="self-center"
 				on:click={() => {

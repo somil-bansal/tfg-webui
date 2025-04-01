@@ -6,7 +6,7 @@
 	import XMark from '$lib/components/icons/XMark.svelte';
 
 	const dispatch = createEventDispatcher();
-	const i18n = getContext('i18n');
+	
 
 	export let placeholder = '';
 	export let value = '';
@@ -20,7 +20,7 @@
 	let options = [
 		{
 			name: 'tag:',
-			description: $i18n.t('search for tags')
+			description: 'search for tags'
 		}
 	];
 	let focused = false;
@@ -37,7 +37,7 @@
 				...$tags,
 				{
 					id: 'none',
-					name: $i18n.t('Untagged')
+					name: 'Untagged'
 				}
 			].filter((tag) => {
 				const tagName = lastWord.slice(4);
@@ -106,7 +106,7 @@
 
 		<input
 			class="w-full rounded-r-xl py-1.5 pl-2.5 text-sm bg-transparent dark:text-gray-300 outline-hidden"
-			placeholder={placeholder ? placeholder : $i18n.t('Search')}
+			placeholder={placeholder ? placeholder : 'Search'}
 			bind:value
 			on:input={() => {
 				dispatch('input');
@@ -207,7 +207,7 @@
 					</div>
 				{:else if filteredOptions.length > 0}
 					<div class="px-1 font-medium dark:text-gray-300 text-gray-700 mb-1">
-						{$i18n.t('Search options')}
+						{'Search options'}
 					</div>
 
 					<div class=" max-h-60 overflow-auto">

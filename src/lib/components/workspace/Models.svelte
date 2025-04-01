@@ -9,7 +9,7 @@
 
 	import { onMount, getContext, tick } from 'svelte';
 	import { goto } from '$app/navigation';
-	const i18n = getContext('i18n');
+	
 
 	import { WEBUI_NAME, config, mobile, models as _models, settings, user } from '$lib/stores';
 	import {
@@ -65,7 +65,7 @@
 		});
 
 		if (res) {
-			toast.success($i18n.t(`Deleted {{name}}`, { name: model.id }));
+			toast.success(`Deleted ${model.id}`);
 		}
 
 		await _models.set(
@@ -87,7 +87,7 @@
 	};
 
 	const shareModelHandler = async (model) => {
-		toast.success($i18n.t('Redirecting you to Open WebUI Community'));
+		toast.success('Redirecting you to Open WebUI Community');
 
 		const url = 'https://openwebui.com';
 
@@ -132,10 +132,7 @@
 
 		if (res) {
 			toast.success(
-				$i18n.t(`Model {{name}} is now {{status}}`, {
-					name: info.id,
-					status: info.meta.hidden ? 'hidden' : 'visible'
-				})
+				`Model ${info.id} is now ${info.meta.hidden ? 'hidden' : 'visible'}`
 			);
 		}
 
@@ -199,7 +196,7 @@
 
 <svelte:head>
 	<title>
-		{$i18n.t('Models')} | {$WEBUI_NAME}
+		Models | {$WEBUI_NAME}
 	</title>
 </svelte:head>
 
@@ -214,7 +211,7 @@
 	<div class="flex flex-col gap-1 my-1.5">
 		<div class="flex justify-between items-center">
 			<div class="flex items-center md:self-center text-xl font-medium px-0.5">
-				{$i18n.t('Models')}
+				Models
 				<div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-gray-850" />
 				<span class="text-lg font-medium text-gray-500 dark:text-gray-300"
 					>{filteredModels.length}</span
@@ -230,7 +227,7 @@
 				<input
 					class=" w-full text-sm py-1 rounded-r-xl outline-hidden bg-transparent"
 					bind:value={searchValue}
-					placeholder={$i18n.t('Search Models')}
+					placeholder="Search Models"
 				/>
 			</div>
 
@@ -295,23 +292,21 @@
 				<div class="flex justify-between items-center -mb-0.5 px-0.5">
 					<div class=" text-xs mt-0.5">
 						<Tooltip
-							content={model?.user?.email ?? $i18n.t('Deleted User')}
+							content={model?.user?.email ?? 'Deleted User'}
 							className="flex shrink-0"
 							placement="top-start"
 						>
 							<div class="shrink-0 text-gray-500">
-								{$i18n.t('By {{name}}', {
-									name: capitalizeFirstLetter(
-										model?.user?.name ?? model?.user?.email ?? $i18n.t('Deleted User')
-									)
-								})}
+								By {capitalizeFirstLetter(
+									model?.user?.name ?? model?.user?.email ?? 'Deleted User'
+								)}
 							</div>
 						</Tooltip>
 					</div>
 
 					<div class="flex flex-row gap-0.5 items-center">
 						{#if shiftKey}
-							<Tooltip content={$i18n.t('Delete')}>
+							<Tooltip content="Delete">
 								<button
 									class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
 									type="button"
@@ -376,7 +371,7 @@
 							</ModelMenu>
 
 							<div class="ml-1">
-								<Tooltip content={model.is_active ? $i18n.t('Enabled') : $i18n.t('Disabled')}>
+								<Tooltip content={model.is_active ? 'Enabled' : 'Disabled'}>
 									<Switch
 										bind:state={model.is_active}
 										on:change={async (e) => {
@@ -459,7 +454,7 @@
 						modelsImportInputElement.click();
 					}}
 				>
-					<div class=" self-center mr-2 font-medium line-clamp-1">{$i18n.t('Import Models')}</div>
+					<div class=" self-center mr-2 font-medium line-clamp-1">Import Models</div>
 
 					<div class=" self-center">
 						<svg
@@ -483,7 +478,7 @@
 						downloadModels(models);
 					}}
 				>
-					<div class=" self-center mr-2 font-medium line-clamp-1">{$i18n.t('Export Models')}</div>
+					<div class=" self-center mr-2 font-medium line-clamp-1">Export Models</div>
 
 					<div class=" self-center">
 						<svg
@@ -507,7 +502,7 @@
 	{#if $config?.features.enable_community_sharing}
 		<div class=" my-16">
 			<div class=" text-xl font-medium mb-1 line-clamp-1">
-				{$i18n.t('Made by Open WebUI Community')}
+				Made by Open WebUI Community
 			</div>
 
 			<a
@@ -516,9 +511,9 @@
 				target="_blank"
 			>
 				<div class=" self-center">
-					<div class=" font-semibold line-clamp-1">{$i18n.t('Discover a model')}</div>
+					<div class=" font-semibold line-clamp-1">Discover a model</div>
 					<div class=" text-sm line-clamp-1">
-						{$i18n.t('Discover, download, and explore model presets')}
+						Discover, download, and explore model presets
 					</div>
 				</div>
 

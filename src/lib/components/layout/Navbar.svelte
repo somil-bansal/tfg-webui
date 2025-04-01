@@ -28,7 +28,7 @@
 	import PencilSquare from '../icons/PencilSquare.svelte';
 	import Plus from '../icons/Plus.svelte';
 
-	const i18n = getContext('i18n');
+	
 
 	export let initNewChat: Function;
 	export let title: string = $WEBUI_NAME;
@@ -116,7 +116,7 @@
 						</button>
 					</Menu>
 				{:else if $mobile}
-					<Tooltip content={$i18n.t('Controls')}>
+					<Tooltip content={'Controls'}>
 						<button
 							class=" flex cursor-pointer px-2 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-850 transition"
 							on:click={async () => {
@@ -132,7 +132,7 @@
 				{/if}
 
 				{#if !$mobile}
-					<Tooltip content={$i18n.t('Controls')}>
+					<Tooltip content={'Controls'}>
 						<button
 							class=" flex cursor-pointer px-2 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-850 transition"
 							on:click={async () => {
@@ -147,7 +147,7 @@
 					</Tooltip>
 				{/if}
 
-				<Tooltip content={$i18n.t('New Chat')}>
+				<Tooltip content={'New Chat'}>
 					<button
 						id="new-chat-button"
 						class=" flex {$showSidebar

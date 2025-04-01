@@ -9,7 +9,7 @@
 	import { getAllUserChats } from '$lib/apis/chats';
 	import { exportConfig, importConfig } from '$lib/apis/configs';
 
-	const i18n = getContext('i18n');
+	
 
 	export let saveHandler: Function;
 
@@ -33,7 +33,7 @@
 >
 	<div class=" space-y-3 overflow-y-scroll scrollbar-hidden h-full">
 		<div>
-			<div class=" mb-2 text-sm font-medium">{$i18n.t('Database')}</div>
+			<div class=" mb-2 text-sm font-medium">{'Database'}</div>
 
 			<input
 				id="config-json-input"
@@ -84,7 +84,7 @@
 					</svg>
 				</div>
 				<div class=" self-center text-sm font-medium">
-					{$i18n.t('Import Config from JSON File')}
+					{'Import Config from JSON File'}
 				</div>
 			</button>
 
@@ -115,7 +115,7 @@
 					</svg>
 				</div>
 				<div class=" self-center text-sm font-medium">
-					{$i18n.t('Export Config to JSON File')}
+					{'Export Config to JSON File'}
 				</div>
 			</button>
 
@@ -123,7 +123,7 @@
 
 			{#if $config?.features.enable_admin_export ?? true}
 				<div class="  flex w-full justify-between">
-					<!-- <div class=" self-center text-xs font-medium">{$i18n.t('Allow Chat Deletion')}</div> -->
+					<!-- <div class=" self-center text-xs font-medium">{'Allow Chat Deletion'}</div> -->
 
 					<button
 						class=" flex rounded-md py-1.5 px-3 w-full hover:bg-gray-200 dark:hover:bg-gray-800 transition"
@@ -151,7 +151,7 @@
 								/>
 							</svg>
 						</div>
-						<div class=" self-center text-sm font-medium">{$i18n.t('Download Database')}</div>
+						<div class=" self-center text-sm font-medium">{'Download Database'}</div>
 					</button>
 				</div>
 
@@ -177,7 +177,7 @@
 						</svg>
 					</div>
 					<div class=" self-center text-sm font-medium">
-						{$i18n.t('Export All Chats (All Users)')}
+						{'Export All Chats (All Users)'}
 					</div>
 				</button>
 			{/if}
@@ -189,7 +189,7 @@
 			class=" px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-gray-100 transition rounded-lg"
 			type="submit"
 		>
-			{$i18n.t('Save')}
+			{'Save'}
 		</button>
 
 	</div> -->

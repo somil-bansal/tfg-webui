@@ -5,7 +5,6 @@ from datetime import datetime
 from typing import Optional
 import uuid
 
-
 from open_webui.utils.misc import get_last_user_message, get_messages_content
 
 from open_webui.env import SRC_LOG_LEVELS
@@ -223,38 +222,7 @@ def tags_generation_template(
     return template
 
 
-def image_prompt_generation_template(
-    template: str, messages: list[dict], user: Optional[dict] = None
-) -> str:
-    prompt = get_last_user_message(messages)
-    template = replace_prompt_variable(template, prompt)
-    template = replace_messages_variable(template, messages)
 
-    template = prompt_template(
-        template,
-        **(
-            {"user_name": user.get("name"), "user_location": user.get("location")}
-            if user
-            else {}
-        ),
-    )
-    return template
-
-
-def emoji_generation_template(
-    template: str, prompt: str, user: Optional[dict] = None
-) -> str:
-    template = replace_prompt_variable(template, prompt)
-    template = prompt_template(
-        template,
-        **(
-            {"user_name": user.get("name"), "user_location": user.get("location")}
-            if user
-            else {}
-        ),
-    )
-
-    return template
 
 
 def autocomplete_generation_template(

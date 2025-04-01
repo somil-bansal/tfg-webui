@@ -4,14 +4,14 @@
 	import MenuLines from '$lib/components/icons/MenuLines.svelte';
 	import { page } from '$app/stores';
 
-	const i18n = getContext('i18n');
+	
 
 	onMount(async () => {});
 </script>
 
 <svelte:head>
 	<title>
-		{$i18n.t('Playground')} | {$WEBUI_NAME}
+		{'Playground'} | {$WEBUI_NAME}
 	</title>
 </svelte:head>
 
@@ -47,14 +47,14 @@
 						)
 							? ''
 							: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'} transition"
-						href="/playground">{$i18n.t('Chat')}</a
+						href="/playground">{'Chat'}</a
 					>
 
 					<!-- <a
 						class="min-w-fit rounded-full p-1.5 {$page.url.pathname.includes('/playground/notes')
 							? ''
 							: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'} transition"
-						href="/playground/notes">{$i18n.t('Notes')}</a
+						href="/playground/notes">{'Notes'}</a
 					> -->
 
 					<a
@@ -63,7 +63,7 @@
 						)
 							? ''
 							: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'} transition"
-						href="/playground/completions">{$i18n.t('Completions')}</a
+						href="/playground/completions">{'Completions'}</a
 					>
 				</div>
 			</div>
