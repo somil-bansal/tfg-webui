@@ -65,9 +65,8 @@
 			return null;
 		});
 
-		toast.success('Redirecting you to Open WebUI Community');
 
-		const url = 'https://openwebui.com';
+		const url = 'https://the-finance-genie.com';
 
 		const tab = await window.open(`${url}/functions/create`, '_blank');
 

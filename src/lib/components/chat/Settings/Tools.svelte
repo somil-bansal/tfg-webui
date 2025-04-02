@@ -90,7 +90,7 @@
 						<div class="text-xs text-gray-500">
 							Connect to your own OpenAPI compatible external tool servers.
 							<br />
-							CORS must be properly configured by the provider to allow requests from Open WebUI.
+							CORS must be properly configured by the provider to allow requests from The Finance Genie.
 						</div>
 					</div>
 				</div>

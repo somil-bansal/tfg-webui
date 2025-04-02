@@ -227,7 +227,7 @@
 				'aboutus',
 				'softwareinfo',
 				'timothyjaeryangbaek',
-				'openwebui',
+				'the-finance-genie',
 				'release',
 				'updates',
 				'updateinfo',

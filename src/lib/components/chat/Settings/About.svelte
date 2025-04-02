@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { getVersionUpdates } from '$lib/apis';
 	import { getOllamaVersion } from '$lib/apis/ollama';
 	import { WEBUI_BUILD_HASH, WEBUI_VERSION } from '$lib/constants';
 	import { WEBUI_NAME, config, showChangelog } from '$lib/stores';
@@ -18,27 +17,12 @@
 		latest: ''
 	};
 
-	const checkForVersionUpdates = async () => {
-		updateAvailable = null;
-		version = await getVersionUpdates(localStorage.token).catch((error) => {
-			return {
-				current: WEBUI_VERSION,
-				latest: WEBUI_VERSION
-			};
-		});
-
-		console.log(version);
-
-		updateAvailable = compareVersion(version.latest, version.current);
-		console.log(updateAvailable);
-	};
 
 	onMount(async () => {
 		ollamaVersion = await getOllamaVersion(localStorage.token).catch((error) => {
 			return '';
 		});
 
-		checkForVersionUpdates();
 	});
 </script>
 
@@ -57,17 +41,6 @@
 						<Tooltip content={WEBUI_BUILD_HASH}>
 							v{WEBUI_VERSION}
 						</Tooltip>
-
-						<a
-							href="https://github.com/open-webui/open-webui/releases/tag/v{version.latest}"
-							target="_blank"
-						>
-							{updateAvailable === null
-								? 'Checking for updates...'
-								: updateAvailable
-									? `(v${version.latest} available!)`
-									: '(latest)'}
-						</a>
 					</div>
 
 					<button
@@ -76,7 +49,6 @@
 							showChangelog.set(true);
 						}}
 					>
-						<div>{'See what\'s new'}</div>
 					</button>
 				</div>
 

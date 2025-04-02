@@ -8,5 +8,5 @@ _test
 Pipfile
 !/data
 /data/*
-/open_webui/data/*
+/the_finance_genie/data/*
 .webui_secret_key

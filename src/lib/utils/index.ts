@@ -160,8 +160,6 @@ export const getGravatarURL = (email) => {
 };
 
 export const canvasPixelTest = () => {
-	// Test a 1x1 pixel to potentially identify browser/plugin fingerprint blocking or spoofing
-	// Inspiration: https://github.com/kkapsner/CanvasBlocker/blob/master/test/detectionTest.js
 	const canvas = document.createElement('canvas');
 	const ctx = canvas.getContext('2d');
 	canvas.height = 1;
@@ -631,7 +629,6 @@ export const isValidHttpUrl = (string: string) => {
 };
 
 export const removeEmojis = (str: string) => {
-	// Regular expression to match emojis
 	const emojiRegex = /[\uD800-\uDBFF][\uDC00-\uDFFF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g;
 
 	// Replace emojis with an empty string

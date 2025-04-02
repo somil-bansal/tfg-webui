@@ -130,7 +130,7 @@
 							{'Connect to your own OpenAI compatible API endpoints.'}
 							<br />
 							{
-								'CORS must be properly configured by the provider to allow requests from Open WebUI.'
+								'CORS must be properly configured by the provider to allow requests from The Finance Genie.'
 							}
 						</div>
 					</div>

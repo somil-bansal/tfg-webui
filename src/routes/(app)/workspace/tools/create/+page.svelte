@@ -21,7 +21,7 @@
 		if (compareVersion(manifest?.required_open_webui_version ?? '0.0.0', WEBUI_VERSION)) {
 			console.log('Version is lower than required');
 			toast.error(
-				`Open WebUI version (v${WEBUI_VERSION}) is lower than required version (v${manifest?.required_open_webui_version ?? '0.0.0'})`
+				`The Finance Genie version (v${WEBUI_VERSION}) is lower than required version (v${manifest?.required_open_webui_version ?? '0.0.0'})`
 			);
 			return;
 		}
@@ -48,7 +48,7 @@
 	onMount(() => {
 		window.addEventListener('message', async (event) => {
 			if (
-				!['https://openwebui.com', 'https://www.openwebui.com', 'http://localhost:9999'].includes(
+				!['https://the-finance-genie.com', 'https://www.the-finance-genie.com', 'http://localhost:9999'].includes(
 					event.origin
 				)
 			)

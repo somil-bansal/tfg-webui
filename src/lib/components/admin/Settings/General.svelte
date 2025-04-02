@@ -1,14 +1,10 @@
 <script lang="ts">
 	import DOMPurify from 'dompurify';
 
-	import { getBackendConfig, getVersionUpdates, getWebhookUrl, updateWebhookUrl } from '$lib/apis';
+	import { getBackendConfig } from '$lib/apis';
 	import {
 		getAdminConfig,
-		getLdapConfig,
-		getLdapServer,
 		updateAdminConfig,
-		updateLdapConfig,
-		updateLdapServer
 	} from '$lib/apis/auths';
 	import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
 	import Switch from '$lib/components/common/Switch.svelte';
@@ -32,53 +28,11 @@
 	let adminConfig = null;
 	let webhookUrl = '';
 
-	// LDAP
-	let ENABLE_LDAP = false;
-	let LDAP_SERVER = {
-		label: '',
-		host: '',
-		port: '',
-		attribute_for_mail: 'mail',
-		attribute_for_username: 'uid',
-		app_dn: '',
-		app_dn_password: '',
-		search_base: '',
-		search_filters: '',
-		use_tls: false,
-		certificate_path: '',
-		ciphers: ''
-	};
 
-	const checkForVersionUpdates = async () => {
-		updateAvailable = null;
-		version = await getVersionUpdates(localStorage.token).catch((error) => {
-			return {
-				current: WEBUI_VERSION,
-				latest: WEBUI_VERSION
-			};
-		});
-
-		console.log(version);
-
-		updateAvailable = compareVersion(version.latest, version.current);
-		console.log(updateAvailable);
-	};
-
-	const updateLdapServerHandler = async () => {
-		if (!ENABLE_LDAP) return;
-		const res = await updateLdapServer(localStorage.token, LDAP_SERVER).catch((error) => {
-			toast.error(`${error}`);
-			return null;
-		});
-		if (res) {
-			toast.success('LDAP server updated');
-		}
-	};
 
 	const updateHandler = async () => {
 		webhookUrl = await updateWebhookUrl(localStorage.token, webhookUrl);
 		const res = await updateAdminConfig(localStorage.token, adminConfig);
-		await updateLdapServerHandler();
 
 		if (res) {
 			saveHandler();
@@ -88,23 +42,13 @@
 	};
 
 	onMount(async () => {
-		checkForVersionUpdates();
-
 		await Promise.all([
 			(async () => {
 				adminConfig = await getAdminConfig(localStorage.token);
 			})(),
 
-			(async () => {
-				webhookUrl = await getWebhookUrl(localStorage.token);
-			})(),
-			(async () => {
-				LDAP_SERVER = await getLdapServer(localStorage.token);
-			})()
 		]);
 
-		const ldapConfig = await getLdapConfig(localStorage.token);
-		ENABLE_LDAP = ldapConfig.ENABLE_LDAP;
 	});
 </script>
 
@@ -134,17 +78,6 @@
 									<Tooltip content={WEBUI_BUILD_HASH}>
 										v{WEBUI_VERSION}
 									</Tooltip>
-
-									<a
-										href="https://github.com/open-webui/open-webui/releases/tag/v{version.latest}"
-										target="_blank"
-									>
-										{updateAvailable === null
-											? 'Checking for updates...'
-											: updateAvailable
-												? `(v${version.latest} available!)`
-												: '(latest)'}
-									</a>
 								</div>
 
 								<button
@@ -157,62 +90,19 @@
 									<div>{'See what\'s new'}</div>
 								</button>
 							</div>
-
-							<button
-								class=" text-xs px-3 py-1.5 bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-lg font-medium"
-								type="button"
-								on:click={() => {
-									checkForVersionUpdates();
-								}}
-							>
-								{'Check for updates'}
-							</button>
 						</div>
 					</div>
 
 					<div class="mb-2.5">
 						<div class="flex w-full justify-between items-center">
-							<div class="text-xs pr-2">
-								<div class="">
-									{'Help'}
-								</div>
-								<div class=" text-xs text-gray-500">
-									{'Discover how to use Open WebUI and seek support from the community.'}
-								</div>
-							</div>
 
 							<a
 								class="flex-shrink-0 text-xs font-medium underline"
-								href="https://docs.openwebui.com/"
+								href="https://docs.the-finance-genie.com/"
 								target="_blank"
 							>
 								{'Documentation'}
 							</a>
-						</div>
-
-						<div class="mt-1">
-							<div class="flex space-x-1">
-								<a href="https://discord.gg/5rJgQTnV4s" target="_blank">
-									<img
-										alt="Discord"
-										src="https://img.shields.io/badge/Discord-Open_WebUI-blue?logo=discord&logoColor=white"
-									/>
-								</a>
-
-								<a href="https://twitter.com/OpenWebUI" target="_blank">
-									<img
-										alt="X (formerly Twitter) Follow"
-										src="https://img.shields.io/twitter/follow/OpenWebUI"
-									/>
-								</a>
-
-								<a href="https://github.com/open-webui/open-webui" target="_blank">
-									<img
-										alt="Github Repo"
-										src="https://img.shields.io/github/stars/open-webui/open-webui?style=social&label=Star us on Github"
-									/>
-								</a>
-							</div>
 						</div>
 					</div>
 
@@ -280,9 +170,9 @@
 								/>
 
 								<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
-									<!-- https://docs.openwebui.com/getting-started/advanced-topics/api-endpoints -->
+									<!-- https://docs.the-finance-genie.com/getting-started/advanced-topics/api-endpoints -->
 									<a
-										href="https://docs.openwebui.com/getting-started/api-endpoints"
+										href="https://docs.the-finance-genie.com/getting-started/api-endpoints"
 										target="_blank"
 										class=" text-gray-300 font-medium underline"
 									>
@@ -314,212 +204,6 @@
 							>
 						</div>
 					</div>
-
-					<div class=" space-y-3">
-						<div class="mt-2 space-y-2 pr-1.5">
-							<div class="flex justify-between items-center text-sm">
-								<div class="  font-medium">{'LDAP'}</div>
-
-								<div class="mt-1">
-									<Switch
-										bind:state={ENABLE_LDAP}
-										on:change={async () => {
-											updateLdapConfig(localStorage.token, ENABLE_LDAP);
-										}}
-									/>
-								</div>
-							</div>
-
-							{#if ENABLE_LDAP}
-								<div class="flex flex-col gap-1">
-									<div class="flex w-full gap-2">
-										<div class="w-full">
-											<div class=" self-center text-xs font-medium min-w-fit mb-1">
-												{'Label'}
-											</div>
-											<input
-												class="w-full bg-transparent outline-hidden py-0.5"
-												required
-												placeholder={'Enter server label'}
-												bind:value={LDAP_SERVER.label}
-											/>
-										</div>
-										<div class="w-full"></div>
-									</div>
-									<div class="flex w-full gap-2">
-										<div class="w-full">
-											<div class=" self-center text-xs font-medium min-w-fit mb-1">
-												{'Host'}
-											</div>
-											<input
-												class="w-full bg-transparent outline-hidden py-0.5"
-												required
-												placeholder={'Enter server host'}
-												bind:value={LDAP_SERVER.host}
-											/>
-										</div>
-										<div class="w-full">
-											<div class=" self-center text-xs font-medium min-w-fit mb-1">
-												{'Port'}
-											</div>
-											<Tooltip
-												placement="top-start"
-												content={'Default to 389 or 636 if TLS is enabled'}
-												className="w-full"
-											>
-												<input
-													class="w-full bg-transparent outline-hidden py-0.5"
-													type="number"
-													placeholder={'Enter server port'}
-													bind:value={LDAP_SERVER.port}
-												/>
-											</Tooltip>
-										</div>
-									</div>
-									<div class="flex w-full gap-2">
-										<div class="w-full">
-											<div class=" self-center text-xs font-medium min-w-fit mb-1">
-												{'Application DN'}
-											</div>
-											<Tooltip
-												content={'The Application Account DN you bind with for search'}
-												placement="top-start"
-											>
-												<input
-													class="w-full bg-transparent outline-hidden py-0.5"
-													required
-													placeholder={'Enter Application DN'}
-													bind:value={LDAP_SERVER.app_dn}
-												/>
-											</Tooltip>
-										</div>
-										<div class="w-full">
-											<div class=" self-center text-xs font-medium min-w-fit mb-1">
-												{'Application DN Password'}
-											</div>
-											<SensitiveInput
-												placeholder={'Enter Application DN Password'}
-												bind:value={LDAP_SERVER.app_dn_password}
-											/>
-										</div>
-									</div>
-									<div class="flex w-full gap-2">
-										<div class="w-full">
-											<div class=" self-center text-xs font-medium min-w-fit mb-1">
-												{'Attribute for Mail'}
-											</div>
-											<Tooltip
-												content={'The attribute to bind the user email to during sign in'}
-												placement="top-start"
-											>
-												<input
-													class="w-full bg-transparent outline-hidden py-0.5"
-													required
-													placeholder={'Example: mail'}
-													bind:value={LDAP_SERVER.attribute_for_mail}
-												/>
-											</Tooltip>
-										</div>
-									</div>
-									<div class="flex w-full gap-2">
-										<div class="w-full">
-											<div class=" self-center text-xs font-medium min-w-fit mb-1">
-												{'Attribute for Username'}
-											</div>
-											<Tooltip
-												content={'The attribute to bind the user name to during sign in'}
-												placement="top-start"
-											>
-												<input
-													class="w-full bg-transparent outline-hidden py-0.5"
-													required
-													placeholder={'Example: cn'}
-													bind:value={LDAP_SERVER.attribute_for_username}
-												/>
-											</Tooltip>
-										</div>
-									</div>
-									<div class="flex w-full gap-2">
-										<div class="w-full">
-											<div class=" self-center text-xs font-medium min-w-fit mb-1">
-												{'Search Base'}
-											</div>
-											<Tooltip
-												content={'The base to search for users'}
-												placement="top-start"
-											>
-												<input
-													class="w-full bg-transparent outline-hidden py-0.5"
-													required
-													placeholder={'Example: ou=users,dc=foo,dc=example'}
-													bind:value={LDAP_SERVER.search_base}
-												/>
-											</Tooltip>
-										</div>
-									</div>
-									<div class="flex w-full gap-2">
-										<div class="w-full">
-											<div class=" self-center text-xs font-medium min-w-fit mb-1">
-												{'Search Filters'}
-											</div>
-											<input
-												class="w-full bg-transparent outline-hidden py-0.5"
-												placeholder={`Example: (&(objectClass=inetOrgPerson)(uid=%s))`}
-												bind:value={LDAP_SERVER.search_filters}
-											/>
-										</div>
-									</div>
-									<div class="text-xs text-gray-400 dark:text-gray-500">
-										<a
-											class=" text-gray-300 font-medium underline"
-											href="https://ldap.com/ldap-filters/"
-											target="_blank"
-										>
-											{'Click here for filter guides.'}
-										</a>
-									</div>
-									<div>
-										<div class="flex justify-between items-center text-sm">
-											<div class="  font-medium">{'TLS'}</div>
-
-											<div class="mt-1">
-												<Switch bind:state={LDAP_SERVER.use_tls} />
-											</div>
-										</div>
-										{#if LDAP_SERVER.use_tls}
-											<div class="flex w-full gap-2">
-												<div class="w-full">
-													<div class=" self-center text-xs font-medium min-w-fit mb-1 mt-1">
-														{'Certificate Path'}
-													</div>
-													<input
-														class="w-full bg-transparent outline-hidden py-0.5"
-														placeholder={'Enter certificate path'}
-														bind:value={LDAP_SERVER.certificate_path}
-													/>
-												</div>
-											</div>
-											<div class="flex w-full gap-2">
-												<div class="w-full">
-													<div class=" self-center text-xs font-medium min-w-fit mb-1">
-														{'Ciphers'}
-													</div>
-													<Tooltip content={'Default to ALL'} placement="top-start">
-														<input
-															class="w-full bg-transparent outline-hidden py-0.5"
-															placeholder={'Example: ALL'}
-															bind:value={LDAP_SERVER.ciphers}
-														/>
-													</Tooltip>
-												</div>
-												<div class="w-full"></div>
-											</div>
-										{/if}
-									</div>
-								</div>
-							{/if}
-						</div>
-					</div>
 				</div>
 
 				<div class="mb-3">
@@ -527,19 +211,9 @@
 
 					<hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
-					<div class="mb-2.5 flex w-full items-center justify-between pr-2">
-						<div class=" self-center text-xs font-medium">
-							{'Enable Community Sharing'}
-						</div>
 
-						<Switch bind:state={adminConfig.ENABLE_COMMUNITY_SHARING} />
-					</div>
 
-					<div class="mb-2.5 flex w-full items-center justify-between pr-2">
-						<div class=" self-center text-xs font-medium">{'Enable Message Rating'}</div>
 
-						<Switch bind:state={adminConfig.ENABLE_MESSAGE_RATING} />
-					</div>
 
 					<div class="mb-2.5 flex w-full items-center justify-between pr-2">
 						<div class=" self-center text-xs font-medium">
@@ -549,13 +223,7 @@
 						<Switch bind:state={adminConfig.ENABLE_CHANNELS} />
 					</div>
 
-					<div class="mb-2.5 flex w-full items-center justify-between pr-2">
-						<div class=" self-center text-xs font-medium">
-							{'User Webhooks'}
-						</div>
 
-						<Switch bind:state={adminConfig.ENABLE_USER_WEBHOOKS} />
-					</div>
 
 					<div class="mb-2.5 w-full justify-between">
 						<div class="flex w-full justify-between">

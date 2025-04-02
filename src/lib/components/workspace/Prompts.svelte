@@ -38,23 +38,6 @@
 	let filteredItems = [];
 	$: filteredItems = prompts.filter((p) => query === '' || p.command.includes(query));
 
-	const shareHandler = async (prompt) => {
-		toast.success("Redirecting you to Open WebUI Community");
-
-		const url = 'https://openwebui.com';
-
-		const tab = await window.open(`${url}/prompts/create`, '_blank');
-		window.addEventListener(
-			'message',
-			(event) => {
-				if (event.origin !== url) return;
-				if (event.data === 'loaded') {
-					tab.postMessage(JSON.stringify(prompt), '*');
-				}
-			},
-			false
-		);
-	};
 
 	const cloneHandler = async (prompt) => {
 		sessionStorage.prompt = JSON.stringify(prompt);

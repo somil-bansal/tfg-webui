@@ -25,7 +25,7 @@ uv sync
 # Start backend in debug mode
 echo "Starting backend in debug mode..."
 cd backend
-PYTHONPATH=$PYTHONPATH:. uvicorn open_webui.main:app --host "0.0.0.0" --port "8080" --reload --log-level debug &
+PYTHONPATH=$PYTHONPATH:. uvicorn the_finance_genie.main:app --host "0.0.0.0" --port "8080" --reload --log-level debug &
 
 # Wait a moment for backend to start
 sleep 2
