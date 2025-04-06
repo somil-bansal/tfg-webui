@@ -17,7 +17,10 @@ __pycache__/
 *.so
 
 # Pyodide distribution
-static/pyodide/*
+# Ignore the entire static directory
+/static
+
+# Except for pyodide-lock.json
 !static/pyodide/pyodide-lock.json
 
 # Distribution / packaging
