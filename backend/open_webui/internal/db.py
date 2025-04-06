@@ -3,9 +3,13 @@ import logging
 from contextlib import contextmanager
 from typing import Any, Optional
 
-from open_webui.internal.wrappers import register_connection
-from open_webui.env import (
-    OPEN_WEBUI_DIR,
+from sqlalchemy import create_engine, MetaData, types, text
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.pool import QueuePool, NullPool
+from typing_extensions import Self
+
+from the_finance_genie.env import (
     DATABASE_URL,
     DATABASE_SCHEMA,
     SRC_LOG_LEVELS,
@@ -14,26 +18,35 @@ from open_webui.env import (
     DATABASE_POOL_SIZE,
     DATABASE_POOL_TIMEOUT,
 )
-from peewee_migrate import Router
-from sqlalchemy import Dialect, create_engine, MetaData, types
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import scoped_session, sessionmaker
-from sqlalchemy.pool import QueuePool, NullPool
-from sqlalchemy.sql.type_api import _T
-from typing_extensions import Self
 
 log = logging.getLogger(__name__)
 log.setLevel(SRC_LOG_LEVELS["DB"])
 
+def ensure_pgvector_extension():
+    """Ensure pgvector extension is enabled in the database."""
+    with get_db() as db:
+        try:
+            # Check if pgvector extension exists
+            result = db.execute(text("SELECT * FROM pg_extension WHERE extname = 'vector'"))
+            if not result.fetchone():
+                log.info("Enabling pgvector extension...")
+                db.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+                db.commit()
+                log.info("pgvector extension enabled successfully")
+            else:
+                log.info("pgvector extension already enabled")
+        except Exception as e:
+            log.error(f"Error enabling pgvector extension: {e}")
+            raise
 
 class JSONField(types.TypeDecorator):
     impl = types.Text
     cache_ok = True
 
-    def process_bind_param(self, value: Optional[_T], dialect: Dialect) -> Any:
+    def process_bind_param(self, value: Optional[Any], dialect) -> Any:
         return json.dumps(value)
 
-    def process_result_value(self, value: Optional[_T], dialect: Dialect) -> Any:
+    def process_result_value(self, value: Optional[Any], dialect) -> Any:
         if value is not None:
             return json.loads(value)
 
@@ -47,70 +60,35 @@ class JSONField(types.TypeDecorator):
         if value is not None:
             return json.loads(value)
 
+metadata_obj = MetaData(schema=DATABASE_SCHEMA)
+Base = declarative_base(metadata=metadata_obj)
 
-# Workaround to handle the peewee migration
-# This is required to ensure the peewee migration is handled before the alembic migration
-def handle_peewee_migration(DATABASE_URL):
-    # db = None
-    try:
-        # Replace the postgresql:// with postgres:// to handle the peewee migration
-        db = register_connection(DATABASE_URL.replace("postgresql://", "postgres://"))
-        migrate_dir = OPEN_WEBUI_DIR / "internal" / "migrations"
-        router = Router(db, logger=log, migrate_dir=migrate_dir)
-        router.run()
-        db.close()
-
-    except Exception as e:
-        log.error(f"Failed to initialize the database connection: {e}")
-        raise
-    finally:
-        # Properly closing the database connection
-        if db and not db.is_closed():
-            db.close()
-
-        # Assert if db connection has been closed
-        assert db.is_closed(), "Database connection is still open."
-
-
-handle_peewee_migration(DATABASE_URL)
-
-
-SQLALCHEMY_DATABASE_URL = DATABASE_URL
-if "sqlite" in SQLALCHEMY_DATABASE_URL:
+if DATABASE_POOL_SIZE > 0:
     engine = create_engine(
-        SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+        DATABASE_URL,
+        pool_size=DATABASE_POOL_SIZE,
+        max_overflow=DATABASE_POOL_MAX_OVERFLOW,
+        pool_timeout=DATABASE_POOL_TIMEOUT,
+        pool_recycle=DATABASE_POOL_RECYCLE,
+        pool_pre_ping=True,
+        poolclass=QueuePool,
     )
 else:
-    if DATABASE_POOL_SIZE > 0:
-        engine = create_engine(
-            SQLALCHEMY_DATABASE_URL,
-            pool_size=DATABASE_POOL_SIZE,
-            max_overflow=DATABASE_POOL_MAX_OVERFLOW,
-            pool_timeout=DATABASE_POOL_TIMEOUT,
-            pool_recycle=DATABASE_POOL_RECYCLE,
-            pool_pre_ping=True,
-            poolclass=QueuePool,
-        )
-    else:
-        engine = create_engine(
-            SQLALCHEMY_DATABASE_URL, pool_pre_ping=True, poolclass=NullPool
-        )
-
+    engine = create_engine(
+        DATABASE_URL, pool_pre_ping=True, poolclass=NullPool
+    )
 
 SessionLocal = sessionmaker(
     autocommit=False, autoflush=False, bind=engine, expire_on_commit=False
 )
-metadata_obj = MetaData(schema=DATABASE_SCHEMA)
-Base = declarative_base(metadata=metadata_obj)
 Session = scoped_session(SessionLocal)
 
-
-def get_session():
+@contextmanager
+def get_db():
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
 
-
-get_db = contextmanager(get_session)
+ensure_pgvector_extension()

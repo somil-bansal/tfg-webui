@@ -1196,11 +1196,6 @@ ENABLE_ADMIN_CHAT_ACCESS = (
     os.environ.get("ENABLE_ADMIN_CHAT_ACCESS", "True").lower() == "true"
 )
 
-ENABLE_COMMUNITY_SHARING = PersistentConfig(
-    "ENABLE_COMMUNITY_SHARING",
-    "ui.enable_community_sharing",
-    os.environ.get("ENABLE_COMMUNITY_SHARING", "True").lower() == "true",
-)
 
 ENABLE_MESSAGE_RATING = PersistentConfig(
     "ENABLE_MESSAGE_RATING",
@@ -1367,31 +1362,6 @@ JSON format: { "tags": ["tag1", "tag2", "tag3"] }
 {{MESSAGES:END:6}}
 </chat_history>"""
 
-IMAGE_PROMPT_GENERATION_PROMPT_TEMPLATE = PersistentConfig(
-    "IMAGE_PROMPT_GENERATION_PROMPT_TEMPLATE",
-    "task.image.prompt_template",
-    os.environ.get("IMAGE_PROMPT_GENERATION_PROMPT_TEMPLATE", ""),
-)
-
-DEFAULT_IMAGE_PROMPT_GENERATION_PROMPT_TEMPLATE = """### Task:
-Generate a detailed prompt for am image generation task based on the given language and context. Describe the image as if you were explaining it to someone who cannot see it. Include relevant details, colors, shapes, and any other important elements.
-
-### Guidelines:
-- Be descriptive and detailed, focusing on the most important aspects of the image.
-- Avoid making assumptions or adding information not present in the image.
-- Use the chat's primary language; default to English if multilingual.
-- If the image is too complex, focus on the most prominent elements.
-
-### Output:
-Strictly return in JSON format:
-{
-    "prompt": "Your detailed description here."
-}
-
-### Chat History:
-<chat_history>
-{{MESSAGES:END:6}}
-</chat_history>"""
 
 ENABLE_TAGS_GENERATION = PersistentConfig(
     "ENABLE_TAGS_GENERATION",
@@ -1541,9 +1511,6 @@ The format for the JSON response is strictly:
 }"""
 
 
-DEFAULT_EMOJI_GENERATION_PROMPT_TEMPLATE = """Your task is to reflect the speaker's likely facial expression through a fitting emoji. Interpret emotions from the message and reflect their facial expression using fitting, diverse emojis (e.g., 😊, 😢, 😡, 😱).
-
-Message: ```{{prompt}}```"""
 
 DEFAULT_MOA_GENERATION_PROMPT_TEMPLATE = """You have been provided with a set of responses from various models to the latest user query: "{{prompt}}"
 
@@ -1686,60 +1653,7 @@ Ensure that the tools are effectively utilized to achieve the highest-quality an
 # Vector Database
 ####################################
 
-VECTOR_DB = os.environ.get("VECTOR_DB", "chroma")
-
-# Chroma
-CHROMA_DATA_PATH = f"{DATA_DIR}/vector_db"
-
-if VECTOR_DB == "chroma":
-    import chromadb
-
-    CHROMA_TENANT = os.environ.get("CHROMA_TENANT", chromadb.DEFAULT_TENANT)
-    CHROMA_DATABASE = os.environ.get("CHROMA_DATABASE", chromadb.DEFAULT_DATABASE)
-    CHROMA_HTTP_HOST = os.environ.get("CHROMA_HTTP_HOST", "")
-    CHROMA_HTTP_PORT = int(os.environ.get("CHROMA_HTTP_PORT", "8000"))
-    CHROMA_CLIENT_AUTH_PROVIDER = os.environ.get("CHROMA_CLIENT_AUTH_PROVIDER", "")
-    CHROMA_CLIENT_AUTH_CREDENTIALS = os.environ.get(
-        "CHROMA_CLIENT_AUTH_CREDENTIALS", ""
-    )
-    # Comma-separated list of header=value pairs
-    CHROMA_HTTP_HEADERS = os.environ.get("CHROMA_HTTP_HEADERS", "")
-    if CHROMA_HTTP_HEADERS:
-        CHROMA_HTTP_HEADERS = dict(
-            [pair.split("=") for pair in CHROMA_HTTP_HEADERS.split(",")]
-        )
-    else:
-        CHROMA_HTTP_HEADERS = None
-    CHROMA_HTTP_SSL = os.environ.get("CHROMA_HTTP_SSL", "false").lower() == "true"
-# this uses the model defined in the Dockerfile ENV variable. If you dont use docker or docker based deployments such as k8s, the default embedding model will be used (sentence-transformers/all-MiniLM-L6-v2)
-
-# Milvus
-
-MILVUS_URI = os.environ.get("MILVUS_URI", f"{DATA_DIR}/vector_db/milvus.db")
-MILVUS_DB = os.environ.get("MILVUS_DB", "default")
-MILVUS_TOKEN = os.environ.get("MILVUS_TOKEN", None)
-
-MILVUS_INDEX_TYPE = os.environ.get("MILVUS_INDEX_TYPE", "HNSW")
-MILVUS_METRIC_TYPE = os.environ.get("MILVUS_METRIC_TYPE", "COSINE")
-MILVUS_HNSW_M = int(os.environ.get("MILVUS_HNSW_M", "16"))
-MILVUS_HNSW_EFCONSTRUCTION = int(os.environ.get("MILVUS_HNSW_EFCONSTRUCTION", "100"))
-MILVUS_IVF_FLAT_NLIST = int(os.environ.get("MILVUS_IVF_FLAT_NLIST", "128"))
-
-# Qdrant
-QDRANT_URI = os.environ.get("QDRANT_URI", None)
-QDRANT_API_KEY = os.environ.get("QDRANT_API_KEY", None)
-QDRANT_ON_DISK = os.environ.get("QDRANT_ON_DISK", "false").lower() == "true"
-QDRANT_PREFER_GRPC = os.environ.get("QDRANT_PREFER_GRPC", "False").lower() == "true"
-QDRANT_GRPC_PORT = int(os.environ.get("QDRANT_GRPC_PORT", "6334"))
-
-# OpenSearch
-OPENSEARCH_URI = os.environ.get("OPENSEARCH_URI", "https://localhost:9200")
-OPENSEARCH_SSL = os.environ.get("OPENSEARCH_SSL", "true").lower() == "true"
-OPENSEARCH_CERT_VERIFY = (
-    os.environ.get("OPENSEARCH_CERT_VERIFY", "false").lower() == "true"
-)
-OPENSEARCH_USERNAME = os.environ.get("OPENSEARCH_USERNAME", None)
-OPENSEARCH_PASSWORD = os.environ.get("OPENSEARCH_PASSWORD", None)
+VECTOR_DB = os.environ.get("VECTOR_DB", "pgvector")
 
 # ElasticSearch
 ELASTICSEARCH_URL = os.environ.get("ELASTICSEARCH_URL", "https://localhost:9200")
@@ -1752,6 +1666,7 @@ SSL_ASSERT_FINGERPRINT = os.environ.get("SSL_ASSERT_FINGERPRINT", None)
 ELASTICSEARCH_INDEX_PREFIX = os.environ.get(
     "ELASTICSEARCH_INDEX_PREFIX", "open_webui_collections"
 )
+
 # Pgvector
 PGVECTOR_DB_URL = os.environ.get("PGVECTOR_DB_URL", DATABASE_URL)
 if VECTOR_DB == "pgvector" and not PGVECTOR_DB_URL.startswith("postgres"):
@@ -1762,37 +1677,9 @@ PGVECTOR_INITIALIZE_MAX_VECTOR_LENGTH = int(
     os.environ.get("PGVECTOR_INITIALIZE_MAX_VECTOR_LENGTH", "1536")
 )
 
-# Pinecone
-PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY", None)
-PINECONE_ENVIRONMENT = os.environ.get("PINECONE_ENVIRONMENT", None)
-PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "open-webui-index")
-PINECONE_DIMENSION = int(os.getenv("PINECONE_DIMENSION", 1536))  # or 3072, 1024, 768
-PINECONE_METRIC = os.getenv("PINECONE_METRIC", "cosine")
-PINECONE_CLOUD = os.getenv("PINECONE_CLOUD", "aws")  # or "gcp" or "azure"
-
 ####################################
 # Information Retrieval (RAG)
 ####################################
-
-
-# If configured, Google Drive will be available as an upload option.
-ENABLE_GOOGLE_DRIVE_INTEGRATION = PersistentConfig(
-    "ENABLE_GOOGLE_DRIVE_INTEGRATION",
-    "google_drive.enable",
-    os.getenv("ENABLE_GOOGLE_DRIVE_INTEGRATION", "False").lower() == "true",
-)
-
-GOOGLE_DRIVE_CLIENT_ID = PersistentConfig(
-    "GOOGLE_DRIVE_CLIENT_ID",
-    "google_drive.client_id",
-    os.environ.get("GOOGLE_DRIVE_CLIENT_ID", ""),
-)
-
-GOOGLE_DRIVE_API_KEY = PersistentConfig(
-    "GOOGLE_DRIVE_API_KEY",
-    "google_drive.api_key",
-    os.environ.get("GOOGLE_DRIVE_API_KEY", ""),
-)
 
 ENABLE_ONEDRIVE_INTEGRATION = PersistentConfig(
     "ENABLE_ONEDRIVE_INTEGRATION",

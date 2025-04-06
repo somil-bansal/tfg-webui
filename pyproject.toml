@@ -1,10 +1,7 @@
 [project]
-name = "open-webui"
-description = "Open WebUI"
-authors = [
-    { name = "Timothy Jaeryang Baek", email = "tim@openwebui.com" }
-]
-license = { file = "LICENSE" }
+name = "the_finance_genie"
+description = "The Finance Genie"
+
 dependencies = [
     "fastapi==0.115.7",
     "uvicorn[standard]==0.34.0",
@@ -23,8 +20,6 @@ dependencies = [
 
     "sqlalchemy==2.0.38",
     "alembic==1.14.0",
-    "peewee==3.17.9",
-    "peewee-migrate==1.12.2",
     "psycopg2-binary==2.9.9",
     "pgvector==0.4.0",
     "PyMySQL==1.1.1",
@@ -116,16 +111,9 @@ dependencies = [
     "pytest-docker~=3.1.1",
 
     "googleapis-common-protos==1.63.2",
-    "google-cloud-storage==2.19.0",
 
-    "azure-identity==1.20.0",
-    "azure-storage-blob==12.24.1",
-
-    "ldap3==2.9.1",
 
     "firecrawl-py==1.12.0",
-
-    "tencentcloud-sdk-python==3.0.1336",
 
     "gcp-storage-emulator>=2024.8.3",
 
@@ -137,7 +125,6 @@ requires-python = ">= 3.11, < 3.13.0a1"
 dynamic = ["version"]
 classifiers = [
     "Development Status :: 4 - Beta",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -182,7 +169,7 @@ force-include = { "CHANGELOG.md" = "open_webui/CHANGELOG.md", build = "open_webu
 
 [tool.codespell]
 # Ref: https://github.com/codespell-project/codespell#using-a-config-file
-skip = '.git*,*.svg,package-lock.json,i18n,*.lock,*.css,*-bundle.js,locales,example-doc.txt,emoji-shortcodes.json'
+skip = '.git*,*.svg,package-lock.json,*.lock,*.css,*-bundle.js,locales,example-doc.txt,emoji-shortcodes.json'
 check-hidden = true
 # ignore-regex = ''
 ignore-words-list = 'ans'
