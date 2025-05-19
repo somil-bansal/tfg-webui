@@ -5,7 +5,6 @@
 	import { showSettings, activeUserIds, USAGE_POOL, mobile, showSidebar, user } from '$lib/stores';
 	import { fade, slide } from 'svelte/transition';
 
-	import Mic from '../icons/Mic.svelte';
 	import CursorArrowRays from '../icons/CursorArrowRays.svelte';
 	import DocumentArrowUp from '../icons/DocumentArrowUp.svelte';
 	import CloudArrowUp from '../icons/CloudArrowUp.svelte';
@@ -15,8 +14,6 @@
 	export let show = false;
 	export let className = 'max-w-[160px]';
 
-	export let onRecord = () => {};
-	export let onCaptureAudio = () => {};
 	export let onUpload = () => {};
 
 	const dispatch = createEventDispatcher();
@@ -40,32 +37,6 @@
 			align="start"
 			transition={(e) => fade(e, { duration: 100 })}
 		>
-			<button
-				class="flex rounded-md py-2 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-				on:click={async () => {
-					onRecord();
-					show = false;
-				}}
-			>
-				<div class=" self-center mr-2">
-					<Mic className="size-5" strokeWidth="1.5" />
-				</div>
-				<div class=" self-center truncate">{$i18n.t('Record')}</div>
-			</button>
-
-			<button
-				class="flex rounded-md py-2 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-				on:click={() => {
-					onCaptureAudio();
-					show = false;
-				}}
-			>
-				<div class=" self-center mr-2">
-					<CursorArrowRays className="size-5" strokeWidth="1.5" />
-				</div>
-				<div class=" self-center truncate">{$i18n.t('Capture Audio')}</div>
-			</button>
-
 			<button
 				class="flex rounded-md py-2 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition"
 				on:click={() => {

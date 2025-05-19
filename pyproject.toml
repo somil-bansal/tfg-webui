@@ -133,7 +133,7 @@ classifiers = [
 ]
 
 [project.scripts]
-open-webui = "open_webui:app"
+the-finance-genie = "open_webui:app"
 
 [build-system]
 requires = ["hatchling"]

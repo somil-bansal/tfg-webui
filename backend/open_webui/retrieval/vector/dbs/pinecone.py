@@ -34,7 +34,7 @@ log.setLevel(SRC_LOG_LEVELS["RAG"])
 
 class PineconeClient(VectorDBBase):
     def __init__(self):
-        self.collection_prefix = "open-webui"
+        self.collection_prefix = "the-finance-genie"
 
         # Validate required configuration
         self._validate_config()

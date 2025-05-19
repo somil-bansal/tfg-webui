@@ -4,7 +4,7 @@
 	const dispatch = createEventDispatcher();
 
 	import Markdown from './Markdown.svelte';
-	import { chatId, mobile, settings, showArtifacts, showControls, showOverview } from '$lib/stores';
+	import { chatId, mobile, settings, showControls } from '$lib/stores';
 	import FloatingButtons from '../ContentRenderer/FloatingButtons.svelte';
 	import { createMessagesList } from '$lib/utils';
 
@@ -166,7 +166,6 @@
 				!$mobile &&
 				$chatId
 			) {
-				showArtifacts.set(true);
 				showControls.set(true);
 			}
 		}}

@@ -27,7 +27,6 @@
 		updateKnowledgeById
 	} from '$lib/apis/knowledge';
 
-	import { transcribeAudio } from '$lib/apis/audio';
 	import { blobToFile } from '$lib/utils';
 	import { processFile } from '$lib/apis/retrieval';
 

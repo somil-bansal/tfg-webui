@@ -9,7 +9,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.pool import QueuePool, NullPool
 from typing_extensions import Self
 
-from the_finance_genie.env import (
+from open_webui.env import (
     DATABASE_URL,
     DATABASE_SCHEMA,
     SRC_LOG_LEVELS,

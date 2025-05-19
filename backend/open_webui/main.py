@@ -54,8 +54,6 @@ from open_webui.socket.main import (
     periodic_usage_pool_cleanup,
 )
 from open_webui.routers import (
-    audio,
-    images,
     ollama,
     openai,
     retrieval,
@@ -77,7 +75,7 @@ from open_webui.routers import (
     evaluations,
     tools,
     users,
-    utils,
+    utils, audio,
 )
 
 from open_webui.routers.retrieval import (
@@ -94,7 +92,6 @@ from open_webui.models.users import UserModel, Users
 from open_webui.models.chats import Chats
 
 from open_webui.config import (
-    LICENSE_KEY,
     # Ollama
     ENABLE_OLLAMA_API,
     OLLAMA_BASE_URLS,
@@ -129,27 +126,6 @@ from open_webui.config import (
     CODE_INTERPRETER_JUPYTER_AUTH_TOKEN,
     CODE_INTERPRETER_JUPYTER_AUTH_PASSWORD,
     CODE_INTERPRETER_JUPYTER_TIMEOUT,
-    # Image
-    AUTOMATIC1111_API_AUTH,
-    AUTOMATIC1111_BASE_URL,
-    AUTOMATIC1111_CFG_SCALE,
-    AUTOMATIC1111_SAMPLER,
-    AUTOMATIC1111_SCHEDULER,
-    COMFYUI_BASE_URL,
-    COMFYUI_API_KEY,
-    COMFYUI_WORKFLOW,
-    COMFYUI_WORKFLOW_NODES,
-    ENABLE_IMAGE_GENERATION,
-    ENABLE_IMAGE_PROMPT_GENERATION,
-    IMAGE_GENERATION_ENGINE,
-    IMAGE_GENERATION_MODEL,
-    IMAGE_SIZE,
-    IMAGE_STEPS,
-    IMAGES_OPENAI_API_BASE_URL,
-    IMAGES_OPENAI_API_KEY,
-    IMAGES_GEMINI_API_BASE_URL,
-    IMAGES_GEMINI_API_KEY,
-    # Audio
     AUDIO_STT_ENGINE,
     AUDIO_STT_MODEL,
     AUDIO_STT_OPENAI_API_BASE_URL,
@@ -159,16 +135,6 @@ from open_webui.config import (
     AUDIO_STT_AZURE_LOCALES,
     AUDIO_STT_AZURE_BASE_URL,
     AUDIO_STT_AZURE_MAX_SPEAKERS,
-    AUDIO_TTS_API_KEY,
-    AUDIO_TTS_ENGINE,
-    AUDIO_TTS_MODEL,
-    AUDIO_TTS_OPENAI_API_BASE_URL,
-    AUDIO_TTS_OPENAI_API_KEY,
-    AUDIO_TTS_SPLIT_ON,
-    AUDIO_TTS_VOICE,
-    AUDIO_TTS_AZURE_SPEECH_REGION,
-    AUDIO_TTS_AZURE_SPEECH_BASE_URL,
-    AUDIO_TTS_AZURE_SPEECH_OUTPUT_FORMAT,
     PLAYWRIGHT_WS_URL,
     PLAYWRIGHT_TIMEOUT,
     FIRECRAWL_API_BASE_URL,
@@ -253,18 +219,9 @@ from open_webui.config import (
     KAGI_SEARCH_API_KEY,
     MOJEEK_SEARCH_API_KEY,
     BOCHA_SEARCH_API_KEY,
-    GOOGLE_PSE_API_KEY,
-    GOOGLE_PSE_ENGINE_ID,
-    GOOGLE_DRIVE_CLIENT_ID,
-    GOOGLE_DRIVE_API_KEY,
-    ONEDRIVE_CLIENT_ID,
-    ONEDRIVE_SHAREPOINT_URL,
-    ONEDRIVE_SHAREPOINT_TENANT_ID,
     ENABLE_RAG_HYBRID_SEARCH,
     ENABLE_RAG_LOCAL_WEB_FETCH,
     ENABLE_WEB_LOADER_SSL_VERIFICATION,
-    ENABLE_GOOGLE_DRIVE_INTEGRATION,
-    ENABLE_ONEDRIVE_INTEGRATION,
     UPLOAD_DIR,
     EXTERNAL_WEB_SEARCH_URL,
     EXTERNAL_WEB_SEARCH_API_KEY,
@@ -285,7 +242,6 @@ from open_webui.config import (
     API_KEY_ALLOWED_ENDPOINTS,
     ENABLE_CHANNELS,
     ENABLE_NOTES,
-    ENABLE_COMMUNITY_SHARING,
     ENABLE_MESSAGE_RATING,
     ENABLE_USER_WEBHOOKS,
     ENABLE_EVALUATION_ARENA_MODELS,
@@ -304,20 +260,6 @@ from open_webui.config import (
     OAUTH_USERNAME_CLAIM,
     OAUTH_ALLOWED_ROLES,
     OAUTH_ADMIN_ROLES,
-    # WebUI (LDAP)
-    ENABLE_LDAP,
-    LDAP_SERVER_LABEL,
-    LDAP_SERVER_HOST,
-    LDAP_SERVER_PORT,
-    LDAP_ATTRIBUTE_FOR_MAIL,
-    LDAP_ATTRIBUTE_FOR_USERNAME,
-    LDAP_SEARCH_FILTERS,
-    LDAP_SEARCH_BASE,
-    LDAP_APP_DN,
-    LDAP_APP_PASSWORD,
-    LDAP_USE_TLS,
-    LDAP_CA_CERT_FILE,
-    LDAP_CIPHERS,
     # Misc
     ENV,
     CACHE_DIR,
@@ -340,13 +282,12 @@ from open_webui.config import (
     ENABLE_AUTOCOMPLETE_GENERATION,
     TITLE_GENERATION_PROMPT_TEMPLATE,
     TAGS_GENERATION_PROMPT_TEMPLATE,
-    IMAGE_PROMPT_GENERATION_PROMPT_TEMPLATE,
     TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE,
     QUERY_GENERATION_PROMPT_TEMPLATE,
     AUTOCOMPLETE_GENERATION_PROMPT_TEMPLATE,
     AUTOCOMPLETE_GENERATION_INPUT_MAX_LENGTH,
     AppConfig,
-    reset_config,
+    reset_config, GOOGLE_PSE_API_KEY, GOOGLE_PSE_ENGINE_ID,
 )
 from open_webui.env import (
     AUDIT_EXCLUDED_PATHS,
@@ -390,7 +331,6 @@ from open_webui.utils.middleware import process_chat_payload, process_chat_respo
 from open_webui.utils.access_control import has_access
 
 from open_webui.utils.auth import (
-    get_license_data,
     get_http_authorization_cred,
     decode_token,
     get_admin_user,
@@ -445,7 +385,7 @@ print(
 
 v{VERSION} - building the best AI user interface.
 {f"Commit: {WEBUI_BUILD_HASH}" if WEBUI_BUILD_HASH != "dev-build" else ""}
-https://github.com/open-webui/open-webui
+https://github.com/the-finance-genie/the-finance-genie
 """
 )
 
@@ -455,9 +395,6 @@ async def lifespan(app: FastAPI):
     start_logger()
     if RESET_CONFIG_ON_START:
         reset_config()
-
-    if LICENSE_KEY:
-        get_license_data(app, LICENSE_KEY)
 
     # This should be blocking (sync) so functions are not deactivated on first /get_models calls
     # when the first user lands on the / route.
@@ -474,7 +411,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Open WebUI",
+    title="The Finance Genie",
     docs_url="/docs" if ENV == "dev" else None,
     openapi_url="/openapi.json" if ENV == "dev" else None,
     redoc_url=None,
@@ -489,7 +426,6 @@ app.state.config = AppConfig(
 )
 
 app.state.WEBUI_NAME = WEBUI_NAME
-app.state.LICENSE_METADATA = None
 
 
 ########################################
@@ -581,7 +517,6 @@ app.state.config.MODEL_ORDER_LIST = MODEL_ORDER_LIST
 
 app.state.config.ENABLE_CHANNELS = ENABLE_CHANNELS
 app.state.config.ENABLE_NOTES = ENABLE_NOTES
-app.state.config.ENABLE_COMMUNITY_SHARING = ENABLE_COMMUNITY_SHARING
 app.state.config.ENABLE_MESSAGE_RATING = ENABLE_MESSAGE_RATING
 app.state.config.ENABLE_USER_WEBHOOKS = ENABLE_USER_WEBHOOKS
 
@@ -596,21 +531,6 @@ app.state.config.ENABLE_OAUTH_ROLE_MANAGEMENT = ENABLE_OAUTH_ROLE_MANAGEMENT
 app.state.config.OAUTH_ROLES_CLAIM = OAUTH_ROLES_CLAIM
 app.state.config.OAUTH_ALLOWED_ROLES = OAUTH_ALLOWED_ROLES
 app.state.config.OAUTH_ADMIN_ROLES = OAUTH_ADMIN_ROLES
-
-app.state.config.ENABLE_LDAP = ENABLE_LDAP
-app.state.config.LDAP_SERVER_LABEL = LDAP_SERVER_LABEL
-app.state.config.LDAP_SERVER_HOST = LDAP_SERVER_HOST
-app.state.config.LDAP_SERVER_PORT = LDAP_SERVER_PORT
-app.state.config.LDAP_ATTRIBUTE_FOR_MAIL = LDAP_ATTRIBUTE_FOR_MAIL
-app.state.config.LDAP_ATTRIBUTE_FOR_USERNAME = LDAP_ATTRIBUTE_FOR_USERNAME
-app.state.config.LDAP_APP_DN = LDAP_APP_DN
-app.state.config.LDAP_APP_PASSWORD = LDAP_APP_PASSWORD
-app.state.config.LDAP_SEARCH_BASE = LDAP_SEARCH_BASE
-app.state.config.LDAP_SEARCH_FILTERS = LDAP_SEARCH_FILTERS
-app.state.config.LDAP_USE_TLS = LDAP_USE_TLS
-app.state.config.LDAP_CA_CERT_FILE = LDAP_CA_CERT_FILE
-app.state.config.LDAP_CIPHERS = LDAP_CIPHERS
-
 
 app.state.AUTH_TRUSTED_EMAIL_HEADER = WEBUI_AUTH_TRUSTED_EMAIL_HEADER
 app.state.AUTH_TRUSTED_NAME_HEADER = WEBUI_AUTH_TRUSTED_NAME_HEADER
@@ -689,8 +609,6 @@ app.state.config.BYPASS_WEB_SEARCH_EMBEDDING_AND_RETRIEVAL = (
     BYPASS_WEB_SEARCH_EMBEDDING_AND_RETRIEVAL
 )
 
-app.state.config.ENABLE_GOOGLE_DRIVE_INTEGRATION = ENABLE_GOOGLE_DRIVE_INTEGRATION
-app.state.config.ENABLE_ONEDRIVE_INTEGRATION = ENABLE_ONEDRIVE_INTEGRATION
 app.state.config.SEARXNG_QUERY_URL = SEARXNG_QUERY_URL
 app.state.config.YACY_QUERY_URL = YACY_QUERY_URL
 app.state.config.YACY_USERNAME = YACY_USERNAME
@@ -728,6 +646,8 @@ app.state.config.PLAYWRIGHT_TIMEOUT = PLAYWRIGHT_TIMEOUT
 app.state.config.FIRECRAWL_API_BASE_URL = FIRECRAWL_API_BASE_URL
 app.state.config.FIRECRAWL_API_KEY = FIRECRAWL_API_KEY
 app.state.config.TAVILY_EXTRACT_DEPTH = TAVILY_EXTRACT_DEPTH
+
+app.state.config.STT_ENGINE = AUDIO_STT_ENGINE
 
 app.state.EMBEDDING_FUNCTION = None
 app.state.ef = None
@@ -772,6 +692,8 @@ app.state.EMBEDDING_FUNCTION = get_embedding_function(
     app.state.config.RAG_EMBEDDING_BATCH_SIZE,
 )
 
+
+
 ########################################
 #
 # CODE EXECUTION
@@ -804,78 +726,6 @@ app.state.config.CODE_INTERPRETER_JUPYTER_TIMEOUT = CODE_INTERPRETER_JUPYTER_TIM
 
 ########################################
 #
-# IMAGES
-#
-########################################
-
-app.state.config.IMAGE_GENERATION_ENGINE = IMAGE_GENERATION_ENGINE
-app.state.config.ENABLE_IMAGE_GENERATION = ENABLE_IMAGE_GENERATION
-app.state.config.ENABLE_IMAGE_PROMPT_GENERATION = ENABLE_IMAGE_PROMPT_GENERATION
-
-app.state.config.IMAGES_OPENAI_API_BASE_URL = IMAGES_OPENAI_API_BASE_URL
-app.state.config.IMAGES_OPENAI_API_KEY = IMAGES_OPENAI_API_KEY
-
-app.state.config.IMAGES_GEMINI_API_BASE_URL = IMAGES_GEMINI_API_BASE_URL
-app.state.config.IMAGES_GEMINI_API_KEY = IMAGES_GEMINI_API_KEY
-
-app.state.config.IMAGE_GENERATION_MODEL = IMAGE_GENERATION_MODEL
-
-app.state.config.AUTOMATIC1111_BASE_URL = AUTOMATIC1111_BASE_URL
-app.state.config.AUTOMATIC1111_API_AUTH = AUTOMATIC1111_API_AUTH
-app.state.config.AUTOMATIC1111_CFG_SCALE = AUTOMATIC1111_CFG_SCALE
-app.state.config.AUTOMATIC1111_SAMPLER = AUTOMATIC1111_SAMPLER
-app.state.config.AUTOMATIC1111_SCHEDULER = AUTOMATIC1111_SCHEDULER
-app.state.config.COMFYUI_BASE_URL = COMFYUI_BASE_URL
-app.state.config.COMFYUI_API_KEY = COMFYUI_API_KEY
-app.state.config.COMFYUI_WORKFLOW = COMFYUI_WORKFLOW
-app.state.config.COMFYUI_WORKFLOW_NODES = COMFYUI_WORKFLOW_NODES
-
-app.state.config.IMAGE_SIZE = IMAGE_SIZE
-app.state.config.IMAGE_STEPS = IMAGE_STEPS
-
-
-########################################
-#
-# AUDIO
-#
-########################################
-
-app.state.config.STT_OPENAI_API_BASE_URL = AUDIO_STT_OPENAI_API_BASE_URL
-app.state.config.STT_OPENAI_API_KEY = AUDIO_STT_OPENAI_API_KEY
-app.state.config.STT_ENGINE = AUDIO_STT_ENGINE
-app.state.config.STT_MODEL = AUDIO_STT_MODEL
-
-app.state.config.WHISPER_MODEL = WHISPER_MODEL
-app.state.config.WHISPER_VAD_FILTER = WHISPER_VAD_FILTER
-app.state.config.DEEPGRAM_API_KEY = DEEPGRAM_API_KEY
-
-app.state.config.AUDIO_STT_AZURE_API_KEY = AUDIO_STT_AZURE_API_KEY
-app.state.config.AUDIO_STT_AZURE_REGION = AUDIO_STT_AZURE_REGION
-app.state.config.AUDIO_STT_AZURE_LOCALES = AUDIO_STT_AZURE_LOCALES
-app.state.config.AUDIO_STT_AZURE_BASE_URL = AUDIO_STT_AZURE_BASE_URL
-app.state.config.AUDIO_STT_AZURE_MAX_SPEAKERS = AUDIO_STT_AZURE_MAX_SPEAKERS
-
-app.state.config.TTS_OPENAI_API_BASE_URL = AUDIO_TTS_OPENAI_API_BASE_URL
-app.state.config.TTS_OPENAI_API_KEY = AUDIO_TTS_OPENAI_API_KEY
-app.state.config.TTS_ENGINE = AUDIO_TTS_ENGINE
-app.state.config.TTS_MODEL = AUDIO_TTS_MODEL
-app.state.config.TTS_VOICE = AUDIO_TTS_VOICE
-app.state.config.TTS_API_KEY = AUDIO_TTS_API_KEY
-app.state.config.TTS_SPLIT_ON = AUDIO_TTS_SPLIT_ON
-
-
-app.state.config.TTS_AZURE_SPEECH_REGION = AUDIO_TTS_AZURE_SPEECH_REGION
-app.state.config.TTS_AZURE_SPEECH_BASE_URL = AUDIO_TTS_AZURE_SPEECH_BASE_URL
-app.state.config.TTS_AZURE_SPEECH_OUTPUT_FORMAT = AUDIO_TTS_AZURE_SPEECH_OUTPUT_FORMAT
-
-
-app.state.faster_whisper_model = None
-app.state.speech_synthesiser = None
-app.state.speech_speaker_embeddings_dataset = None
-
-
-########################################
-#
 # TASKS
 #
 ########################################
@@ -894,9 +744,6 @@ app.state.config.ENABLE_TITLE_GENERATION = ENABLE_TITLE_GENERATION
 
 app.state.config.TITLE_GENERATION_PROMPT_TEMPLATE = TITLE_GENERATION_PROMPT_TEMPLATE
 app.state.config.TAGS_GENERATION_PROMPT_TEMPLATE = TAGS_GENERATION_PROMPT_TEMPLATE
-app.state.config.IMAGE_PROMPT_GENERATION_PROMPT_TEMPLATE = (
-    IMAGE_PROMPT_GENERATION_PROMPT_TEMPLATE
-)
 
 app.state.config.TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE = (
     TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE
@@ -1002,7 +849,6 @@ app.include_router(openai.router, prefix="/openai", tags=["openai"])
 
 app.include_router(pipelines.router, prefix="/api/v1/pipelines", tags=["pipelines"])
 app.include_router(tasks.router, prefix="/api/v1/tasks", tags=["tasks"])
-app.include_router(images.router, prefix="/api/v1/images", tags=["images"])
 
 app.include_router(audio.router, prefix="/api/v1/audio", tags=["audio"])
 app.include_router(retrieval.router, prefix="/api/v1/retrieval", tags=["retrieval"])
@@ -1336,7 +1182,6 @@ async def get_app_config(request: Request):
         "features": {
             "auth": WEBUI_AUTH,
             "auth_trusted_header": bool(app.state.AUTH_TRUSTED_EMAIL_HEADER),
-            "enable_ldap": app.state.config.ENABLE_LDAP,
             "enable_api_key": app.state.config.ENABLE_API_KEY,
             "enable_signup": app.state.config.ENABLE_SIGNUP,
             "enable_login_form": app.state.config.ENABLE_LOGIN_FORM,
@@ -1349,15 +1194,11 @@ async def get_app_config(request: Request):
                     "enable_web_search": app.state.config.ENABLE_WEB_SEARCH,
                     "enable_code_execution": app.state.config.ENABLE_CODE_EXECUTION,
                     "enable_code_interpreter": app.state.config.ENABLE_CODE_INTERPRETER,
-                    "enable_image_generation": app.state.config.ENABLE_IMAGE_GENERATION,
                     "enable_autocomplete_generation": app.state.config.ENABLE_AUTOCOMPLETE_GENERATION,
-                    "enable_community_sharing": app.state.config.ENABLE_COMMUNITY_SHARING,
                     "enable_message_rating": app.state.config.ENABLE_MESSAGE_RATING,
                     "enable_user_webhooks": app.state.config.ENABLE_USER_WEBHOOKS,
                     "enable_admin_export": ENABLE_ADMIN_EXPORT,
                     "enable_admin_chat_access": ENABLE_ADMIN_CHAT_ACCESS,
-                    "enable_google_drive_integration": app.state.config.ENABLE_GOOGLE_DRIVE_INTEGRATION,
-                    "enable_onedrive_integration": app.state.config.ENABLE_ONEDRIVE_INTEGRATION,
                 }
                 if user is not None
                 else {}
@@ -1372,11 +1213,6 @@ async def get_app_config(request: Request):
                     "engine": app.state.config.CODE_EXECUTION_ENGINE,
                 },
                 "audio": {
-                    "tts": {
-                        "engine": app.state.config.TTS_ENGINE,
-                        "voice": app.state.config.TTS_VOICE,
-                        "split_on": app.state.config.TTS_SPLIT_ON,
-                    },
                     "stt": {
                         "engine": app.state.config.STT_ENGINE,
                     },
@@ -1386,16 +1222,6 @@ async def get_app_config(request: Request):
                     "max_count": app.state.config.FILE_MAX_COUNT,
                 },
                 "permissions": {**app.state.config.USER_PERMISSIONS},
-                "google_drive": {
-                    "client_id": GOOGLE_DRIVE_CLIENT_ID.value,
-                    "api_key": GOOGLE_DRIVE_API_KEY.value,
-                },
-                "onedrive": {
-                    "client_id": ONEDRIVE_CLIENT_ID.value,
-                    "sharepoint_url": ONEDRIVE_SHAREPOINT_URL.value,
-                    "sharepoint_tenant_id": ONEDRIVE_SHAREPOINT_TENANT_ID.value,
-                },
-                "license_metadata": app.state.LICENSE_METADATA,
                 **(
                     {
                         "active_entries": app.state.USER_COUNT,
@@ -1446,7 +1272,7 @@ async def get_app_latest_release_version(user=Depends(get_verified_user)):
         timeout = aiohttp.ClientTimeout(total=1)
         async with aiohttp.ClientSession(timeout=timeout, trust_env=True) as session:
             async with session.get(
-                "https://api.github.com/repos/open-webui/open-webui/releases/latest"
+                "https://api.github.com/repos/the-finance-genie/the-finance-genie/releases/latest"
             ) as response:
                 response.raise_for_status()
                 data = await response.json()
@@ -1483,12 +1309,6 @@ async def oauth_login(provider: str, request: Request):
     return await oauth_manager.handle_login(request, provider)
 
 
-# OAuth login logic is as follows:
-# 1. Attempt to find a user with matching subject ID, tied to the provider
-# 2. If OAUTH_MERGE_ACCOUNTS_BY_EMAIL is true, find a user with the email address provided via OAuth
-#    - This is considered insecure in general, as OAuth providers do not always verify email addresses
-# 3. If there is no user, and ENABLE_OAUTH_SIGNUP is true, create a user
-#    - Email addresses are considered unique, so we fail registration if the email address is already taken
 @app.get("/oauth/{provider}/callback")
 async def oauth_callback(provider: str, request: Request, response: Response):
     return await oauth_manager.handle_callback(request, provider, response)
@@ -1502,7 +1322,6 @@ async def get_manifest_json():
         return {
             "name": app.state.WEBUI_NAME,
             "short_name": app.state.WEBUI_NAME,
-            "description": "Open WebUI is an open, extensible, user-friendly interface for AI that adapts to your workflow.",
             "start_url": "/",
             "display": "standalone",
             "background_color": "#343541",

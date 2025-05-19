@@ -230,7 +230,7 @@ class AppConfig:
             self._state[key].save()
 
             if self._redis:
-                redis_key = f"open-webui:config:{key}"
+                redis_key = f"the-finance-genie:config:{key}"
                 self._redis.set(redis_key, json.dumps(self._state[key].value))
 
     def __getattr__(self, key):
@@ -239,7 +239,7 @@ class AppConfig:
 
         # If Redis is available, check for an updated value
         if self._redis:
-            redis_key = f"open-webui:config:{key}"
+            redis_key = f"the-finance-genie:config:{key}"
             redis_value = self._redis.get(redis_key)
 
             if redis_value is not None:
@@ -303,85 +303,6 @@ OAUTH_MERGE_ACCOUNTS_BY_EMAIL = PersistentConfig(
 )
 
 OAUTH_PROVIDERS = {}
-
-GOOGLE_CLIENT_ID = PersistentConfig(
-    "GOOGLE_CLIENT_ID",
-    "oauth.google.client_id",
-    os.environ.get("GOOGLE_CLIENT_ID", ""),
-)
-
-GOOGLE_CLIENT_SECRET = PersistentConfig(
-    "GOOGLE_CLIENT_SECRET",
-    "oauth.google.client_secret",
-    os.environ.get("GOOGLE_CLIENT_SECRET", ""),
-)
-
-
-GOOGLE_OAUTH_SCOPE = PersistentConfig(
-    "GOOGLE_OAUTH_SCOPE",
-    "oauth.google.scope",
-    os.environ.get("GOOGLE_OAUTH_SCOPE", "openid email profile"),
-)
-
-GOOGLE_REDIRECT_URI = PersistentConfig(
-    "GOOGLE_REDIRECT_URI",
-    "oauth.google.redirect_uri",
-    os.environ.get("GOOGLE_REDIRECT_URI", ""),
-)
-
-MICROSOFT_CLIENT_ID = PersistentConfig(
-    "MICROSOFT_CLIENT_ID",
-    "oauth.microsoft.client_id",
-    os.environ.get("MICROSOFT_CLIENT_ID", ""),
-)
-
-MICROSOFT_CLIENT_SECRET = PersistentConfig(
-    "MICROSOFT_CLIENT_SECRET",
-    "oauth.microsoft.client_secret",
-    os.environ.get("MICROSOFT_CLIENT_SECRET", ""),
-)
-
-MICROSOFT_CLIENT_TENANT_ID = PersistentConfig(
-    "MICROSOFT_CLIENT_TENANT_ID",
-    "oauth.microsoft.tenant_id",
-    os.environ.get("MICROSOFT_CLIENT_TENANT_ID", ""),
-)
-
-MICROSOFT_OAUTH_SCOPE = PersistentConfig(
-    "MICROSOFT_OAUTH_SCOPE",
-    "oauth.microsoft.scope",
-    os.environ.get("MICROSOFT_OAUTH_SCOPE", "openid email profile"),
-)
-
-MICROSOFT_REDIRECT_URI = PersistentConfig(
-    "MICROSOFT_REDIRECT_URI",
-    "oauth.microsoft.redirect_uri",
-    os.environ.get("MICROSOFT_REDIRECT_URI", ""),
-)
-
-GITHUB_CLIENT_ID = PersistentConfig(
-    "GITHUB_CLIENT_ID",
-    "oauth.github.client_id",
-    os.environ.get("GITHUB_CLIENT_ID", ""),
-)
-
-GITHUB_CLIENT_SECRET = PersistentConfig(
-    "GITHUB_CLIENT_SECRET",
-    "oauth.github.client_secret",
-    os.environ.get("GITHUB_CLIENT_SECRET", ""),
-)
-
-GITHUB_CLIENT_SCOPE = PersistentConfig(
-    "GITHUB_CLIENT_SCOPE",
-    "oauth.github.scope",
-    os.environ.get("GITHUB_CLIENT_SCOPE", "user:email"),
-)
-
-GITHUB_CLIENT_REDIRECT_URI = PersistentConfig(
-    "GITHUB_CLIENT_REDIRECT_URI",
-    "oauth.github.redirect_uri",
-    os.environ.get("GITHUB_CLIENT_REDIRECT_URI", ""),
-)
 
 OAUTH_CLIENT_ID = PersistentConfig(
     "OAUTH_CLIENT_ID",
@@ -514,67 +435,6 @@ OAUTH_UPDATE_PICTURE_ON_LOGIN = PersistentConfig(
 
 def load_oauth_providers():
     OAUTH_PROVIDERS.clear()
-    if GOOGLE_CLIENT_ID.value and GOOGLE_CLIENT_SECRET.value:
-
-        def google_oauth_register(client):
-            client.register(
-                name="google",
-                client_id=GOOGLE_CLIENT_ID.value,
-                client_secret=GOOGLE_CLIENT_SECRET.value,
-                server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
-                client_kwargs={"scope": GOOGLE_OAUTH_SCOPE.value},
-                redirect_uri=GOOGLE_REDIRECT_URI.value,
-            )
-
-        OAUTH_PROVIDERS["google"] = {
-            "redirect_uri": GOOGLE_REDIRECT_URI.value,
-            "register": google_oauth_register,
-        }
-
-    if (
-        MICROSOFT_CLIENT_ID.value
-        and MICROSOFT_CLIENT_SECRET.value
-        and MICROSOFT_CLIENT_TENANT_ID.value
-    ):
-
-        def microsoft_oauth_register(client):
-            client.register(
-                name="microsoft",
-                client_id=MICROSOFT_CLIENT_ID.value,
-                client_secret=MICROSOFT_CLIENT_SECRET.value,
-                server_metadata_url=f"https://login.microsoftonline.com/{MICROSOFT_CLIENT_TENANT_ID.value}/v2.0/.well-known/openid-configuration?appid={MICROSOFT_CLIENT_ID.value}",
-                client_kwargs={
-                    "scope": MICROSOFT_OAUTH_SCOPE.value,
-                },
-                redirect_uri=MICROSOFT_REDIRECT_URI.value,
-            )
-
-        OAUTH_PROVIDERS["microsoft"] = {
-            "redirect_uri": MICROSOFT_REDIRECT_URI.value,
-            "picture_url": "https://graph.microsoft.com/v1.0/me/photo/$value",
-            "register": microsoft_oauth_register,
-        }
-
-    if GITHUB_CLIENT_ID.value and GITHUB_CLIENT_SECRET.value:
-
-        def github_oauth_register(client):
-            client.register(
-                name="github",
-                client_id=GITHUB_CLIENT_ID.value,
-                client_secret=GITHUB_CLIENT_SECRET.value,
-                access_token_url="https://github.com/login/oauth/access_token",
-                authorize_url="https://github.com/login/oauth/authorize",
-                api_base_url="https://api.github.com",
-                userinfo_endpoint="https://api.github.com/user",
-                client_kwargs={"scope": GITHUB_CLIENT_SCOPE.value},
-                redirect_uri=GITHUB_CLIENT_REDIRECT_URI.value,
-            )
-
-        OAUTH_PROVIDERS["github"] = {
-            "redirect_uri": GITHUB_CLIENT_REDIRECT_URI.value,
-            "register": github_oauth_register,
-            "sub_claim": "id",
-        }
 
     if (
         OAUTH_CLIENT_ID.value
@@ -659,55 +519,6 @@ if frontend_loader.exists():
 
 
 ####################################
-# CUSTOM_NAME (Legacy)
-####################################
-
-CUSTOM_NAME = os.environ.get("CUSTOM_NAME", "")
-
-if CUSTOM_NAME:
-    try:
-        r = requests.get(f"https://api.openwebui.com/api/v1/custom/{CUSTOM_NAME}")
-        data = r.json()
-        if r.ok:
-            if "logo" in data:
-                WEBUI_FAVICON_URL = url = (
-                    f"https://api.openwebui.com{data['logo']}"
-                    if data["logo"][0] == "/"
-                    else data["logo"]
-                )
-
-                r = requests.get(url, stream=True)
-                if r.status_code == 200:
-                    with open(f"{STATIC_DIR}/favicon.png", "wb") as f:
-                        r.raw.decode_content = True
-                        shutil.copyfileobj(r.raw, f)
-
-            if "splash" in data:
-                url = (
-                    f"https://api.openwebui.com{data['splash']}"
-                    if data["splash"][0] == "/"
-                    else data["splash"]
-                )
-
-                r = requests.get(url, stream=True)
-                if r.status_code == 200:
-                    with open(f"{STATIC_DIR}/splash.png", "wb") as f:
-                        r.raw.decode_content = True
-                        shutil.copyfileobj(r.raw, f)
-
-            WEBUI_NAME = data["name"]
-    except Exception as e:
-        log.exception(e)
-        pass
-
-
-####################################
-# LICENSE_KEY
-####################################
-
-LICENSE_KEY = os.environ.get("LICENSE_KEY", "")
-
-####################################
 # STORAGE PROVIDER
 ####################################
 
@@ -724,15 +535,6 @@ S3_USE_ACCELERATE_ENDPOINT = (
 )
 S3_ADDRESSING_STYLE = os.environ.get("S3_ADDRESSING_STYLE", None)
 S3_ENABLE_TAGGING = os.getenv("S3_ENABLE_TAGGING", "false").lower() == "true"
-
-GCS_BUCKET_NAME = os.environ.get("GCS_BUCKET_NAME", None)
-GOOGLE_APPLICATION_CREDENTIALS_JSON = os.environ.get(
-    "GOOGLE_APPLICATION_CREDENTIALS_JSON", None
-)
-
-AZURE_STORAGE_ENDPOINT = os.environ.get("AZURE_STORAGE_ENDPOINT", None)
-AZURE_STORAGE_CONTAINER_NAME = os.environ.get("AZURE_STORAGE_CONTAINER_NAME", None)
-AZURE_STORAGE_KEY = os.environ.get("AZURE_STORAGE_KEY", None)
 
 ####################################
 # File Upload DIR
@@ -795,13 +597,11 @@ if OLLAMA_BASE_URL == "" and OLLAMA_API_BASE_URL != "":
 if ENV == "prod":
     if OLLAMA_BASE_URL == "/ollama" and not K8S_FLAG:
         if USE_OLLAMA_DOCKER.lower() == "true":
-            # if you use all-in-one docker container (Open WebUI + Ollama)
-            # with the docker build arg USE_OLLAMA=true (--build-arg="USE_OLLAMA=true") this only works with http://localhost:11434
             OLLAMA_BASE_URL = "http://localhost:11434"
         else:
             OLLAMA_BASE_URL = "http://host.docker.internal:11434"
     elif K8S_FLAG:
-        OLLAMA_BASE_URL = "http://ollama-service.open-webui.svc.cluster.local:11434"
+        OLLAMA_BASE_URL = "http://ollama-service.the-finance-genie.svc.cluster.local:11434"
 
 
 OLLAMA_BASE_URLS = os.environ.get("OLLAMA_BASE_URLS", "")
@@ -1065,9 +865,6 @@ USER_PERMISSIONS_CHAT_STT = (
     os.environ.get("USER_PERMISSIONS_CHAT_STT", "True").lower() == "true"
 )
 
-USER_PERMISSIONS_CHAT_TTS = (
-    os.environ.get("USER_PERMISSIONS_CHAT_TTS", "True").lower() == "true"
-)
 
 USER_PERMISSIONS_CHAT_CALL = (
     os.environ.get("USER_PERMISSIONS_CHAT_CALL", "True").lower() == "true"
@@ -1096,10 +893,7 @@ USER_PERMISSIONS_FEATURES_WEB_SEARCH = (
     os.environ.get("USER_PERMISSIONS_FEATURES_WEB_SEARCH", "True").lower() == "true"
 )
 
-USER_PERMISSIONS_FEATURES_IMAGE_GENERATION = (
-    os.environ.get("USER_PERMISSIONS_FEATURES_IMAGE_GENERATION", "True").lower()
-    == "true"
-)
+
 
 USER_PERMISSIONS_FEATURES_CODE_INTERPRETER = (
     os.environ.get("USER_PERMISSIONS_FEATURES_CODE_INTERPRETER", "True").lower()
@@ -1132,8 +926,6 @@ DEFAULT_USER_PERMISSIONS = {
         "share": USER_PERMISSIONS_CHAT_SHARE,
         "export": USER_PERMISSIONS_CHAT_EXPORT,
         "stt": USER_PERMISSIONS_CHAT_STT,
-        "tts": USER_PERMISSIONS_CHAT_TTS,
-        "call": USER_PERMISSIONS_CHAT_CALL,
         "multiple_models": USER_PERMISSIONS_CHAT_MULTIPLE_MODELS,
         "temporary": USER_PERMISSIONS_CHAT_TEMPORARY,
         "temporary_enforced": USER_PERMISSIONS_CHAT_TEMPORARY_ENFORCED,
@@ -1141,7 +933,6 @@ DEFAULT_USER_PERMISSIONS = {
     "features": {
         "direct_tool_servers": USER_PERMISSIONS_FEATURES_DIRECT_TOOL_SERVERS,
         "web_search": USER_PERMISSIONS_FEATURES_WEB_SEARCH,
-        "image_generation": USER_PERMISSIONS_FEATURES_IMAGE_GENERATION,
         "code_interpreter": USER_PERMISSIONS_FEATURES_CODE_INTERPRETER,
         "notes": USER_PERMISSIONS_FEATURES_NOTES,
     },
@@ -1315,10 +1106,9 @@ TITLE_GENERATION_PROMPT_TEMPLATE = PersistentConfig(
 )
 
 DEFAULT_TITLE_GENERATION_PROMPT_TEMPLATE = """### Task:
-Generate a concise, 3-5 word title with an emoji summarizing the chat history.
+Generate a concise, 3-5 word title summarizing the chat history.
 ### Guidelines:
 - The title should clearly represent the main theme or subject of the conversation.
-- Use emojis that enhance understanding of the topic, but avoid quotation marks or special formatting.
 - Write the title in the chat's primary language; default to English if multilingual.
 - Prioritize accuracy over excessive creativity; keep it clear and simple.
 - Your entire response must consist solely of the JSON object, without any introductory or concluding text.
@@ -2270,241 +2060,6 @@ EXTERNAL_WEB_LOADER_API_KEY = PersistentConfig(
 )
 
 ####################################
-# Images
-####################################
-
-IMAGE_GENERATION_ENGINE = PersistentConfig(
-    "IMAGE_GENERATION_ENGINE",
-    "image_generation.engine",
-    os.getenv("IMAGE_GENERATION_ENGINE", "openai"),
-)
-
-ENABLE_IMAGE_GENERATION = PersistentConfig(
-    "ENABLE_IMAGE_GENERATION",
-    "image_generation.enable",
-    os.environ.get("ENABLE_IMAGE_GENERATION", "").lower() == "true",
-)
-
-ENABLE_IMAGE_PROMPT_GENERATION = PersistentConfig(
-    "ENABLE_IMAGE_PROMPT_GENERATION",
-    "image_generation.prompt.enable",
-    os.environ.get("ENABLE_IMAGE_PROMPT_GENERATION", "true").lower() == "true",
-)
-
-AUTOMATIC1111_BASE_URL = PersistentConfig(
-    "AUTOMATIC1111_BASE_URL",
-    "image_generation.automatic1111.base_url",
-    os.getenv("AUTOMATIC1111_BASE_URL", ""),
-)
-AUTOMATIC1111_API_AUTH = PersistentConfig(
-    "AUTOMATIC1111_API_AUTH",
-    "image_generation.automatic1111.api_auth",
-    os.getenv("AUTOMATIC1111_API_AUTH", ""),
-)
-
-AUTOMATIC1111_CFG_SCALE = PersistentConfig(
-    "AUTOMATIC1111_CFG_SCALE",
-    "image_generation.automatic1111.cfg_scale",
-    (
-        float(os.environ.get("AUTOMATIC1111_CFG_SCALE"))
-        if os.environ.get("AUTOMATIC1111_CFG_SCALE")
-        else None
-    ),
-)
-
-
-AUTOMATIC1111_SAMPLER = PersistentConfig(
-    "AUTOMATIC1111_SAMPLER",
-    "image_generation.automatic1111.sampler",
-    (
-        os.environ.get("AUTOMATIC1111_SAMPLER")
-        if os.environ.get("AUTOMATIC1111_SAMPLER")
-        else None
-    ),
-)
-
-AUTOMATIC1111_SCHEDULER = PersistentConfig(
-    "AUTOMATIC1111_SCHEDULER",
-    "image_generation.automatic1111.scheduler",
-    (
-        os.environ.get("AUTOMATIC1111_SCHEDULER")
-        if os.environ.get("AUTOMATIC1111_SCHEDULER")
-        else None
-    ),
-)
-
-COMFYUI_BASE_URL = PersistentConfig(
-    "COMFYUI_BASE_URL",
-    "image_generation.comfyui.base_url",
-    os.getenv("COMFYUI_BASE_URL", ""),
-)
-
-COMFYUI_API_KEY = PersistentConfig(
-    "COMFYUI_API_KEY",
-    "image_generation.comfyui.api_key",
-    os.getenv("COMFYUI_API_KEY", ""),
-)
-
-COMFYUI_DEFAULT_WORKFLOW = """
-{
-  "3": {
-    "inputs": {
-      "seed": 0,
-      "steps": 20,
-      "cfg": 8,
-      "sampler_name": "euler",
-      "scheduler": "normal",
-      "denoise": 1,
-      "model": [
-        "4",
-        0
-      ],
-      "positive": [
-        "6",
-        0
-      ],
-      "negative": [
-        "7",
-        0
-      ],
-      "latent_image": [
-        "5",
-        0
-      ]
-    },
-    "class_type": "KSampler",
-    "_meta": {
-      "title": "KSampler"
-    }
-  },
-  "4": {
-    "inputs": {
-      "ckpt_name": "model.safetensors"
-    },
-    "class_type": "CheckpointLoaderSimple",
-    "_meta": {
-      "title": "Load Checkpoint"
-    }
-  },
-  "5": {
-    "inputs": {
-      "width": 512,
-      "height": 512,
-      "batch_size": 1
-    },
-    "class_type": "EmptyLatentImage",
-    "_meta": {
-      "title": "Empty Latent Image"
-    }
-  },
-  "6": {
-    "inputs": {
-      "text": "Prompt",
-      "clip": [
-        "4",
-        1
-      ]
-    },
-    "class_type": "CLIPTextEncode",
-    "_meta": {
-      "title": "CLIP Text Encode (Prompt)"
-    }
-  },
-  "7": {
-    "inputs": {
-      "text": "",
-      "clip": [
-        "4",
-        1
-      ]
-    },
-    "class_type": "CLIPTextEncode",
-    "_meta": {
-      "title": "CLIP Text Encode (Prompt)"
-    }
-  },
-  "8": {
-    "inputs": {
-      "samples": [
-        "3",
-        0
-      ],
-      "vae": [
-        "4",
-        2
-      ]
-    },
-    "class_type": "VAEDecode",
-    "_meta": {
-      "title": "VAE Decode"
-    }
-  },
-  "9": {
-    "inputs": {
-      "filename_prefix": "ComfyUI",
-      "images": [
-        "8",
-        0
-      ]
-    },
-    "class_type": "SaveImage",
-    "_meta": {
-      "title": "Save Image"
-    }
-  }
-}
-"""
-
-
-COMFYUI_WORKFLOW = PersistentConfig(
-    "COMFYUI_WORKFLOW",
-    "image_generation.comfyui.workflow",
-    os.getenv("COMFYUI_WORKFLOW", COMFYUI_DEFAULT_WORKFLOW),
-)
-
-COMFYUI_WORKFLOW_NODES = PersistentConfig(
-    "COMFYUI_WORKFLOW",
-    "image_generation.comfyui.nodes",
-    [],
-)
-
-IMAGES_OPENAI_API_BASE_URL = PersistentConfig(
-    "IMAGES_OPENAI_API_BASE_URL",
-    "image_generation.openai.api_base_url",
-    os.getenv("IMAGES_OPENAI_API_BASE_URL", OPENAI_API_BASE_URL),
-)
-IMAGES_OPENAI_API_KEY = PersistentConfig(
-    "IMAGES_OPENAI_API_KEY",
-    "image_generation.openai.api_key",
-    os.getenv("IMAGES_OPENAI_API_KEY", OPENAI_API_KEY),
-)
-
-IMAGES_GEMINI_API_BASE_URL = PersistentConfig(
-    "IMAGES_GEMINI_API_BASE_URL",
-    "image_generation.gemini.api_base_url",
-    os.getenv("IMAGES_GEMINI_API_BASE_URL", GEMINI_API_BASE_URL),
-)
-IMAGES_GEMINI_API_KEY = PersistentConfig(
-    "IMAGES_GEMINI_API_KEY",
-    "image_generation.gemini.api_key",
-    os.getenv("IMAGES_GEMINI_API_KEY", GEMINI_API_KEY),
-)
-
-IMAGE_SIZE = PersistentConfig(
-    "IMAGE_SIZE", "image_generation.size", os.getenv("IMAGE_SIZE", "512x512")
-)
-
-IMAGE_STEPS = PersistentConfig(
-    "IMAGE_STEPS", "image_generation.steps", int(os.getenv("IMAGE_STEPS", 50))
-)
-
-IMAGE_GENERATION_MODEL = PersistentConfig(
-    "IMAGE_GENERATION_MODEL",
-    "image_generation.model",
-    os.getenv("IMAGE_GENERATION_MODEL", ""),
-)
-
-####################################
 # Audio
 ####################################
 
@@ -2589,143 +2144,4 @@ AUDIO_STT_AZURE_MAX_SPEAKERS = PersistentConfig(
     "AUDIO_STT_AZURE_MAX_SPEAKERS",
     "audio.stt.azure.max_speakers",
     os.getenv("AUDIO_STT_AZURE_MAX_SPEAKERS", ""),
-)
-
-AUDIO_TTS_OPENAI_API_BASE_URL = PersistentConfig(
-    "AUDIO_TTS_OPENAI_API_BASE_URL",
-    "audio.tts.openai.api_base_url",
-    os.getenv("AUDIO_TTS_OPENAI_API_BASE_URL", OPENAI_API_BASE_URL),
-)
-AUDIO_TTS_OPENAI_API_KEY = PersistentConfig(
-    "AUDIO_TTS_OPENAI_API_KEY",
-    "audio.tts.openai.api_key",
-    os.getenv("AUDIO_TTS_OPENAI_API_KEY", OPENAI_API_KEY),
-)
-
-AUDIO_TTS_API_KEY = PersistentConfig(
-    "AUDIO_TTS_API_KEY",
-    "audio.tts.api_key",
-    os.getenv("AUDIO_TTS_API_KEY", ""),
-)
-
-AUDIO_TTS_ENGINE = PersistentConfig(
-    "AUDIO_TTS_ENGINE",
-    "audio.tts.engine",
-    os.getenv("AUDIO_TTS_ENGINE", ""),
-)
-
-
-AUDIO_TTS_MODEL = PersistentConfig(
-    "AUDIO_TTS_MODEL",
-    "audio.tts.model",
-    os.getenv("AUDIO_TTS_MODEL", "tts-1"),  # OpenAI default model
-)
-
-AUDIO_TTS_VOICE = PersistentConfig(
-    "AUDIO_TTS_VOICE",
-    "audio.tts.voice",
-    os.getenv("AUDIO_TTS_VOICE", "alloy"),  # OpenAI default voice
-)
-
-AUDIO_TTS_SPLIT_ON = PersistentConfig(
-    "AUDIO_TTS_SPLIT_ON",
-    "audio.tts.split_on",
-    os.getenv("AUDIO_TTS_SPLIT_ON", "punctuation"),
-)
-
-AUDIO_TTS_AZURE_SPEECH_REGION = PersistentConfig(
-    "AUDIO_TTS_AZURE_SPEECH_REGION",
-    "audio.tts.azure.speech_region",
-    os.getenv("AUDIO_TTS_AZURE_SPEECH_REGION", ""),
-)
-
-AUDIO_TTS_AZURE_SPEECH_BASE_URL = PersistentConfig(
-    "AUDIO_TTS_AZURE_SPEECH_BASE_URL",
-    "audio.tts.azure.speech_base_url",
-    os.getenv("AUDIO_TTS_AZURE_SPEECH_BASE_URL", ""),
-)
-
-AUDIO_TTS_AZURE_SPEECH_OUTPUT_FORMAT = PersistentConfig(
-    "AUDIO_TTS_AZURE_SPEECH_OUTPUT_FORMAT",
-    "audio.tts.azure.speech_output_format",
-    os.getenv(
-        "AUDIO_TTS_AZURE_SPEECH_OUTPUT_FORMAT", "audio-24khz-160kbitrate-mono-mp3"
-    ),
-)
-
-
-####################################
-# LDAP
-####################################
-
-ENABLE_LDAP = PersistentConfig(
-    "ENABLE_LDAP",
-    "ldap.enable",
-    os.environ.get("ENABLE_LDAP", "false").lower() == "true",
-)
-
-LDAP_SERVER_LABEL = PersistentConfig(
-    "LDAP_SERVER_LABEL",
-    "ldap.server.label",
-    os.environ.get("LDAP_SERVER_LABEL", "LDAP Server"),
-)
-
-LDAP_SERVER_HOST = PersistentConfig(
-    "LDAP_SERVER_HOST",
-    "ldap.server.host",
-    os.environ.get("LDAP_SERVER_HOST", "localhost"),
-)
-
-LDAP_SERVER_PORT = PersistentConfig(
-    "LDAP_SERVER_PORT",
-    "ldap.server.port",
-    int(os.environ.get("LDAP_SERVER_PORT", "389")),
-)
-
-LDAP_ATTRIBUTE_FOR_MAIL = PersistentConfig(
-    "LDAP_ATTRIBUTE_FOR_MAIL",
-    "ldap.server.attribute_for_mail",
-    os.environ.get("LDAP_ATTRIBUTE_FOR_MAIL", "mail"),
-)
-
-LDAP_ATTRIBUTE_FOR_USERNAME = PersistentConfig(
-    "LDAP_ATTRIBUTE_FOR_USERNAME",
-    "ldap.server.attribute_for_username",
-    os.environ.get("LDAP_ATTRIBUTE_FOR_USERNAME", "uid"),
-)
-
-LDAP_APP_DN = PersistentConfig(
-    "LDAP_APP_DN", "ldap.server.app_dn", os.environ.get("LDAP_APP_DN", "")
-)
-
-LDAP_APP_PASSWORD = PersistentConfig(
-    "LDAP_APP_PASSWORD",
-    "ldap.server.app_password",
-    os.environ.get("LDAP_APP_PASSWORD", ""),
-)
-
-LDAP_SEARCH_BASE = PersistentConfig(
-    "LDAP_SEARCH_BASE", "ldap.server.users_dn", os.environ.get("LDAP_SEARCH_BASE", "")
-)
-
-LDAP_SEARCH_FILTERS = PersistentConfig(
-    "LDAP_SEARCH_FILTER",
-    "ldap.server.search_filter",
-    os.environ.get("LDAP_SEARCH_FILTER", os.environ.get("LDAP_SEARCH_FILTERS", "")),
-)
-
-LDAP_USE_TLS = PersistentConfig(
-    "LDAP_USE_TLS",
-    "ldap.server.use_tls",
-    os.environ.get("LDAP_USE_TLS", "True").lower() == "true",
-)
-
-LDAP_CA_CERT_FILE = PersistentConfig(
-    "LDAP_CA_CERT_FILE",
-    "ldap.server.ca_cert_file",
-    os.environ.get("LDAP_CA_CERT_FILE", ""),
-)
-
-LDAP_CIPHERS = PersistentConfig(
-    "LDAP_CIPHERS", "ldap.server.ciphers", os.environ.get("LDAP_CIPHERS", "ALL")
 )

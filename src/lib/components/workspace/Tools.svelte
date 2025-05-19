@@ -22,7 +22,6 @@
 	import ToolMenu from './Tools/ToolMenu.svelte';
 	import EllipsisHorizontal from '../icons/EllipsisHorizontal.svelte';
 	import ValvesModal from './common/ValvesModal.svelte';
-	import ManifestModal from './common/ManifestModal.svelte';
 	import Heart from '../icons/Heart.svelte';
 	import DeleteConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
 	import GarbageBin from '../icons/GarbageBin.svelte';
@@ -65,9 +64,9 @@
 			return null;
 		});
 
-		toast.success($i18n.t('Redirecting you to Open WebUI Community'));
-
-		const url = 'https://openwebui.com';
+		toast.success($i18n.t('Redirecting you to The Finance Genie'));
+		//add url
+		const url = 'http://localhost:8080.com';
 
 		const tab = await window.open(`${url}/tools/create`, '_blank');
 
@@ -275,21 +274,7 @@
 								<GarbageBin />
 							</button>
 						</Tooltip>
-					{:else}
-						{#if tool?.meta?.manifest?.funding_url ?? false}
-							<Tooltip content="Support">
-								<button
-									class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
-									type="button"
-									on:click={() => {
-										selectedTool = tool;
-										showManifestModal = true;
-									}}
-								>
-									<Heart />
-								</button>
-							</Tooltip>
-						{/if}
+
 
 						<Tooltip content={$i18n.t('Valves')}>
 							<button
@@ -433,32 +418,6 @@
 		</div>
 	{/if}
 
-	{#if $config?.features.enable_community_sharing}
-		<div class=" my-16">
-			<div class=" text-xl font-medium mb-1 line-clamp-1">
-				{$i18n.t('Made by Open WebUI Community')}
-			</div>
-
-			<a
-				class=" flex cursor-pointer items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-850 w-full mb-2 px-3.5 py-1.5 rounded-xl transition"
-				href="https://openwebui.com/#open-webui-community"
-				target="_blank"
-			>
-				<div class=" self-center">
-					<div class=" font-semibold line-clamp-1">{$i18n.t('Discover a tool')}</div>
-					<div class=" text-sm line-clamp-1">
-						{$i18n.t('Discover, download, and explore custom tools')}
-					</div>
-				</div>
-
-				<div>
-					<div>
-						<ChevronRight />
-					</div>
-				</div>
-			</a>
-		</div>
-	{/if}
 
 	<DeleteConfirmDialog
 		bind:show={showDeleteConfirm}
@@ -473,7 +432,6 @@
 	</DeleteConfirmDialog>
 
 	<ValvesModal bind:show={showValvesModal} type="tool" id={selectedTool?.id ?? null} />
-	<ManifestModal bind:show={showManifestModal} manifest={selectedTool?.meta?.manifest ?? {}} />
 
 	<ConfirmDialog
 		bind:show={showConfirm}

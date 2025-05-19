@@ -4,7 +4,7 @@
 	const i18n = getContext('i18n');
 	const dispatch = createEventDispatcher();
 
-	import { chatId, settings, showArtifacts, showControls } from '$lib/stores';
+	import { chatId, settings, showControls } from '$lib/stores';
 	import XMark from '../icons/XMark.svelte';
 	import { copyToClipboard, createMessagesList } from '$lib/utils';
 	import ArrowsPointingOut from '../icons/ArrowsPointingOut.svelte';
@@ -122,7 +122,6 @@
 
 		if (contents.length === 0) {
 			showControls.set(false);
-			showArtifacts.set(false);
 		}
 
 		selectedContentIdx = contents ? contents.length - 1 : 0;
@@ -189,14 +188,6 @@
 			<div
 				class="pointer-events-auto z-20 flex justify-between items-center p-2.5 font-primar text-gray-900 dark:text-white"
 			>
-				<button
-					class="self-center pointer-events-auto p-1 rounded-full bg-white dark:bg-gray-850"
-					on:click={() => {
-						showArtifacts.set(false);
-					}}
-				>
-					<ArrowLeft className="size-3.5  text-gray-900 dark:text-white" />
-				</button>
 
 				<div class="flex-1 flex items-center justify-between">
 					<div class="flex items-center space-x-2">
@@ -282,8 +273,6 @@
 					class="self-center pointer-events-auto p-1 rounded-full bg-white dark:bg-gray-850"
 					on:click={() => {
 						dispatch('close');
-						showControls.set(false);
-						showArtifacts.set(false);
 					}}
 				>
 					<XMark className="size-3.5 text-gray-900 dark:text-white" />

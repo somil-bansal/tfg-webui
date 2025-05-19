@@ -41,7 +41,6 @@ export const shortCodesToEmojis = writable(
 	}, {})
 );
 
-export const TTSWorker = writable(null);
 
 export const chatId = writable('');
 export const chatTitle = writable('');
@@ -70,9 +69,6 @@ export const showArchivedChats = writable(false);
 export const showChangelog = writable(false);
 
 export const showControls = writable(false);
-export const showOverview = writable(false);
-export const showArtifacts = writable(false);
-export const showCallOverlay = writable(false);
 
 export const temporaryChatEnabled = writable(false);
 export const scrollPaginationEnabled = writable(false);
@@ -136,7 +132,6 @@ type Settings = {
 	conversationMode?: boolean;
 	speechAutoSend?: boolean;
 	responseAutoPlayback?: boolean;
-	audio?: AudioSettings;
 	showUsername?: boolean;
 	notificationEnabled?: boolean;
 	title?: TitleSettings;
@@ -160,14 +155,6 @@ type Settings = {
 
 type ModelOptions = {
 	stop?: boolean;
-};
-
-type AudioSettings = {
-	STTEngine?: string;
-	TTSEngine?: string;
-	speaker?: string;
-	model?: string;
-	nonLocalVoices?: boolean;
 };
 
 type TitleSettings = {
@@ -203,15 +190,10 @@ type Config = {
 		auth: boolean;
 		auth_trusted_header: boolean;
 		enable_api_key: boolean;
-		enable_signup: boolean;
 		enable_login_form: boolean;
 		enable_web_search?: boolean;
-		enable_google_drive_integration: boolean;
-		enable_onedrive_integration: boolean;
-		enable_image_generation: boolean;
 		enable_admin_export: boolean;
 		enable_admin_chat_access: boolean;
-		enable_community_sharing: boolean;
 		enable_autocomplete_generation: boolean;
 	};
 	oauth: {

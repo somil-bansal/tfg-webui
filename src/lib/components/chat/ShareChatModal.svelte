@@ -30,8 +30,8 @@
 		const _chat = chat.chat;
 		console.log('share', _chat);
 
-		toast.success($i18n.t('Redirecting you to Open WebUI Community'));
-		const url = 'https://openwebui.com';
+		toast.success($i18n.t('Redirecting you to The Finance Genie'));
+		const url = 'http://localhost:8080.com';
 		// const url = 'http://localhost:5173';
 
 		const tab = await window.open(`${url}/chats/upload`, '_blank');
@@ -129,72 +129,6 @@
 							"Messages you send after creating your link won't be shared. Users with the URL will be able to view the shared chat."
 						)}
 					{/if}
-				</div>
-
-				<div class="flex justify-end">
-					<div class="flex flex-col items-end space-x-1 mt-3">
-						<div class="flex gap-1">
-							{#if $config?.features.enable_community_sharing}
-								<button
-									class="self-center flex items-center gap-1 px-3.5 py-2 text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-850 dark:text-white dark:hover:bg-gray-800 transition rounded-full"
-									type="button"
-									on:click={() => {
-										shareChat();
-										show = false;
-									}}
-								>
-									{$i18n.t('Share to Open WebUI Community')}
-								</button>
-							{/if}
-
-							<button
-								class="self-center flex items-center gap-1 px-3.5 py-2 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
-								type="button"
-								id="copy-and-share-chat-button"
-								on:click={async () => {
-									const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-
-									if (isSafari) {
-										// Oh, Safari, you're so special, let's give you some extra love and attention
-										console.log('isSafari');
-
-										const getUrlPromise = async () => {
-											const url = await shareLocalChat();
-											return new Blob([url], { type: 'text/plain' });
-										};
-
-										navigator.clipboard
-											.write([
-												new ClipboardItem({
-													'text/plain': getUrlPromise()
-												})
-											])
-											.then(() => {
-												console.log('Async: Copying to clipboard was successful!');
-												return true;
-											})
-											.catch((error) => {
-												console.error('Async: Could not copy text: ', error);
-												return false;
-											});
-									} else {
-										copyToClipboard(await shareLocalChat());
-									}
-
-									toast.success($i18n.t('Copied shared chat URL to clipboard!'));
-									show = false;
-								}}
-							>
-								<Link />
-
-								{#if chat.share_id}
-									{$i18n.t('Update and Copy Link')}
-								{:else}
-									{$i18n.t('Copy Link')}
-								{/if}
-							</button>
-						</div>
-					</div>
 				</div>
 			</div>
 		{/if}

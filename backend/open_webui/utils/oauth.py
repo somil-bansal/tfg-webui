@@ -220,7 +220,7 @@ class OAuthManager:
         log.debug(f"User oauth groups: {user_oauth_groups}")
         log.debug(f"User's current groups: {[g.name for g in user_current_groups]}")
         log.debug(
-            f"All groups available in OpenWebUI: {[g.name for g in all_available_groups]}"
+            f"All groups available in TFG: {[g.name for g in all_available_groups]}"
         )
 
         # Remove groups that user is no longer a part of
@@ -521,15 +521,6 @@ class OAuthManager:
             secure=WEBUI_AUTH_COOKIE_SECURE,
         )
 
-        if ENABLE_OAUTH_SIGNUP.value:
-            oauth_id_token = token.get("id_token")
-            response.set_cookie(
-                key="oauth_id_token",
-                value=oauth_id_token,
-                httponly=True,
-                samesite=WEBUI_AUTH_COOKIE_SAME_SITE,
-                secure=WEBUI_AUTH_COOKIE_SECURE,
-            )
         # Redirect back to the frontend with the JWT token
         redirect_url = f"{request.base_url}auth#token={jwt_token}"
         return RedirectResponse(url=redirect_url, headers=response.headers)

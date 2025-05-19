@@ -13,7 +13,7 @@
 	import { getContext, onMount } from 'svelte';
 	const i18n = getContext<Writable<i18nType>>('i18n');
 
-	import { settings, user, shortCodesToEmojis } from '$lib/stores';
+	import { settings, user } from '$lib/stores';
 
 	import { WEBUI_BASE_URL } from '$lib/constants';
 
@@ -273,21 +273,7 @@
 												onReaction(reaction.name);
 											}}
 										>
-											{#if $shortCodesToEmojis[reaction.name]}
-												<img
-													src="/assets/emojis/{$shortCodesToEmojis[
-														reaction.name
-													].toLowerCase()}.svg"
-													alt={reaction.name}
-													class=" size-4"
-													loading="lazy"
-												/>
-											{:else}
-												<div>
-													{reaction.name}
-												</div>
-											{/if}
-
+												{reaction.name}
 											{#if reaction.user_ids.length > 0}
 												<div class="text-xs font-medium text-gray-500 dark:text-gray-400">
 													{reaction.user_ids?.length}

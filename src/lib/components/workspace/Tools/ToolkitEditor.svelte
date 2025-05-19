@@ -123,7 +123,7 @@ class Tools:
         Get the current weather for a given city.
         """
 
-        api_key = os.getenv("OPENWEATHER_API_KEY")
+        api_key = os.getenv("TFG_KEY")
         if not api_key:
             return (
                 "API key is not set in the environment variable 'OPENWEATHER_API_KEY'."

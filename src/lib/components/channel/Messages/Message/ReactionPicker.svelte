@@ -83,13 +83,6 @@
 			emojiRows.push(currentRow); // Push the final row
 		}
 	}
-	const ROW_HEIGHT = 48; // Approximate height for a row with multiple emojis
-	// Handle emoji selection
-	function selectEmoji(emoji) {
-		const selectedCode = emoji.shortCodes[0];
-		onSubmit(selectedCode);
-		show = false;
-	}
 </script>
 
 <DropdownMenu.Root
@@ -120,47 +113,6 @@
 				placeholder="Search all emojis"
 				bind:value={search}
 			/>
-		</div>
-		<!-- Virtualized Emoji List -->
-		<div class="w-full flex justify-start h-96 overflow-y-auto px-3 pb-3 text-sm">
-			{#if emojiRows.length === 0}
-				<div class="text-center text-xs text-gray-500 dark:text-gray-400">No results</div>
-			{:else}
-				<div class="w-full flex ml-0.5">
-					<VirtualList rowHeight={ROW_HEIGHT} items={emojiRows} height={384} let:item>
-						<div class="w-full">
-							{#if item.length === 1 && item[0].type === 'group'}
-								<!-- Render group header -->
-								<div class="text-xs font-medium mb-2 text-gray-500 dark:text-gray-400">
-									{item[0].label}
-								</div>
-							{:else}
-								<!-- Render emojis in a row -->
-								<div class="flex items-center gap-1.5 w-full">
-									{#each item as emojiItem}
-										<Tooltip
-											content={emojiItem.shortCodes.map((code) => `:${code}:`).join(', ')}
-											placement="top"
-										>
-											<button
-												class="p-1.5 rounded-lg cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition"
-												on:click={() => selectEmoji(emojiItem)}
-											>
-												<img
-													src="/assets/emojis/{emojiItem.name.toLowerCase()}.svg"
-													alt={emojiItem.name}
-													class="size-5"
-													loading="lazy"
-												/>
-											</button>
-										</Tooltip>
-									{/each}
-								</div>
-							{/if}
-						</div>
-					</VirtualList>
-				</div>
-			{/if}
 		</div>
 	</DropdownMenu.Content>
 </DropdownMenu.Root>

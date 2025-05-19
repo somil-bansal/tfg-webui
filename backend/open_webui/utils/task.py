@@ -243,22 +243,6 @@ def image_prompt_generation_template(
     return template
 
 
-def emoji_generation_template(
-    template: str, prompt: str, user: Optional[dict] = None
-) -> str:
-    template = replace_prompt_variable(template, prompt)
-    template = prompt_template(
-        template,
-        **(
-            {"user_name": user.get("name"), "user_location": user.get("location")}
-            if user
-            else {}
-        ),
-    )
-
-    return template
-
-
 def autocomplete_generation_template(
     template: str,
     prompt: str,

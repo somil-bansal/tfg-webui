@@ -36,7 +36,6 @@ from open_webui.routers.tasks import (
     generate_chat_tags,
 )
 from open_webui.routers.retrieval import process_web_search, SearchForm
-from open_webui.routers.images import image_generations, GenerateImageForm
 from open_webui.routers.pipelines import (
     process_pipeline_inlet_filter,
     process_pipeline_outlet_filter,
@@ -442,107 +441,6 @@ async def chat_web_search_handler(
     return form_data
 
 
-async def chat_image_generation_handler(
-    request: Request, form_data: dict, extra_params: dict, user
-):
-    __event_emitter__ = extra_params["__event_emitter__"]
-    await __event_emitter__(
-        {
-            "type": "status",
-            "data": {"description": "Generating an image", "done": False},
-        }
-    )
-
-    messages = form_data["messages"]
-    user_message = get_last_user_message(messages)
-
-    prompt = user_message
-    negative_prompt = ""
-
-    if request.app.state.config.ENABLE_IMAGE_PROMPT_GENERATION:
-        try:
-            res = await generate_image_prompt(
-                request,
-                {
-                    "model": form_data["model"],
-                    "messages": messages,
-                },
-                user,
-            )
-
-            response = res["choices"][0]["message"]["content"]
-
-            try:
-                bracket_start = response.find("{")
-                bracket_end = response.rfind("}") + 1
-
-                if bracket_start == -1 or bracket_end == -1:
-                    raise Exception("No JSON object found in the response")
-
-                response = response[bracket_start:bracket_end]
-                response = json.loads(response)
-                prompt = response.get("prompt", [])
-            except Exception as e:
-                prompt = user_message
-
-        except Exception as e:
-            log.exception(e)
-            prompt = user_message
-
-    system_message_content = ""
-
-    try:
-        images = await image_generations(
-            request=request,
-            form_data=GenerateImageForm(**{"prompt": prompt}),
-            user=user,
-        )
-
-        await __event_emitter__(
-            {
-                "type": "status",
-                "data": {"description": "Generated an image", "done": True},
-            }
-        )
-
-        await __event_emitter__(
-            {
-                "type": "files",
-                "data": {
-                    "files": [
-                        {
-                            "type": "image",
-                            "url": image["url"],
-                        }
-                        for image in images
-                    ]
-                },
-            }
-        )
-
-        system_message_content = "<context>User is shown the generated image, tell the user that the image has been generated</context>"
-    except Exception as e:
-        log.exception(e)
-        await __event_emitter__(
-            {
-                "type": "status",
-                "data": {
-                    "description": f"An error occurred while generating an image",
-                    "done": True,
-                },
-            }
-        )
-
-        system_message_content = "<context>Unable to generate an image, tell the user that an error occurred</context>"
-
-    if system_message_content:
-        form_data["messages"] = add_or_update_system_message(
-            system_message_content, form_data["messages"]
-        )
-
-    return form_data
-
-
 async def chat_completion_files_handler(
     request: Request, body: dict, user: UserModel
 ) -> tuple[dict, dict[str, list]]:
@@ -771,10 +669,6 @@ async def process_chat_payload(request, form_data, user, metadata, model):
                 request, form_data, extra_params, user
             )
 
-        if "image_generation" in features and features["image_generation"]:
-            form_data = await chat_image_generation_handler(
-                request, form_data, extra_params, user
-            )
 
         if "code_interpreter" in features and features["code_interpreter"]:
             form_data["messages"] = add_or_update_user_message(

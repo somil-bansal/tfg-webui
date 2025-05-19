@@ -34,7 +34,6 @@
 	export let files = [];
 
 	export let selectedToolIds = [];
-	export let imageGenerationEnabled = false;
 	export let codeInterpreterEnabled = false;
 	export let webSearchEnabled = false;
 
@@ -169,7 +168,7 @@
 								By
 								{#if models[selectedModelIdx]?.info?.meta?.user.community}
 									<a
-										href="https://openwebui.com/m/{models[selectedModelIdx]?.info?.meta?.user
+										href="http://localhost:8080.com/m/{models[selectedModelIdx]?.info?.meta?.user
 											.username}"
 										>{models[selectedModelIdx]?.info?.meta?.user.name
 											? models[selectedModelIdx]?.info?.meta?.user.name
@@ -192,7 +191,6 @@
 					bind:prompt
 					bind:autoScroll
 					bind:selectedToolIds
-					bind:imageGenerationEnabled
 					bind:codeInterpreterEnabled
 					bind:webSearchEnabled
 					bind:atSelectedModel

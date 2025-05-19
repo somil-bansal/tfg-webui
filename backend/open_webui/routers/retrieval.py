@@ -371,9 +371,6 @@ async def get_rag_config(request: Request, user=Depends(get_admin_user)):
         # File upload settings
         "FILE_MAX_SIZE": request.app.state.config.FILE_MAX_SIZE,
         "FILE_MAX_COUNT": request.app.state.config.FILE_MAX_COUNT,
-        # Integration settings
-        "ENABLE_GOOGLE_DRIVE_INTEGRATION": request.app.state.config.ENABLE_GOOGLE_DRIVE_INTEGRATION,
-        "ENABLE_ONEDRIVE_INTEGRATION": request.app.state.config.ENABLE_ONEDRIVE_INTEGRATION,
         # Web search settings
         "web": {
             "ENABLE_WEB_SEARCH": request.app.state.config.ENABLE_WEB_SEARCH,
@@ -514,11 +511,6 @@ class ConfigForm(BaseModel):
     # File upload settings
     FILE_MAX_SIZE: Optional[int] = None
     FILE_MAX_COUNT: Optional[int] = None
-
-    # Integration settings
-    ENABLE_GOOGLE_DRIVE_INTEGRATION: Optional[bool] = None
-    ENABLE_ONEDRIVE_INTEGRATION: Optional[bool] = None
-
     # Web search settings
     web: Optional[WebConfig] = None
 
@@ -689,18 +681,6 @@ async def update_rag_config(
         else request.app.state.config.FILE_MAX_COUNT
     )
 
-    # Integration settings
-    request.app.state.config.ENABLE_GOOGLE_DRIVE_INTEGRATION = (
-        form_data.ENABLE_GOOGLE_DRIVE_INTEGRATION
-        if form_data.ENABLE_GOOGLE_DRIVE_INTEGRATION is not None
-        else request.app.state.config.ENABLE_GOOGLE_DRIVE_INTEGRATION
-    )
-    request.app.state.config.ENABLE_ONEDRIVE_INTEGRATION = (
-        form_data.ENABLE_ONEDRIVE_INTEGRATION
-        if form_data.ENABLE_ONEDRIVE_INTEGRATION is not None
-        else request.app.state.config.ENABLE_ONEDRIVE_INTEGRATION
-    )
-
     if form_data.web is not None:
         # Web search settings
         request.app.state.config.ENABLE_WEB_SEARCH = form_data.web.ENABLE_WEB_SEARCH
@@ -827,11 +807,7 @@ async def update_rag_config(
         "CHUNK_OVERLAP": request.app.state.config.CHUNK_OVERLAP,
         # File upload settings
         "FILE_MAX_SIZE": request.app.state.config.FILE_MAX_SIZE,
-        "FILE_MAX_COUNT": request.app.state.config.FILE_MAX_COUNT,
-        # Integration settings
-        "ENABLE_GOOGLE_DRIVE_INTEGRATION": request.app.state.config.ENABLE_GOOGLE_DRIVE_INTEGRATION,
-        "ENABLE_ONEDRIVE_INTEGRATION": request.app.state.config.ENABLE_ONEDRIVE_INTEGRATION,
-        # Web search settings
+        "FILE_MAX_COUNT": request.app.state.config.FILE_MAX_COUNT,        # Web search settings
         "web": {
             "ENABLE_WEB_SEARCH": request.app.state.config.ENABLE_WEB_SEARCH,
             "WEB_SEARCH_ENGINE": request.app.state.config.WEB_SEARCH_ENGINE,

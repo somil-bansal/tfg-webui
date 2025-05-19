@@ -27,8 +27,6 @@
 			share: true,
 			export: true,
 			stt: true,
-			tts: true,
-			call: true,
 			multiple_models: true,
 			temporary: true,
 			temporary_enforced: false
@@ -36,7 +34,6 @@
 		features: {
 			direct_tool_servers: false,
 			web_search: true,
-			image_generation: true,
 			code_interpreter: true,
 			notes: true
 		}
@@ -302,21 +299,6 @@
 
 			<Switch bind:state={permissions.chat.stt} />
 		</div>
-		<div class="  flex w-full justify-between my-2 pr-2">
-			<div class=" self-center text-xs font-medium">
-				{$i18n.t('Allow Text to Speech')}
-			</div>
-
-			<Switch bind:state={permissions.chat.tts} />
-		</div>
-
-		<div class="  flex w-full justify-between my-2 pr-2">
-			<div class=" self-center text-xs font-medium">
-				{$i18n.t('Allow Call')}
-			</div>
-
-			<Switch bind:state={permissions.chat.call} />
-		</div>
 
 		<div class="  flex w-full justify-between my-2 pr-2">
 			<div class=" self-center text-xs font-medium">
@@ -364,14 +346,6 @@
 			</div>
 
 			<Switch bind:state={permissions.features.web_search} />
-		</div>
-
-		<div class="  flex w-full justify-between my-2 pr-2">
-			<div class=" self-center text-xs font-medium">
-				{$i18n.t('Image Generation')}
-			</div>
-
-			<Switch bind:state={permissions.features.image_generation} />
 		</div>
 
 		<div class="  flex w-full justify-between my-2 pr-2">

@@ -28,13 +28,10 @@
 		user,
 		socket,
 		showControls,
-		showCallOverlay,
 		currentChatPage,
 		temporaryChatEnabled,
 		mobile,
-		showOverview,
 		chatTitle,
-		showArtifacts,
 		tools,
 		toolServers
 	} from '$lib/stores';
@@ -119,7 +116,6 @@
 	$: selectedModelIds = atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels;
 
 	let selectedToolIds = [];
-	let imageGenerationEnabled = false;
 	let webSearchEnabled = false;
 	let codeInterpreterEnabled = false;
 
@@ -147,7 +143,6 @@
 			files = [];
 			selectedToolIds = [];
 			webSearchEnabled = false;
-			imageGenerationEnabled = false;
 
 			if (localStorage.getItem(`chat-input${chatIdProp ? `-${chatIdProp}` : ''}`)) {
 				try {
@@ -160,7 +155,6 @@
 						files = input.files;
 						selectedToolIds = input.selectedToolIds;
 						webSearchEnabled = input.webSearchEnabled;
-						imageGenerationEnabled = input.imageGenerationEnabled;
 						codeInterpreterEnabled = input.codeInterpreterEnabled;
 					}
 				} catch (e) {}
@@ -425,7 +419,6 @@
 			files = [];
 			selectedToolIds = [];
 			webSearchEnabled = false;
-			imageGenerationEnabled = false;
 			codeInterpreterEnabled = false;
 
 			try {
@@ -438,7 +431,6 @@
 					files = input.files;
 					selectedToolIds = input.selectedToolIds;
 					webSearchEnabled = input.webSearchEnabled;
-					imageGenerationEnabled = input.imageGenerationEnabled;
 					codeInterpreterEnabled = input.codeInterpreterEnabled;
 				}
 			} catch (e) {}
@@ -463,9 +455,6 @@
 			}
 
 			if (!value) {
-				showCallOverlay.set(false);
-				showOverview.set(false);
-				showArtifacts.set(false);
 			}
 		});
 
@@ -483,119 +472,6 @@
 
 	// File upload functions
 
-	const uploadGoogleDriveFile = async (fileData) => {
-		console.log('Starting uploadGoogleDriveFile with:', {
-			id: fileData.id,
-			name: fileData.name,
-			url: fileData.url,
-			headers: {
-				Authorization: `Bearer ${token}`
-			}
-		});
-
-		// Validate input
-		if (!fileData?.id || !fileData?.name || !fileData?.url || !fileData?.headers?.Authorization) {
-			throw new Error('Invalid file data provided');
-		}
-
-		const tempItemId = uuidv4();
-		const fileItem = {
-			type: 'file',
-			file: '',
-			id: null,
-			url: fileData.url,
-			name: fileData.name,
-			collection_name: '',
-			status: 'uploading',
-			error: '',
-			itemId: tempItemId,
-			size: 0
-		};
-
-		try {
-			files = [...files, fileItem];
-			console.log('Processing web file with URL:', fileData.url);
-
-			// Configure fetch options with proper headers
-			const fetchOptions = {
-				headers: {
-					Authorization: fileData.headers.Authorization,
-					Accept: '*/*'
-				},
-				method: 'GET'
-			};
-
-			// Attempt to fetch the file
-			console.log('Fetching file content from Google Drive...');
-			const fileResponse = await fetch(fileData.url, fetchOptions);
-
-			if (!fileResponse.ok) {
-				const errorText = await fileResponse.text();
-				throw new Error(`Failed to fetch file (${fileResponse.status}): ${errorText}`);
-			}
-
-			// Get content type from response
-			const contentType = fileResponse.headers.get('content-type') || 'application/octet-stream';
-			console.log('Response received with content-type:', contentType);
-
-			// Convert response to blob
-			console.log('Converting response to blob...');
-			const fileBlob = await fileResponse.blob();
-
-			if (fileBlob.size === 0) {
-				throw new Error('Retrieved file is empty');
-			}
-
-			console.log('Blob created:', {
-				size: fileBlob.size,
-				type: fileBlob.type || contentType
-			});
-
-			// Create File object with proper MIME type
-			const file = new File([fileBlob], fileData.name, {
-				type: fileBlob.type || contentType
-			});
-
-			console.log('File object created:', {
-				name: file.name,
-				size: file.size,
-				type: file.type
-			});
-
-			if (file.size === 0) {
-				throw new Error('Created file is empty');
-			}
-
-			// Upload file to server
-			console.log('Uploading file to server...');
-			const uploadedFile = await uploadFile(localStorage.token, file);
-
-			if (!uploadedFile) {
-				throw new Error('Server returned null response for file upload');
-			}
-
-			console.log('File uploaded successfully:', uploadedFile);
-
-			// Update file item with upload results
-			fileItem.status = 'uploaded';
-			fileItem.file = uploadedFile;
-			fileItem.id = uploadedFile.id;
-			fileItem.size = file.size;
-			fileItem.collection_name = uploadedFile?.meta?.collection_name;
-			fileItem.url = `${WEBUI_API_BASE_URL}/files/${uploadedFile.id}`;
-
-			files = files;
-			toast.success($i18n.t('File uploaded successfully'));
-		} catch (e) {
-			console.error('Error uploading file:', e);
-			files = files.filter((f) => f.itemId !== tempItemId);
-			toast.error(
-				$i18n.t('Error uploading file: {{error}}', {
-					error: e.message || 'Unknown error'
-				})
-			);
-		}
-	};
 
 	const uploadWeb = async (url) => {
 		console.log(url);
@@ -718,9 +594,6 @@
 		}
 
 		await showControls.set(false);
-		await showCallOverlay.set(false);
-		await showOverview.set(false);
-		await showArtifacts.set(false);
 
 		if ($page.url.pathname.includes('/c/')) {
 			window.history.replaceState(history.state, '', `/`);
@@ -749,7 +622,6 @@
 		}
 
 		if ($page.url.searchParams.get('image-generation') === 'true') {
-			imageGenerationEnabled = true;
 		}
 
 		if ($page.url.searchParams.get('tools')) {
@@ -767,7 +639,6 @@
 		}
 
 		if ($page.url.searchParams.get('call') === 'true') {
-			showCallOverlay.set(true);
 			showControls.set(true);
 		}
 
@@ -1217,10 +1088,7 @@
 				copyToClipboard(message.content);
 			}
 
-			if ($settings.responseAutoPlayback && !$showCallOverlay) {
-				await tick();
-				document.getElementById(`speak-button-${message.id}`)?.click();
-			}
+
 
 			// Emit chat event for TTS
 			let lastMessageContentPart =
@@ -1621,11 +1489,6 @@
 				tool_servers: $toolServers,
 
 				features: {
-					image_generation:
-						$config?.features?.enable_image_generation &&
-						($user?.role === 'admin' || $user?.permissions?.features?.image_generation)
-							? imageGenerationEnabled
-							: false,
 					code_interpreter:
 						$config?.features?.enable_code_interpreter &&
 						($user?.role === 'admin' || $user?.permissions?.features?.code_interpreter)
@@ -2058,7 +1921,6 @@
 								bind:prompt
 								bind:autoScroll
 								bind:selectedToolIds
-								bind:imageGenerationEnabled
 								bind:codeInterpreterEnabled
 								bind:webSearchEnabled
 								bind:atSelectedModel
@@ -2083,8 +1945,6 @@
 										await uploadWeb(data);
 									} else if (type === 'youtube') {
 										await uploadYoutubeTranscription(data);
-									} else if (type === 'google-drive') {
-										await uploadGoogleDriveFile(data);
 									}
 								}}
 								on:submit={async (e) => {
@@ -2114,7 +1974,6 @@
 								bind:prompt
 								bind:autoScroll
 								bind:selectedToolIds
-								bind:imageGenerationEnabled
 								bind:codeInterpreterEnabled
 								bind:webSearchEnabled
 								bind:atSelectedModel
